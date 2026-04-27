@@ -4,103 +4,560 @@
 
 By the end of this chapter you should be able to:
 
-- (TODO)
-- (TODO)
-- (TODO)
-- (TODO)
+- Fit ordinal regression with the proportional-odds
+  model and recognise when the proportional-odds
+  assumption is violated.
+- Fit multinomial regression for nominal categorical
+  outcomes and interpret the relative-risk-ratio
+  output.
+- Fit log-linear models for multi-way contingency
+  tables and use them for tests of independence and
+  conditional independence.
+- Apply exact methods (Fisher, conditional logistic
+  for matched data) when sample sizes are small or
+  cells sparse.
+- Compute and interpret agreement and reliability
+  measures (Cohen's kappa, weighted kappa, ICC) for
+  categorical data.
+- Evaluate diagnostic-test performance with
+  sensitivity, specificity, predictive values, and
+  ROC curves.
 
 ## Orientation
 
-(TODO: short prose framing — what the chapter is, why it
-matters, how it relates to the sibling volumes.)
+The introductory volume's GLM chapter covered
+logistic regression for binary outcomes. This chapter
+extends to the broader categorical-data toolkit:
+ordinal, multinomial, log-linear, exact methods,
+agreement, and diagnostic-test evaluation. The
+material is useful across clinical research,
+epidemiology, and outcomes research; this chapter
+makes it production-ready.
+
+The chapter is organised in four threads. **Beyond
+binary**: ordinal and multinomial regression.
+**Multi-way tables**: log-linear models, exact
+methods. **Agreement**: kappa, ICC. **Diagnostic
+tests**: sensitivity, specificity, predictive values,
+ROC.
 
 ## The statistician's contribution {#sec-categorical-human}
 
-(TODO: front-loaded section articulating the judgements at
-the centre of this chapter that no LLM can make on the
-reader's behalf.)
+Three judgements are not delegable.
 
-**(Judgement 1.)** TODO.
+**(Judgement 1.) Match the model to the outcome's
+structure.** A binary outcome is logistic. An ordinal
+outcome (low / medium / high) loses information when
+treated as binary or as numeric; ordinal regression
+is the right tool. A nominal outcome (red / green /
+blue) cannot be ordered; multinomial regression is
+the right tool. The biostatistician identifies the
+outcome's structure and chooses the model
+accordingly.
 
-**(Judgement 2.)** TODO.
+**(Judgement 2.) Test the proportional-odds
+assumption.** Ordinal regression assumes the
+covariate's effect is the same across all
+splits of the ordinal variable. The assumption is
+testable; the partial-proportional-odds and
+generalised-ordinal alternatives address violations.
+Skipping the test can produce misleading inference.
 
-**(Judgement 3.)** TODO.
+**(Judgement 3.) Sparse tables demand exact
+methods.** A 2x2 table with any expected count under
+5 is the textbook case for Fisher's exact. The
+chi-squared p-value is unreliable. Modern computing
+makes exact methods cheap; use them when the
+asymptotic approximation is suspect.
 
-These judgements are what distinguish an analysis that
-survives review from one that does not.
+These judgements distinguish a categorical-data
+analysis that respects the data's structure from one
+that loses information or trusts unreliable p-values.
 
-## (TODO: first content section)
+## Ordinal regression: the proportional-odds model
 
-(TODO)
+For an ordinal outcome with categories $1, 2, \ldots,
+K$, the proportional-odds model
+[@mccullagh1980regression]:
+$$
+\log \frac{\Pr(Y \le k)}{\Pr(Y > k)} =
+   \alpha_k + X^T \beta, \quad k = 1, \ldots, K-1.
+$$
+The $\alpha_k$ are category-specific intercepts; the
+$\beta$ is the same across categories — that is the
+proportional-odds (PO) assumption. The interpretation
+of $\beta_j$: a one-unit change in $X_j$ multiplies
+the cumulative odds (of being in category $\le k$ vs.
+$> k$) by $\exp(\beta_j)$, regardless of which $k$.
+
+Implementation:
+
+```r
+library(MASS)
+
+fit <- polr(disease_severity ~ age + sex + treatment,
+            data = trial, Hess = TRUE)
+summary(fit)
+exp(coef(fit))   # odds ratios
+```
+
+`Hess = TRUE` requests the Hessian, needed for
+standard errors.
+
+The `ordinal` package provides more flexibility
+(mixed effects, alternative link functions).
+
+### Testing proportional odds
+
+```r
+library(brant)
+brant(fit)   # Brant test for PO assumption
+```
+
+A significant Brant test indicates PO violation. Two
+responses:
+
+- **Partial proportional odds**: relax PO for the
+  violating covariates. Implemented in
+  `VGAM::vglm()`.
+- **Generalised ordinal regression** (alternative
+  parameterisations): allow effects to differ across
+  splits.
+
+For non-proportional ordinal data, multinomial
+regression is also an option (loses the ordering but
+fits the data).
+
+## Multinomial regression
+
+For a nominal outcome with $K$ categories, multinomial
+logistic regression models each category against a
+reference:
+$$
+\log \frac{\Pr(Y = k)}{\Pr(Y = K)} =
+   \alpha_k + X^T \beta_k, \quad k = 1, \ldots, K-1.
+$$
+
+Each non-reference category has its own coefficient
+vector $\beta_k$. The interpretation of $\exp(\beta_{kj})$:
+the relative risk of category $k$ vs. the reference,
+per unit change in $X_j$, holding others fixed.
+
+```r
+library(nnet)
+
+fit <- multinom(treatment_choice ~ age + sex +
+                  comorbidity, data = patients)
+summary(fit)
+exp(coef(fit))    # relative risk ratios
+```
+
+Multinomial output is harder to interpret than
+binary or ordinal because there are $K-1$ vectors of
+coefficients. The clearest reporting often uses
+predicted probabilities at specific covariate values
+rather than the coefficients themselves; the
+`marginaleffects` package handles this cleanly.
+
+## Log-linear models for multi-way tables
+
+When you have a multi-way contingency table (say,
+sex × treatment × outcome), the log-linear model
+parameterises the cell counts:
+$$
+\log \mu_{ijk} = \lambda + \lambda^A_i + \lambda^B_j +
+                  \lambda^C_k + \lambda^{AB}_{ij} +
+                  \lambda^{AC}_{ik} + \lambda^{BC}_{jk} +
+                  \lambda^{ABC}_{ijk}.
+$$
+Different combinations of the interaction terms
+correspond to different conditional-independence
+structures. For example:
+
+- All single terms only: complete independence.
+- All two-way interactions, no three-way:
+  conditional independence given pairs.
+
+```r
+library(MASS)
+
+tab <- table(patients$sex, patients$treatment,
+             patients$outcome)
+fit <- loglm(~ sex * treatment + treatment * outcome +
+                sex * outcome,
+             data = tab)
+summary(fit)
+```
+
+The model fits a structure (in this case, two-way
+interactions but no three-way), and the test is
+whether the data are consistent with that structure.
+
+Log-linear models generalise the chi-squared test of
+independence to more than two variables. For most
+applied work, the simpler logistic-regression
+formulation (with one variable as outcome) is more
+interpretable; log-linear models are the right tool
+when no variable is naturally the outcome.
+
+## Exact methods
+
+The chi-squared test approximates the sampling
+distribution of the test statistic under the null. The
+approximation is good when expected counts are large
+(textbook rule: all expected ≥ 5). For smaller tables
+or sparse cells, exact methods compute the
+distribution directly.
+
+**Fisher's exact test** for 2x2 tables:
+
+```r
+fisher.test(table(d$exposed, d$outcome))
+```
+
+The test conditions on the row and column margins and
+computes the exact p-value. For larger tables, the
+exact computation is slow but feasible with
+`fisher.test(..., simulate.p.value = TRUE)`.
+
+**Conditional logistic regression** for matched
+case-control studies (where matching is on a variable
+that would be a confounder):
+
+```r
+library(survival)
+
+fit_clogit <- clogit(case ~ exposure + age + strata(matched_set),
+                     data = matched_data)
+summary(fit_clogit)
+```
+
+The conditional likelihood eliminates the matched-set
+intercepts, providing valid inference when there are
+many matched sets.
+
+## Agreement and reliability
+
+When two raters classify the same items, **Cohen's
+kappa** measures agreement beyond chance:
+$$
+\kappa = \frac{p_o - p_e}{1 - p_e}
+$$
+where $p_o$ is the observed proportion of agreement
+and $p_e$ is the expected agreement under independence.
+Range: $-1$ to $1$. Conventional benchmarks:
+
+- 0.0–0.20: slight
+- 0.21–0.40: fair
+- 0.41–0.60: moderate
+- 0.61–0.80: substantial
+- 0.81–1.00: almost perfect
+
+```r
+library(irr)
+
+kappa2(cbind(rater1, rater2))
+```
+
+For ordinal scales, **weighted kappa** (linear or
+quadratic weights) gives more credit for near-
+agreements than far ones. Quadratic weighted kappa is
+the standard for ordinal data; on a 5-point scale it
+is approximately equivalent to the ICC for the same
+data.
+
+For continuous data, the **intraclass correlation
+coefficient (ICC)** is the analogous measure:
+
+```r
+library(psych)
+
+ICC(cbind(rater1, rater2))
+```
+
+The ICC has variants: ICC(1,1), ICC(2,1), ICC(3,1),
+each with single-rater or average-rater forms. The
+choice depends on whether raters are fixed or random
+and whether the analysis is reporting agreement of
+single ratings or means of multiple ratings.
+
+## Diagnostic-test evaluation
+
+For a binary diagnostic test:
+
+- **Sensitivity** = $\Pr(\text{positive} \mid \text{disease})$.
+  How often the test catches actual cases.
+- **Specificity** = $\Pr(\text{negative} \mid \text{healthy})$.
+  How often the test correctly rules out non-cases.
+- **Positive predictive value (PPV)** =
+  $\Pr(\text{disease} \mid \text{positive})$. Of those
+  testing positive, what fraction are actually
+  diseased.
+- **Negative predictive value (NPV)** =
+  $\Pr(\text{healthy} \mid \text{negative})$.
+
+PPV and NPV depend on disease prevalence; sensitivity
+and specificity do not. A test with 99% sensitivity
+and 99% specificity has poor PPV in a low-prevalence
+population (one false positive per true positive at
+1% prevalence).
+
+For a continuous test (a biomarker, a risk score), the
+**ROC curve** plots sensitivity vs. 1-specificity as
+the threshold varies. The **AUC** is the area under
+the curve; AUC = 0.5 is no better than chance,
+AUC = 1 is perfect.
+
+```r
+library(pROC)
+
+roc_obj <- roc(disease_status, biomarker_value)
+plot(roc_obj)
+auc(roc_obj)
+```
+
+Choose a threshold based on the application: maximise
+the Youden index (sensitivity + specificity - 1),
+constrain by required sensitivity, or weight by the
+costs of false positives and false negatives.
+
+For multiple tests, the **DeLong test** compares
+ROC curves:
+
+```r
+roc.test(roc1, roc2)
+```
 
 ::: {.callout-note icon=false collapse=true}
-## Check your understanding: TODO
+## Check your understanding: when prevalence matters
 
-**Question.** TODO.
+**Question.** A new screening test for a rare disease
+has 99% sensitivity and 95% specificity. Disease
+prevalence is 1 in 1000. What is the PPV?
 
 ::: {.content-visible when-format='html'}
 <details><summary>Answer</summary>
 :::
 
-TODO.
+Apply Bayes:
+$$
+\text{PPV} = \frac{\text{sens} \cdot \text{prev}}
+                  {\text{sens} \cdot \text{prev} +
+                   (1-\text{spec}) \cdot (1-\text{prev})}
+           = \frac{0.99 \cdot 0.001}
+                  {0.99 \cdot 0.001 + 0.05 \cdot 0.999}
+           = 0.0194.
+$$
+The PPV is just 1.94%. About 50 people test positive
+for every actual case. The test, despite excellent
+sensitivity and specificity, is not useful as a
+standalone screening tool in this population because
+the false-positive rate dominates the true-positive
+rate. This is why screening tests are often
+hierarchical (a sensitive first test followed by a
+specific confirmation) rather than single tests.
 
 ::: {.content-visible when-format='html'}
 </details>
 :::
 :::
 
-## (TODO: subsequent content sections)
+## Calibration of risk scores
 
-(TODO)
+Beyond discrimination (AUC), a risk score should be
+**calibrated**: the predicted probability should match
+the observed risk. A model that says '20% risk' for a
+group should produce 20% events in that group.
 
-## Worked example: TODO
+**Calibration plot**: deciles of predicted probability
+on the x-axis, observed event rate on the y-axis. The
+line should fall on the diagonal.
 
-(TODO: a concrete worked example, ideally biomedical, that
-exercises the chapter's tools end to end.)
+```r
+library(rms)
+
+cal <- val.prob(predicted_prob, actual_outcome,
+                pl = TRUE)
+```
+
+A model with high AUC but poor calibration is over- or
+under-confident; **recalibration** (Platt scaling,
+isotonic) corrects it.
+
+For a clinical decision-support tool that uses
+absolute risk thresholds (treat above 10%, do not
+treat below 5%), calibration is the binding constraint;
+discrimination alone is insufficient.
+
+## Worked example: a multi-faceted categorical analysis
+
+A study evaluates a new diagnostic test for a
+condition. The test has continuous output (a biomarker
+score). The reference standard is a definitive (but
+expensive) test. The analyst wants to:
+
+1. Compute sensitivity, specificity, PPV, NPV at a
+   chosen threshold.
+2. Plot the ROC curve and compute AUC.
+3. Compare to an existing test (DeLong test).
+4. Examine calibration of the new test as a risk
+   score.
+5. Conduct an inter-rater reliability analysis (two
+   technicians independently scoring the test).
+
+```r
+library(pROC)
+library(rms)
+library(irr)
+
+study <- read_csv("data/diagnostic-test.csv")
+
+# 1. Sensitivity, specificity, etc.
+predicted <- study$new_test_score > 50
+truth <- study$true_disease
+
+confusion <- table(predicted, truth)
+sens <- confusion[2,2] / sum(confusion[,2])
+spec <- confusion[1,1] / sum(confusion[,1])
+ppv <- confusion[2,2] / sum(confusion[2,])
+npv <- confusion[1,1] / sum(confusion[1,])
+sens; spec; ppv; npv
+
+# 2. ROC curve
+roc_new <- roc(truth, study$new_test_score)
+plot(roc_new)
+auc(roc_new)
+# 0.91
+
+# 3. DeLong vs. existing test
+roc_old <- roc(truth, study$old_test_score)
+roc.test(roc_new, roc_old)
+# z = 4.2, p < 0.001 — the new test is significantly better
+
+# 4. Calibration as risk score
+val.prob(study$new_test_predicted_prob, truth, pl = TRUE)
+# slope 0.95, intercept 0.02 — well calibrated
+
+# 5. Inter-rater reliability
+inter_rater <- study |>
+  filter(both_raters == 1) |>
+  select(rater1_score, rater2_score)
+icc(inter_rater)
+# ICC = 0.89 — substantial agreement
+```
+
+The reported analysis: 'The new test had AUC 0.91
+(95% CI 0.87-0.95), significantly better than the
+comparator test (AUC 0.79, p < 0.001 by DeLong).
+At the proposed threshold of 50, sensitivity was 87%
+(95% CI 80-93%), specificity 88%, PPV 64%, NPV 96%.
+The new test was well-calibrated as a risk score
+(slope 0.95, intercept 0.02). Inter-rater reliability
+was substantial (ICC 0.89, 95% CI 0.85-0.92).'
 
 ## Collaborating with an LLM on advanced categorical-data analysis
 
-(TODO: introduction paragraph naming the LLM-collaboration
-patterns specific to this chapter.)
+Three patterns.
 
-**Prompt 1: TODO.** TODO.
+**Prompt 1: 'Fit the right model for this categorical
+outcome.'** Provide the data and the question.
 
-*What to watch for.* TODO.
+*What to watch for.* The LLM correctly distinguishes
+ordinal from nominal but sometimes defaults to
+multinomial when ordinal would preserve information.
+Push for the proportional-odds test on ordinal
+outcomes.
 
-*Verification.* TODO.
+*Verification.* Use the Brant test or fit both ordinal
+and multinomial; compare.
 
-**Prompt 2: TODO.** TODO.
+**Prompt 2: 'Choose the threshold for this diagnostic
+test.'** Provide the ROC curve data and the clinical
+context.
 
-*What to watch for.* TODO.
+*What to watch for.* The LLM defaults to maximising
+Youden index. The right threshold depends on the
+costs of false positives vs. false negatives in the
+specific clinical context. Push for the substantive
+trade-off.
 
-*Verification.* TODO.
+*Verification.* The threshold is a clinical decision
+informed by the costs. The LLM provides the analytical
+machinery; the substantive judgement is yours.
 
-**Prompt 3: TODO.** TODO.
+**Prompt 3: 'Compute kappa for this rater agreement.'**
+Provide the ratings.
 
-*What to watch for.* TODO.
+*What to watch for.* The LLM correctly computes
+unweighted kappa. For ordinal scales, push for
+quadratic weighting.
 
-*Verification.* TODO.
+*Verification.* The choice of weighting matters more
+than the number; check the literature for what the
+field's convention is.
 
-The meta-pattern: TODO.
+The meta-pattern: LLMs are good at the syntactic
+mechanics (writing the model call) and weak at the
+substantive judgement (which model fits the
+question, which threshold matches the clinical
+trade-off). Use them for code; bring substantive
+judgement yourself.
 
 ## Principle in use
 
-Three habits define defensible work in this area:
+Three habits.
 
-1. **TODO.**
-2. **TODO.**
-3. **TODO.**
+1. **Match the model to the outcome's structure.**
+   Ordinal models for ordinal data; multinomial for
+   nominal; log-linear for multi-way without an
+   outcome.
+
+2. **Test the proportional-odds assumption.** Brant
+   or partial-PO if needed; if PO fails substantially,
+   consider multinomial.
+
+3. **Pair discrimination with calibration.** AUC alone
+   is insufficient for any model used as a risk
+   score. Calibration must be reported.
 
 ## Exercises
 
-1. TODO.
-2. TODO.
-3. TODO.
-4. TODO.
-5. TODO.
+1. For an ordinal outcome (e.g., a 5-point disease
+   severity scale), fit a proportional-odds model.
+   Test the PO assumption; if it fails, fit a
+   partial-PO alternative and compare.
+
+2. For a multinomial outcome (e.g., one of three
+   treatment choices), fit multinomial logistic
+   regression. Report relative risk ratios for two
+   covariates and interpret them.
+
+3. For a 2x2 table with one cell count of 2, run
+   both chi-squared and Fisher's exact. Compare the
+   p-values.
+
+4. For a diagnostic test, compute sensitivity,
+   specificity, PPV, and NPV at three thresholds.
+   Plot the ROC curve and compute AUC.
+
+5. For an inter-rater reliability study with two
+   raters and an ordinal scale, compute Cohen's
+   kappa, weighted kappa with linear weights, and
+   weighted kappa with quadratic weights. Interpret
+   each.
 
 ## Further reading
 
-- TODO (canonical reference).
-- TODO (modern applied reference).
-- TODO (software-documentation pointer).
+- @agresti2013categorical, *Categorical Data Analysis*
+  (3rd edition). The reference textbook.
+- @mccullagh1980regression, 'Regression models for
+  ordinal data'. The foundational ordinal-regression
+  paper.
+- @harrell2015regression, *Regression Modeling
+  Strategies*. The reference for risk-score
+  calibration.
+- @pepe2003statistical, *The Statistical Evaluation of
+  Medical Tests for Classification and Prediction*.
+  The reference for diagnostic-test methodology.
+- The `MASS`, `nnet`, `ordinal`, `pROC`, `rms`, and
+  `irr` packages are the practical tools.

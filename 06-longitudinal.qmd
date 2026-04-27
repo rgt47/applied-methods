@@ -4,103 +4,569 @@
 
 By the end of this chapter you should be able to:
 
-- (TODO)
-- (TODO)
-- (TODO)
-- (TODO)
+- Distinguish marginal models (GEE) from conditional
+  models (LMM, GLMM) and choose between them based on
+  the question and the structure of the correlation.
+- Fit linear mixed models with `lme4::lmer()` and
+  generalised linear mixed models with `lme4::glmer()`
+  or `glmmTMB::glmmTMB()`, and interpret fixed and
+  random effects.
+- Implement generalised estimating equations (GEE)
+  with `geepack::geeglm()` and select an appropriate
+  working correlation structure.
+- Diagnose convergence failures and singular fits in
+  mixed models, and apply remediations.
+- Joint-model longitudinal and time-to-event outcomes
+  when the question requires it.
 
 ## Orientation
 
-(TODO: short prose framing — what the chapter is, why it
-matters, how it relates to the sibling volumes.)
+Most biomedical data has correlation structure: repeated
+measures on the same patient, multiple patients within
+the same hospital or cluster, observations close in
+time more similar than observations far apart. Ignoring
+the correlation produces invalid standard errors and
+sometimes biased point estimates. The introductory
+volume covered linear mixed models as a model class;
+this chapter develops them at applied depth — model-
+building, diagnostics, when to use marginal vs.
+conditional, and the interaction with missing data.
+
+The chapter is organised around the central choice:
+marginal vs. conditional models. Marginal models (GEE)
+target population-average effects. Conditional models
+(LMM, GLMM) target subject-specific effects with
+explicit random effects. The two are not
+interchangeable; choosing wrongly produces the wrong
+answer to the question.
 
 ## The statistician's contribution {#sec-longitudinal-human}
 
-(TODO: front-loaded section articulating the judgements at
-the centre of this chapter that no LLM can make on the
-reader's behalf.)
+Three judgements are not delegable.
 
-**(Judgement 1.)** TODO.
+**(Judgement 1.) Marginal vs. conditional matches the
+question.** A 'population-average effect' is the
+average effect across all patients in the population.
+A 'subject-specific effect' is the effect for a typical
+patient with a specific random-effect value. For
+linear models the two coincide; for non-linear models
+(logistic, Poisson, survival) they differ. The
+biostatistician picks the framework based on the
+question and reports the choice transparently.
 
-**(Judgement 2.)** TODO.
+**(Judgement 2.) The random-effects structure is a
+substantive claim.** Adding random slopes vs.
+intercepts, or specifying which variables get random
+effects, encodes assumptions about which sources of
+variation matter. Maximum-likelihood estimation will
+fit any structure you specify; only domain reasoning
+informs which structure is right. The
+biostatistician justifies the random-effects structure
+in the methods, not by goodness-of-fit alone.
 
-**(Judgement 3.)** TODO.
+**(Judgement 3.) Missing data interacts with
+correlation.** Mixed models handle missing data under
+the missing-at-random (MAR) assumption when the model
+is correctly specified for the longitudinal trajectory
+and the covariates predicting missingness. GEE
+requires missing-completely-at-random (MCAR) for
+unbiased estimation unless inverse-probability-of-
+censoring weighting is used. The biostatistician
+chooses the framework with attention to the missing-
+data mechanism (Ch 10).
 
-These judgements are what distinguish an analysis that
-survives review from one that does not.
+## Marginal vs. conditional: the central distinction
 
-## (TODO: first content section)
+Consider repeated measures of blood pressure on
+hypertensive patients receiving treatment X.
 
-(TODO)
+**Conditional (subject-specific) model:**
+$$
+\text{SBP}_{ij} = \beta_0 + \beta_1 \text{Tx}_{ij} +
+                  u_i + \epsilon_{ij}, \quad u_i \sim N(0,\tau^2).
+$$
+$\beta_1$ is the within-patient effect of treatment for
+a typical patient. The random intercept $u_i$ captures
+each patient's baseline level.
+
+**Marginal (population-average) model:**
+$$
+E[\text{SBP}_{ij}] = \beta_0^* + \beta_1^* \text{Tx}_{ij}
+$$
+with a working correlation structure for the within-
+patient correlation. $\beta_1^*$ is the average effect
+across the population.
+
+For continuous outcomes with linear link, $\beta_1 =
+\beta_1^*$. For binary outcomes with logit link, the
+two differ. Concretely: the conditional log-odds of
+hypertension under treatment vs. control is not the
+same as the population log-odds-ratio; the conditional
+estimate is generally larger in magnitude.
+
+When does each apply?
+
+**Conditional models** when:
+
+- The question is about within-patient or
+  subject-specific effects ('does the treatment lower
+  THIS patient's BP').
+- The random-effects structure is a substantive part
+  of the model (e.g., centre-level random effects
+  capturing centre-specific variation).
+- Missing data is MAR rather than MCAR.
+
+**Marginal models** when:
+
+- The question is about population-average effects
+  ('what is the average BP reduction across the
+  population on this treatment').
+- Subject-specific random effects are nuisance.
+- The correlation structure can be approximated by a
+  working correlation that does not need to be
+  exactly correct.
+
+## Linear mixed models with `lme4`
+
+The standard tool:
+
+```r
+library(lme4)
+
+fit <- lmer(sbp ~ visit * treatment + age + sex +
+              (1 + visit | id),
+            data = bp_data)
+summary(fit)
+```
+
+Reading the formula:
+
+- `sbp ~ visit * treatment + age + sex`: fixed effects.
+  Visit and treatment with their interaction; baseline
+  age and sex.
+- `(1 + visit | id)`: random intercept and random
+  slope on visit, by patient ID.
+
+Reading the output:
+
+```
+Random effects:
+ Groups   Name        Variance Std.Dev. Corr
+ id       (Intercept) 142.3    11.93
+          visit         3.2     1.79    0.21
+ Residual              45.7     6.76
+
+Fixed effects:
+                       Estimate Std. Error t value
+(Intercept)             132.45      2.13     62.2
+visit                    -1.42      0.34     -4.2
+treatment                -3.71      1.45     -2.6
+visit:treatment          -2.11      0.45     -4.7
+age                       0.18      0.04      4.5
+sex                      -2.05      1.83     -1.1
+```
+
+The fixed effects are the population-typical
+coefficients. The random-effect variances tell you how
+much patients differ from each other in baseline level
+and slope.
+
+Confidence intervals via `confint()`:
+
+```r
+confint(fit, method = "profile")
+```
+
+The default `lmer` does not produce p-values for fixed
+effects (a longstanding deliberate choice). For
+p-values, use `lmerTest::lmer()` (Satterthwaite degrees
+of freedom) or `parameters::model_parameters()`. Both
+are reasonable; cite which you used.
+
+### Random-effects structure
+
+The `(1 + visit | id)` notation specifies:
+
+- A random intercept (each patient has their own
+  baseline).
+- A random slope on visit (each patient has their own
+  trajectory).
+- The correlation between intercept and slope is
+  estimated.
+
+Other patterns:
+
+- `(1 | id)`: random intercept only.
+- `(0 + visit | id)`: random slope only, no random
+  intercept (rarely the right choice).
+- `(1 | id) + (1 | center)`: nested random effects
+  (patients nested in centres).
+- `(1 | center/id)`: same as above with shorthand.
+- `(1 | center) + (1 | id)`: crossed random effects.
+
+The random-effects structure should match the data's
+hierarchy. Patient-within-centre is nested; treatment-
+within-patient (where treatments cycle through patients
+in a crossover) is crossed.
+
+### Convergence and singular fits
+
+`lmer` sometimes warns about singular fits ('boundary
+(singular) fit: see ?isSingular'). This means a
+variance component is estimated at zero — the model
+believes there is no patient-level variation. Causes:
+
+- Small data with few patients per cluster.
+- Random-effects structure that is not supported by
+  the data.
+- Genuinely no variation at the level specified.
+
+Responses:
+
+- Simplify the random-effects structure (drop a
+  random slope, keep the intercept).
+- Use `glmmTMB` (more robust optimiser) or
+  `brms` (Bayesian, no convergence pathologies of
+  the same kind).
+- Accept the singular fit and report it.
+
+The `lme4` package's troubleshooting vignette
+(`?lme4::convergence`) is the practical reference.
+
+## Generalised linear mixed models
+
+For non-Gaussian outcomes, use `glmer` or `glmmTMB`:
+
+```r
+library(glmmTMB)
+
+fit_glmm <- glmmTMB(diabetic ~ age + bmi + treatment +
+                      (1 | center),
+                    data = patients,
+                    family = binomial)
+summary(fit_glmm)
+```
+
+The interpretation of fixed effects in a logistic GLMM
+is **conditional on the random effect**. The fixed-
+effect coefficient on treatment is the log-odds change
+for a patient with their centre's typical random
+effect. The marginal (population-average) odds ratio
+differs.
+
+`glmmTMB` is the modern recommendation for GLMMs in R.
+It is faster and more robust than `glmer`, supports a
+wider range of distributions (zero-inflated, beta,
+ordinal), and produces cleaner output. `lme4::glmer`
+remains the reference but `glmmTMB` is the practical
+default.
+
+## GEE
+
+`geepack` is the standard implementation:
+
+```r
+library(geepack)
+
+fit_gee <- geeglm(diabetic ~ age + bmi + treatment,
+                  data = patients,
+                  id = center,
+                  family = binomial,
+                  corstr = "exchangeable")
+summary(fit_gee)
+```
+
+GEE specifies a marginal mean structure and a working
+correlation. The `corstr` choices:
+
+- `"independence"`: assumes no within-cluster
+  correlation. Robust standard errors fix the SEs even
+  when correlation is present; estimator remains
+  consistent.
+- `"exchangeable"`: assumes constant correlation
+  within cluster. Right for clusters with no internal
+  ordering.
+- `"ar1"`: AR(1) correlation (decreasing with time
+  lag). Right for repeated measures over time with
+  declining correlation.
+- `"unstructured"`: estimates each pairwise
+  correlation. Most flexible; needs sample size.
+
+The point estimate's robust standard errors (from
+`summary(fit_gee)$coefficients`) are valid even if the
+working correlation is wrong. This is the key
+property: **GEE is robust to misspecification of the
+correlation structure**, making it a workhorse for
+applied work.
+
+The trade: GEE estimates marginal effects, not
+conditional. If the question is about subject-specific
+effects, GEE is the wrong tool.
 
 ::: {.callout-note icon=false collapse=true}
-## Check your understanding: TODO
+## Check your understanding: when GEE is the right tool
 
-**Question.** TODO.
+**Question.** A multi-centre study has 30 centres and
+2,000 patients. The outcome is binary; the question is
+'on average across the population, what is the OR for
+treatment vs. control'. Should the analysis use GEE
+or GLMM?
 
 ::: {.content-visible when-format='html'}
 <details><summary>Answer</summary>
 :::
 
-TODO.
+GEE is the cleaner choice. The question asks about the
+population-average effect (marginal OR), which GEE
+estimates directly. A GLMM with random centre intercept
+estimates a conditional-on-centre OR; converting that
+to a marginal OR is doable but adds complexity. The
+GEE's robust SEs handle the within-centre correlation
+without requiring a correctly specified correlation
+structure. Reserve the GLMM for when the question is
+genuinely about subject-specific (or centre-specific)
+effects, or when the missing-data mechanism makes GEE
+biased.
 
 ::: {.content-visible when-format='html'}
 </details>
 :::
 :::
 
-## (TODO: subsequent content sections)
+## Joint models for longitudinal and time-to-event
 
-(TODO)
+A common applied question: a longitudinal biomarker
+trajectory is associated with time to an event (death,
+disease progression). The naive analysis (a Cox
+regression with the biomarker as a time-varying
+covariate) is biased when the biomarker is measured
+with error or measured intermittently. **Joint models**
+fit a longitudinal model for the biomarker and a
+time-to-event model for the event simultaneously,
+linked by shared random effects.
 
-## Worked example: TODO
+The `JM` and `JMbayes2` packages implement this in R:
 
-(TODO: a concrete worked example, ideally biomedical, that
-exercises the chapter's tools end to end.)
+```r
+library(JM)
+
+# longitudinal submodel
+fit_long <- lme(biomarker ~ time + treatment,
+                random = ~ time | id, data = long_data)
+
+# survival submodel
+fit_surv <- coxph(Surv(time, event) ~ treatment,
+                  data = baseline_data, x = TRUE)
+
+# joint
+fit_joint <- jointModel(fit_long, fit_surv,
+                        timeVar = "time")
+summary(fit_joint)
+```
+
+The joint model produces:
+
+- The longitudinal trajectory parameters with proper
+  SEs.
+- The hazard ratio for the biomarker as a
+  time-varying covariate, accounting for measurement
+  error.
+- The 'association parameter' linking the two
+  submodels.
+
+Joint models are computationally heavier and require
+careful diagnostics; reserve them for when the question
+genuinely demands the linkage. For most applied work,
+separate longitudinal and survival analyses are
+adequate.
+
+## Missing data in longitudinal analysis
+
+Longitudinal data is almost always missing some
+visits. The mechanism matters.
+
+**MCAR**: missingness independent of all observed and
+unobserved data. Both LMM and GEE are unbiased.
+
+**MAR**: missingness depends on observed data. LMM is
+unbiased under correct model specification; GEE is
+biased without inverse-probability-of-censoring
+weighting (IPCW).
+
+**MNAR**: missingness depends on unobserved data.
+Both biased; sensitivity analyses required (Ch 10).
+
+The implication: prefer LMM (or GLMM) over GEE when
+missing data is plausibly MAR rather than MCAR. The
+trade-off with the marginal-vs.-conditional question
+is real.
+
+## Worked example: a 12-month BP trajectory analysis
+
+A trial randomised 200 hypertensive patients to
+treatment X or control; SBP measured at baseline,
+3, 6, 9, 12 months. Some patients missed visits.
+
+```r
+library(tidyverse)
+library(lme4)
+library(lmerTest)
+
+bp <- read_csv("data/bp-trial.csv")
+glimpse(bp)
+
+# baseline characteristics
+bp |>
+  filter(visit == 0) |>
+  group_by(treatment) |>
+  summarise(n = n(),
+            mean_age = mean(age),
+            mean_sbp = mean(sbp))
+
+# longitudinal model
+fit <- lmer(sbp ~ visit * treatment + age + sex +
+              (1 + visit | id),
+            data = bp)
+summary(fit)
+anova(fit)   # via lmerTest, gives p-values
+
+# random-effects diagnostics
+ranef_summary <- ranef(fit)$id
+plot(ranef_summary)        # check normality
+
+# residual diagnostics
+plot(fit)                  # fitted vs. residuals
+qqnorm(resid(fit))         # residual QQ
+
+# the contrast we care about: difference in slopes
+emm <- emmeans::emmeans(fit, "treatment",
+                       by = "visit",
+                       at = list(visit = 12))
+emm
+pairs(emm)
+```
+
+The `emmeans` package extracts the contrast at month
+12 between treatment and control, with appropriate
+SEs.
+
+The reported result might be: at month 12, mean SBP
+in the treatment group is 11.3 mmHg (95% CI 8.4-14.2,
+p < 0.001) lower than control, adjusting for baseline
+characteristics. The model accounts for the
+correlation across visits within each patient.
+
+The sensitivity analysis: refit under MNAR assumptions
+(Ch 10's pattern-mixture or selection models) to
+check whether the conclusion is robust to the
+missing-data mechanism.
 
 ## Collaborating with an LLM on longitudinal data analysis
 
-(TODO: introduction paragraph naming the LLM-collaboration
-patterns specific to this chapter.)
+Three patterns.
 
-**Prompt 1: TODO.** TODO.
+**Prompt 1: 'Build the mixed model for this
+longitudinal question.'** Provide the data structure
+and the question.
 
-*What to watch for.* TODO.
+*What to watch for.* The LLM produces a working `lmer`
+or `glmmTMB` formula. It often gets the random-effects
+structure wrong: omitting random slopes when the
+trajectory varies, including random intercepts on
+nested levels without justification. Push back on the
+random-effects choice.
 
-*Verification.* TODO.
+*Verification.* The random-effects structure should
+match the data's hierarchy and the substantive
+question. Run with and without random slopes; compare.
 
-**Prompt 2: TODO.** TODO.
+**Prompt 2: 'Should I use GEE or GLMM here?'** Provide
+the question, the data, and the missing-data context.
 
-*What to watch for.* TODO.
+*What to watch for.* The LLM gives a competent
+marginal-vs-conditional distinction. It tends to
+default to GLMM. Push for the missing-data
+implications (GEE biased under MAR, etc.).
 
-*Verification.* TODO.
+*Verification.* The choice depends on the question
+(population-average vs. subject-specific) and the
+missing-data mechanism. Both factors must be
+considered.
 
-**Prompt 3: TODO.** TODO.
+**Prompt 3: 'Diagnose this convergence failure in
+`lmer`.'** Provide the warning and the model
+specification.
 
-*What to watch for.* TODO.
+*What to watch for.* The LLM commonly suggests
+simplifying the random-effects structure or switching
+to `bobyqa` optimiser. These often work but
+sometimes mask a substantive issue (the random slope
+genuinely is zero, suggesting the trajectory does not
+vary by patient).
 
-*Verification.* TODO.
+*Verification.* Try the LLM's suggestions and inspect
+the simpler model. If the simpler fit is well-
+behaved, the problem may have been over-specification.
 
-The meta-pattern: TODO.
+The meta-pattern: LLMs are good for the syntactic
+mechanics (writing the formula, suggesting standard
+diagnostics) and weak at substantive judgement (which
+random effects belong, which framework matches the
+question). Use them for code, bring substantive
+reasoning yourself.
 
 ## Principle in use
 
-Three habits define defensible work in this area:
+Three habits.
 
-1. **TODO.**
-2. **TODO.**
-3. **TODO.**
+1. **Match marginal vs. conditional to the question.**
+   The two estimate different parameters in non-linear
+   models. Pick deliberately.
+2. **Justify the random-effects structure.** The
+   structure is a substantive claim; defend it in the
+   methods.
+3. **Address missing data explicitly.** Mixed models
+   handle MAR under correct specification; GEE
+   requires MCAR or IPCW. The choice interacts with
+   the missing-data mechanism.
 
 ## Exercises
 
-1. TODO.
-2. TODO.
-3. TODO.
-4. TODO.
-5. TODO.
+1. Take a longitudinal dataset of your choice. Fit
+   both an LMM and a GEE for the same outcome
+   variable. Compare the point estimates and standard
+   errors. Where they differ, explain why.
+
+2. For a binary outcome with cluster sampling, fit a
+   GLMM with random intercept and a GEE with
+   exchangeable working correlation. Compare the
+   conditional and marginal odds ratios; verify
+   they differ.
+
+3. Build a mixed model with a random slope on time.
+   Inspect the patient-specific slopes (`ranef()`).
+   Identify the patients with the most extreme
+   trajectories.
+
+4. For a longitudinal study with missing visits,
+   conduct the primary LMM and a sensitivity analysis
+   under MAR. (The MAR sensitivity analysis is the
+   topic of Ch 10; for this exercise, use multiple
+   imputation as a bridge.)
+
+5. Read a published longitudinal analysis. Identify
+   whether the framework is marginal or conditional,
+   and whether the choice matches the stated
+   question.
 
 ## Further reading
 
-- TODO (canonical reference).
-- TODO (modern applied reference).
-- TODO (software-documentation pointer).
+- @fitzmaurice2011applied, *Applied Longitudinal
+  Analysis* (2nd edition). The reference textbook.
+- @diggle2002analysis, *Analysis of Longitudinal Data*
+  (2nd edition). The classical treatment.
+- @rizopoulos2012joint, *Joint Models for
+  Longitudinal and Time-to-Event Data*. The reference
+  for joint modelling.
+- The `lme4`, `glmmTMB`, `geepack`, and `JM`
+  package vignettes are the practical references.

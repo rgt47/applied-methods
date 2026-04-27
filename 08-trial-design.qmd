@@ -4,103 +4,575 @@
 
 By the end of this chapter you should be able to:
 
-- (TODO)
-- (TODO)
-- (TODO)
-- (TODO)
+- Distinguish trial phases (I, II, III, IV) and
+  identify the design questions specific to each.
+- Choose between simple, stratified, block, and
+  covariate-adaptive randomisation, and recognise the
+  consequences of each for analysis.
+- Conduct a sample-size calculation for a two-arm
+  trial with a continuous, binary, or time-to-event
+  endpoint, including non-inferiority designs.
+- Apply the ICH E9 R1 estimand framework to a
+  proposed trial protocol and identify the primary
+  estimand attributes.
+- Recognise when an adaptive, group-sequential, or
+  pragmatic design is the right choice and articulate
+  the trade-offs.
 
 ## Orientation
 
-(TODO: short prose framing — what the chapter is, why it
-matters, how it relates to the sibling volumes.)
+Clinical trial design is where the biostatistician
+makes some of the most consequential decisions in the
+project: the primary endpoint, the sample size, the
+randomisation procedure, the stopping rules, the
+estimand. Each decision constrains the trial's ability
+to answer its question; collectively they determine
+whether the trial succeeds or produces ambiguous data.
+
+This chapter covers design; Chapter 9 covers analysis
+and reporting. The split mirrors the temporal flow of
+trial work: design happens before any patient is
+enrolled and is documented in the protocol; analysis
+happens after enrolment is complete and is documented
+in the SAP. Design decisions cannot be undone after
+the trial starts.
+
+The chapter is organised in three threads. **Design
+fundamentals**: phases, randomisation, blinding, sample
+size. **The estimand framework** (continuing from
+Ch 1): how to specify what the trial estimates.
+**Modern designs**: adaptive, group-sequential,
+pragmatic, platform.
 
 ## The statistician's contribution {#sec-trial-design-human}
 
-(TODO: front-loaded section articulating the judgements at
-the centre of this chapter that no LLM can make on the
-reader's behalf.)
+Three judgements are not delegable.
 
-**(Judgement 1.)** TODO.
+**(Judgement 1.) The primary endpoint defines the
+trial.** Everything else — sample size, analysis,
+stopping rules — flows from it. The biostatistician
+chooses the primary endpoint by considering three
+things: clinical relevance (does it inform a
+decision), measurability (can it be reliably ascertained
+in this trial), and statistical efficiency (how much
+information does it contain per patient). A composite
+primary endpoint is sometimes the right answer, but
+introduces interpretation complexity; a continuous
+endpoint is sometimes the right answer, but may not
+match the regulatory question.
 
-**(Judgement 2.)** TODO.
+**(Judgement 2.) Sample size is a contract with the
+data.** The sample size is computed from the primary
+analysis's effect size, variability, type I error, and
+power. The biostatistician's role is to defend each
+input, not to engineer the calculation to produce a
+feasible $n$. An optimistic effect-size assumption
+produces a trial powered to detect an effect that does
+not exist; a pessimistic one produces a trial too
+large to enrol.
 
-**(Judgement 3.)** TODO.
+**(Judgement 3.) Estimands precede randomisation.** The
+estimand framework (Ch 1) applies in trials with
+particular force because intercurrent events
+(treatment discontinuation, switching, death) are
+known in advance to occur. The biostatistician
+specifies the primary estimand and the
+intercurrent-event strategy in the protocol, before
+any data is collected. ITT is a treatment-policy
+strategy; it is one estimand among several, not the
+default for every trial.
 
-These judgements are what distinguish an analysis that
-survives review from one that does not.
+These judgements are what distinguish a trial that
+informs a regulatory or clinical decision from a
+trial that produces ambiguous data.
 
-## (TODO: first content section)
+## Phases of clinical development
 
-(TODO)
+**Phase I**: first-in-human, dose-finding. Small (often
+20-80 patients), often healthy volunteers (oncology
+exception). Primary endpoint typically safety,
+pharmacokinetics. Designs: 3+3, model-based (CRM,
+EWOC, BOIN), Bayesian-adaptive.
+
+**Phase II**: efficacy signal in patient population.
+Single-arm or small randomised, 50-200 patients.
+Primary endpoint often a surrogate (response rate,
+biomarker change, PFS) rather than a hard endpoint.
+Designs: Simon's two-stage, Bayesian-adaptive.
+
+**Phase III**: definitive efficacy. Large randomised
+(hundreds to thousands), powered for hard clinical
+endpoints. The phase that supports regulatory approval.
+Standard designs: parallel-group, two-arm; sometimes
+multi-arm or factorial.
+
+**Phase IV**: post-approval surveillance and
+real-world effectiveness. Pragmatic designs, often
+embedded in routine care. Outcomes include long-term
+safety, real-world effectiveness, comparative
+effectiveness.
+
+The chapter focuses on Phase III conventions, since
+those are most fully developed and most commonly
+encountered in MS-level biostatistical work. Phase I
+designs require a separate methodology (the
+'A Practical Guide to Biostatistics' literature)
+beyond the scope here.
+
+## Randomisation
+
+The point of randomisation: balance unmeasured
+confounders in expectation, eliminate selection bias
+by the investigator, create a reference distribution
+for the test statistic.
+
+**Simple randomisation**: each patient assigned
+independently with probability 0.5 (for a 1:1 trial).
+Easy; can produce imbalance in small trials.
+
+**Block randomisation**: assign in blocks of size 2,
+4, or 6 (or vary the block size). Guarantees
+balance at the end of each block; reduces
+imbalance from chance. Standard for most trials.
+
+**Stratified randomisation**: block randomisation
+within strata defined by one or more baseline
+variables (e.g., centre, disease stage). Guarantees
+balance within strata. Use when the strata are
+strongly prognostic and the trial is small enough
+that imbalance within a stratum could matter.
+
+**Covariate-adaptive randomisation** (e.g.,
+minimisation): assigns each new patient based on the
+current imbalance across multiple baseline variables.
+Achieves better balance than stratified randomisation
+but introduces a degree of predictability that some
+regulatory bodies discourage. The literature is mixed
+[@taves2010the]; check current FDA / EMA guidance.
+
+Implementation: most trials use a centralised
+randomisation system (web or IVRS) that handles the
+mechanics. The biostatistician specifies the procedure
+in the protocol; an unblinded statistician (separate
+from the analysis team) sometimes implements and
+monitors.
+
+The analysis must respect the randomisation
+procedure. A stratified randomisation requires
+stratified analysis; ignoring the stratification
+inflates the type I error.
+
+## Blinding
+
+Blinding addresses bias from differential treatment
+or assessment of outcomes:
+
+- **Single-blind**: the patient does not know their
+  assignment.
+- **Double-blind**: neither patient nor investigator
+  knows.
+- **Triple-blind**: patient, investigator, and analysis
+  team are blinded.
+
+Blinding is rarely fully achievable for invasive
+treatments (surgery, devices) and is sometimes
+infeasible for behavioural interventions. When
+blinding fails, the analysis should examine
+investigator effects and consider sensitivity
+analyses.
+
+The unblinding procedure is specified in advance:
+typically after the database lock, after the analysis
+of the primary endpoint by the unblinded statistician,
+or after the last patient's last visit.
+
+## Sample size
+
+The two-arm continuous-outcome calculation:
+$$
+n_{\text{per arm}} = \frac{2 \sigma^2 (z_{1-\alpha/2} +
+                            z_{1-\beta})^2}{\delta^2}
+$$
+where $\sigma$ is the within-arm SD, $\delta$ is the
+target effect size (mean difference), and $z$ are
+standard normal quantiles. For two-sided 5% type I
+error and 80% power, $z_{1-\alpha/2} + z_{1-\beta} =
+1.96 + 0.84 = 2.80$, and:
+$$
+n_{\text{per arm}} \approx 2 \cdot 7.85 \cdot
+                            (\sigma/\delta)^2.
+$$
+
+Concrete: with $\sigma = 10$ mmHg and $\delta = 5$
+mmHg, $n \approx 63$ per arm.
+
+The binary-outcome calculation:
+$$
+n_{\text{per arm}} = \frac{(z_{1-\alpha/2} + z_{1-\beta})^2
+                            (p_1(1-p_1) + p_2(1-p_2))}
+                           {(p_1 - p_2)^2}.
+$$
+
+The time-to-event calculation depends on the expected
+number of events, not the number of patients:
+$$
+\text{events} = \frac{4 (z_{1-\alpha/2} + z_{1-\beta})^2}
+                    {\log(\text{HR})^2}.
+$$
+
+The R packages `pwr`, `clinfun`, `gsDesign`, and
+`pwrss` implement these formulas plus more elaborate
+ones. The `Hmisc::cpower()` and the dedicated trial-
+design package `rpact` are alternatives.
+
+```r
+library(pwr)
+
+# two-sample t-test
+pwr.t.test(d = 5/10, sig.level = 0.05, power = 0.8,
+           type = "two.sample")
+#> n = 63.8 per arm
+
+# proportions
+pwr.2p.test(h = ES.h(0.30, 0.20),
+            sig.level = 0.05, power = 0.8)
+#> n = 313.5 per arm
+```
+
+The biostatistician's task: defend each input. Where
+does $\sigma$ come from (a prior trial? the
+literature? expert opinion)? Where does $\delta$ come
+from (clinically meaningful difference? smallest worth
+detecting?)? Why this $\alpha$ (one-sided vs.
+two-sided?), this power (80%? 90%?). The protocol
+should answer each.
+
+## Non-inferiority and equivalence
+
+A standard trial tests whether treatment X is **better**
+than control at a pre-specified $\alpha$. Sometimes
+the question is whether X is **not worse** by more
+than a pre-specified margin. The non-inferiority
+margin $\Delta$ is the largest acceptable difference
+in the wrong direction.
+
+The hypothesis:
+$$
+H_0: \mu_X - \mu_C \le -\Delta
+\text{ vs. } H_1: \mu_X - \mu_C > -\Delta
+$$
+(for outcomes where higher is better).
+
+Sample size for non-inferiority is generally larger
+than for superiority because the margin is smaller
+than the typical effect size. The power calculation
+uses the formula above with $\delta$ replaced by the
+effect on the non-inferiority margin (zero if the new
+treatment is assumed identical, the actual expected
+effect minus the margin if some superiority is
+expected).
+
+The non-inferiority margin is a substantive choice:
+the largest difference that would still be clinically
+acceptable. It should be defended on clinical grounds
+and is typically a fraction (often 50%) of the
+historical effect size of the active control over
+placebo, to preserve at least half of the historical
+benefit. The biostatistician proposes; the clinical
+team decides.
 
 ::: {.callout-note icon=false collapse=true}
-## Check your understanding: TODO
+## Check your understanding: when non-inferiority is the right design
 
-**Question.** TODO.
+**Question.** A new oral anticoagulant is proposed as
+a more convenient alternative to warfarin (which
+requires INR monitoring). The new drug is expected to
+have similar efficacy. Should the trial be designed
+as superiority, non-inferiority, or equivalence?
 
 ::: {.content-visible when-format='html'}
 <details><summary>Answer</summary>
 :::
 
-TODO.
+Non-inferiority is the right design. The clinical
+question is 'is the new drug at least as good as
+warfarin in terms of efficacy, given its convenience
+advantage?' Superiority would require demonstrating
+that the new drug is better, which is unlikely (and
+not necessary for the clinical use case). Equivalence
+would require demonstrating the new drug is neither
+better nor worse, which is rarely needed; for a
+'similar efficacy, better convenience' positioning,
+the asymmetric non-inferiority test is sufficient and
+better-powered. The non-inferiority margin would be
+a fraction (typically 50%) of the warfarin-vs-no-
+anticoagulant effect on the primary endpoint
+(stroke), to preserve at least half of warfarin's
+historical benefit.
 
 ::: {.content-visible when-format='html'}
 </details>
 :::
 :::
 
-## (TODO: subsequent content sections)
+## Estimand framework for trials
 
-(TODO)
+The ICH E9 R1 estimand framework (Ch 1) applies to
+trials with particular force. The five attributes
+(population, treatment, comparator, outcome, summary)
+plus the intercurrent-event strategy must be specified
+in the protocol.
 
-## Worked example: TODO
+Common intercurrent events in trials:
 
-(TODO: a concrete worked example, ideally biomedical, that
-exercises the chapter's tools end to end.)
+- Treatment discontinuation (patients stop taking the
+  treatment)
+- Treatment switching (patients switch to the other
+  arm or to a third treatment)
+- Death (when not the primary outcome)
+- Use of rescue medication
+- Loss to follow-up
+
+For each, the protocol specifies one of the five
+strategies (treatment policy, composite, hypothetical,
+principal stratum, while-on-treatment).
+
+The default for many regulatory trials is
+treatment-policy for treatment discontinuation
+(estimating the effect of being assigned to a
+treatment strategy regardless of adherence). This is
+ITT. Per-protocol or hypothetical analyses are
+secondary or sensitivity. The protocol must name the
+primary estimand explicitly.
+
+For a non-inferiority trial, ITT may be the wrong
+primary because it biases toward no difference (any
+'noise' from non-adherence makes the new treatment
+look more like the control). Per-protocol or
+hypothetical strategies are sometimes the primary in
+non-inferiority trials.
+
+## Adaptive and group-sequential designs
+
+A **group-sequential** design analyses the data at
+pre-specified interim time points and may stop the
+trial early for efficacy or futility. The standard
+spending functions (O'Brien-Fleming, Pocock,
+Lan-DeMets) control the overall type I error across
+multiple looks.
+
+The `gsDesign` R package implements these:
+
+```r
+library(gsDesign)
+
+design <- gsDesign(k = 4,                # 4 looks
+                   test.type = 4,         # 2-sided
+                   alpha = 0.025, beta = 0.1,
+                   sfu = sfLDOF,         # O'Brien-Fleming spending
+                   sfl = sfLDPocock)     # Pocock for futility
+summary(design)
+```
+
+The output: the cumulative information times at each
+look, the boundary values (in standard units),
+expected sample size under the null and alternative.
+
+An **adaptive** design changes some aspect of the
+trial based on accumulated data: sample size,
+allocation ratio, the primary endpoint, the patient
+population. Adaptive designs are increasingly common
+in oncology (basket and umbrella trials, platform
+trials) but require careful pre-specification to
+maintain the overall type I error.
+
+The FDA's guidance on adaptive designs
+[@fda2019adaptive] is the authoritative reference;
+the methodological literature is rich and evolving.
+
+## Pragmatic and platform trials
+
+Pragmatic trials answer real-world effectiveness
+questions: enroll broad populations, deliver
+treatment in routine care, measure outcomes from
+existing data sources. Trade efficiency for
+generalisability. The PRECIS-2 framework
+[@loudon2015precis2] is the design tool.
+
+Platform trials test multiple interventions
+simultaneously against a shared control, with the
+ability to drop arms for futility and add new arms
+mid-trial. STAMPEDE in prostate cancer and the
+RECOVERY trial in COVID-19 are canonical examples.
+Platform trials require sophisticated statistical
+methods (master protocols, Bayesian decision rules)
+and substantial operational infrastructure.
+
+For an MS-level biostatistician, knowing the names
+and the structural ideas of pragmatic and platform
+trials is enough; implementing one requires
+specialist methodological involvement.
+
+## Worked example: designing a Phase III trial
+
+A new drug for moderate-to-severe COPD is ready for
+Phase III. Active control is salmeterol/fluticasone.
+Primary endpoint: change in FEV1 from baseline to
+week 24.
+
+**Step 1. Estimand.**
+- Population: adults 40+ with moderate-to-severe COPD.
+- Treatment: new drug (specific dose).
+- Comparator: salmeterol/fluticasone.
+- Outcome: change in trough FEV1 from baseline to
+  week 24 (mL).
+- Population summary: mean difference between arms.
+- Intercurrent events:
+  - Treatment discontinuation: treatment policy
+    (analyse as randomised).
+  - Use of rescue medication: while-on-treatment
+    (analyses based on FEV1 measurements during
+    on-treatment period).
+
+**Step 2. Sample size.** Prior trials show within-arm
+SD of 200 mL and a clinically meaningful difference of
+50 mL. With $\alpha = 0.05$ two-sided and 90% power:
+$$
+n_{\text{per arm}} = \frac{2 \cdot 200^2 \cdot (1.96 + 1.28)^2}
+                          {50^2} \approx 339.
+$$
+Add 15% for dropout: 390 per arm. Total enrolment:
+780.
+
+**Step 3. Randomisation.** Stratified by baseline
+disease severity (moderate vs. severe) and current
+ICS use (yes/no). Block size 4. Centralised IVRS.
+
+**Step 4. Blinding.** Double-blind, double-dummy.
+Both arms receive an identical-looking inhaler.
+
+**Step 5. Interim analysis.** Single interim at 50%
+of events, with O'Brien-Fleming boundary for early
+efficacy stopping. Sample-size re-estimation based on
+the observed within-arm SD (without unblinding the
+treatment effect).
+
+**Step 6. Analysis.** Mixed model for repeated
+measures (MMRM), with fixed effects for treatment,
+visit, treatment-by-visit, baseline FEV1, baseline
+severity, ICS use; unstructured covariance for
+repeated visits within patient. Handle missing data
+under MAR (the MMRM assumption); sensitivity analyses
+for MNAR (Ch 10).
+
+The protocol now contains everything the trial needs.
+Six months in, when the DSMB asks 'what was the
+sample-size justification?', the protocol is the
+answer.
 
 ## Collaborating with an LLM on clinical trial design
 
-(TODO: introduction paragraph naming the LLM-collaboration
-patterns specific to this chapter.)
+Three patterns.
 
-**Prompt 1: TODO.** TODO.
+**Prompt 1: 'Compute the sample size for this trial.'**
+Provide effect size, variability, alpha, power.
 
-*What to watch for.* TODO.
+*What to watch for.* The LLM produces a calculation
+using `pwr` or `gsDesign`. It often defaults to
+two-sided $\alpha$ when one-sided is appropriate
+(or vice versa) and over-simplifies the assumptions.
+Push for explicit defence of each input.
 
-*Verification.* TODO.
+*Verification.* Recompute by formula or with a second
+package. The arithmetic is elementary and worth
+double-checking.
 
-**Prompt 2: TODO.** TODO.
+**Prompt 2: 'Write the estimand for this trial.'**
+Provide the trial protocol summary.
 
-*What to watch for.* TODO.
+*What to watch for.* The LLM produces all five
+attributes. It commonly under-specifies the
+intercurrent-event strategies. Push for explicit
+naming of each strategy.
 
-*Verification.* TODO.
+*Verification.* Read against ICH E9 R1.
 
-**Prompt 3: TODO.** TODO.
+**Prompt 3: 'Should this trial use a group-sequential
+design?'** Provide the trial details.
 
-*What to watch for.* TODO.
+*What to watch for.* The LLM gives a competent
+discussion. It tends to recommend group-sequential
+designs more often than warranted (the operational
+cost is real). Push for the trade-offs.
 
-*Verification.* TODO.
+*Verification.* The decision should consider the cost
+of an interim (operational, regulatory submissions,
+DSMB), not just the statistical efficiency.
 
-The meta-pattern: TODO.
+The meta-pattern: LLMs are good at the syntactic
+mechanics (writing the formula, drafting the protocol
+section) and weak at the substantive choices (which
+estimand, which interim strategy, which margin in
+non-inferiority). Use them for code and drafts; bring
+substantive judgement yourself.
 
 ## Principle in use
 
-Three habits define defensible work in this area:
+Three habits.
 
-1. **TODO.**
-2. **TODO.**
-3. **TODO.**
+1. **Estimand before sample size.** The sample size is
+   computed for a specific estimand and a specific
+   estimator. Specifying the estimand first prevents
+   the calculation from being detached from the
+   primary analysis.
+
+2. **Defend each sample-size input.** Effect size,
+   variability, alpha, power, dropout rate. Each
+   number in the calculation has a source; the
+   protocol cites it.
+
+3. **Document intercurrent-event strategies in the
+   protocol.** ITT is one strategy among several;
+   the choice should be explicit.
 
 ## Exercises
 
-1. TODO.
-2. TODO.
-3. TODO.
-4. TODO.
-5. TODO.
+1. For a hypothetical trial in your area, write the
+   primary estimand using all six ICH E9 R1
+   attributes. Identify the intercurrent-event
+   strategies for at least two intercurrent events.
+
+2. Compute the sample size for a two-arm
+   continuous-outcome trial with $\sigma = 15$,
+   $\delta = 5$, $\alpha = 0.05$ two-sided,
+   power = 80%. Verify by formula.
+
+3. For a published Phase III trial, find the sample-
+   size justification in the protocol or supplement.
+   Identify the inputs (effect size, variability,
+   etc.) and assess whether each is defended.
+
+4. Design a non-inferiority trial. Choose a margin
+   $\Delta$ and defend it on clinical grounds.
+   Compute the sample size required.
+
+5. Use `gsDesign` to design a 4-look group-sequential
+   trial with O'Brien-Fleming efficacy boundary.
+   Report the boundaries at each look and the
+   expected sample size under the null.
 
 ## Further reading
 
-- TODO (canonical reference).
-- TODO (modern applied reference).
-- TODO (software-documentation pointer).
+- @ich2019e9r1, *ICH E9(R1) Addendum on Estimands and
+  Sensitivity Analysis*. The regulatory text.
+- @piantadosi2017clinical, *Clinical Trials: A
+  Methodologic Perspective* (3rd edition). The
+  reference textbook.
+- @friedman2015fundamentals, *Fundamentals of Clinical
+  Trials* (5th edition). The classical applied
+  reference.
+- @jennison2000group, *Group Sequential Methods with
+  Applications to Clinical Trials*. The reference for
+  group-sequential design.
+- The `gsDesign`, `rpact`, `pwr`, and `clinfun`
+  package documentation.

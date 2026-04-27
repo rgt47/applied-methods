@@ -4,103 +4,564 @@
 
 By the end of this chapter you should be able to:
 
-- (TODO)
-- (TODO)
-- (TODO)
-- (TODO)
+- Distinguish fixed-effects, common-effect, and
+  random-effects meta-analysis and choose between them.
+- Compute pooled effect estimates and their standard
+  errors using the inverse-variance method, with
+  appropriate handling of heterogeneity.
+- Quantify and visualise heterogeneity ($\tau^2$,
+  $I^2$, $H^2$) and interpret each.
+- Conduct a meta-regression to investigate sources of
+  heterogeneity.
+- Produce CONSORT- and PRISMA-compliant reports
+  including forest plots, funnel plots, and Egger's
+  test for publication bias.
+- Design a network meta-analysis when multiple
+  treatments are compared across studies.
 
 ## Orientation
 
-(TODO: short prose framing — what the chapter is, why it
-matters, how it relates to the sibling volumes.)
+Meta-analysis is the quantitative synthesis of
+evidence from multiple studies. The literature is
+rich; this chapter focuses on what an applied
+biostatistician needs to conduct one or evaluate one:
+the core methods (inverse-variance pooling, random
+effects, heterogeneity quantification), the reporting
+standards (PRISMA), and the modern extensions (network
+meta-analysis, individual-patient-data meta-analysis).
+
+The chapter is organised in three threads.
+**Foundations**: pooling estimators, heterogeneity,
+forest plots. **Modern methods**: meta-regression,
+network meta-analysis, individual-patient-data (IPD)
+meta-analysis. **Reporting**: PRISMA, GRADE,
+publication bias.
 
 ## The statistician's contribution {#sec-meta-analysis-human}
 
-(TODO: front-loaded section articulating the judgements at
-the centre of this chapter that no LLM can make on the
-reader's behalf.)
+Three judgements are not delegable.
 
-**(Judgement 1.)** TODO.
+**(Judgement 1.) Pool only what should be pooled.** A
+meta-analysis assumes the included studies estimate a
+common parameter (or, in random effects, parameters
+drawn from a common distribution). When studies are
+clinically too different — different populations,
+interventions, comparators, outcomes — the pooled
+estimate is not interpretable as 'the' effect. The
+biostatistician decides what is poolable; the
+inclusion criteria and the heterogeneity assessment
+are the formal record of the decision.
 
-**(Judgement 2.)** TODO.
+**(Judgement 2.) Heterogeneity is a feature, not a
+nuisance.** $I^2 = 75\%$ does not invalidate the meta-
+analysis; it tells you the studies' results vary
+beyond chance and that variation is informative.
+Sources of heterogeneity (population differences,
+study quality, dose differences) are investigated by
+meta-regression and subgroup analyses; the pooled
+estimate is reported alongside the heterogeneity
+description, not in lieu of it.
 
-**(Judgement 3.)** TODO.
+**(Judgement 3.) Publication bias is real.** Studies
+with statistically significant results are more
+likely to be published than studies without; this
+biases meta-analyses toward effect-positive
+conclusions. The biostatistician investigates with
+funnel plots, Egger's test, and trim-and-fill, and
+qualifies the conclusion accordingly. A clean funnel
+plot does not prove the absence of bias; an
+asymmetric one is suggestive.
 
-These judgements are what distinguish an analysis that
-survives review from one that does not.
+These judgements distinguish a defensible synthesis
+from a number that combines studies without
+considering whether they should be combined.
 
-## (TODO: first content section)
+## Inverse-variance pooling
 
-(TODO)
+The fundamental method [@borenstein2009introduction]:
+each study $i$ contributes an estimate $\hat\theta_i$
+with variance $v_i$. The pooled estimate is the
+inverse-variance-weighted average:
+$$
+\hat\theta_{\text{pool}} = \frac{\sum_i (1/v_i) \hat\theta_i}
+                                {\sum_i (1/v_i)}
+$$
+with variance:
+$$
+\text{Var}(\hat\theta_{\text{pool}}) =
+   \frac{1}{\sum_i (1/v_i)}.
+$$
+
+This is a **fixed-effects** estimate: it assumes all
+studies estimate the same parameter, with study-to-
+study variation being chance.
+
+A **random-effects** estimate adds between-study
+variance $\tau^2$:
+$$
+\text{Var}_{\text{RE}}(\hat\theta_i) = v_i + \tau^2.
+$$
+The pooled estimate uses these inflated variances as
+weights. With $\tau^2 = 0$, it reduces to fixed
+effects; with large $\tau^2$, the weights become
+nearly equal across studies (small studies get more
+influence).
+
+Estimating $\tau^2$: DerSimonian-Laird
+[@dersimonian1986meta] is the classic estimator;
+restricted maximum likelihood (REML),
+Paule-Mandel, and Hartung-Knapp adjustments are
+modern alternatives.
+
+```r
+library(meta)
+
+ma <- metagen(
+  TE = effect_estimate,
+  seTE = standard_error,
+  studlab = study_name,
+  data = study_data,
+  sm = "MD",        # mean difference
+  fixed = TRUE,
+  random = TRUE,
+  method.tau = "REML",
+  hakn = TRUE       # Hartung-Knapp adjustment
+)
+
+summary(ma)
+forest(ma)
+```
+
+The Hartung-Knapp adjustment (HK or HKSJ) provides
+better confidence-interval coverage than the standard
+random-effects approach when the number of studies is
+small; it is the modern recommendation
+[@inthout2014hartung].
+
+## Heterogeneity
+
+Three measures, all derived from Cochran's $Q$
+statistic:
+
+**$\tau^2$**: estimated between-study variance. Has
+units of the effect (squared); in original units,
+$\tau$ is interpretable as the SD of true effects
+across studies.
+
+**$I^2$**: proportion of total variance attributable
+to between-study heterogeneity:
+$$
+I^2 = \max\left(0, \frac{Q - df}{Q}\right) \times 100\%.
+$$
+Roughly: 0-25% low, 25-50% moderate, 50-75%
+substantial, 75-100% considerable. Cited frequently;
+not the most informative number, since it depends on
+the sample-size of the included studies.
+
+**$H^2$**: ratio of total variance to within-study
+variance. $H^2 > 1.5$ is typically considered
+substantial.
+
+The hierarchy of importance: report $\tau^2$ (in
+original units, with prediction interval), $I^2$ as a
+descriptive summary, and $H^2$ if asked.
+
+A **prediction interval** [@higgins2009re-evaluation]
+gives the range in which the true effect of a 'new'
+study would likely fall:
+$$
+\hat\theta_{\text{pool}} \pm t_{n-2} \sqrt{v_{\text{pool}} +
+                                            \hat\tau^2}.
+$$
+The prediction interval is wider than the confidence
+interval (which is for the pooled mean) and is more
+informative for clinical interpretation.
+
+## Forest plots
+
+The standard graphical summary:
+
+- One row per study, showing the point estimate and
+  CI as a square (size proportional to the study's
+  weight).
+- A diamond at the bottom showing the pooled
+  estimate and its CI.
+- Optionally a prediction interval line.
+
+The `meta` and `metafor` packages produce these:
+
+```r
+forest(ma,
+       leftcols = c("studlab", "n.e", "n.c"),
+       rightcols = c("effect", "ci"),
+       label.left = "Favours treatment",
+       label.right = "Favours control",
+       prediction = TRUE,
+       text.predict = "Prediction interval")
+```
+
+The forest plot is the default visual; readers
+interpret the meta-analysis from it.
+
+## Meta-regression
+
+When heterogeneity is substantial, meta-regression
+investigates sources. The model:
+$$
+\theta_i = \beta_0 + \beta_1 X_i + \epsilon_i,
+\quad \epsilon_i \sim N(0, v_i + \tau^2)
+$$
+where $X_i$ is a study-level covariate. The
+coefficient $\beta_1$ tells you how the effect varies
+with $X$.
+
+```r
+mreg <- metareg(ma, ~ baseline_severity)
+summary(mreg)
+```
+
+Caveat: meta-regression on study-level covariates
+suffers from **ecological bias**. The relationship
+between study-level mean baseline severity and the
+study-level treatment effect is not the same as the
+relationship between individual baseline severity
+and individual treatment effect. Individual-patient-
+data meta-analysis (below) avoids the issue.
+
+Reserve meta-regression for clearly pre-specified
+subgroups; do not use it as fishing for explanations
+of unexplained heterogeneity.
+
+## Network meta-analysis
+
+When multiple treatments are compared (A vs. B, B vs.
+C, A vs. C across different studies), network meta-
+analysis estimates the effects of all treatments
+relative to a reference, using both direct and
+indirect comparisons.
+
+The `netmeta` package implements frequentist NMA;
+`gemtc` and `multinma` implement Bayesian NMA.
+
+```r
+library(netmeta)
+
+nma <- netmeta(TE = effect, seTE = se,
+               treat1 = comparator1, treat2 = comparator2,
+               studlab = study, data = network_data,
+               sm = "MD")
+summary(nma)
+forest(nma)
+netleague(nma)
+```
+
+The `netleague` matrix shows pairwise effects for all
+pairs of treatments. Treatments can also be ranked
+(SUCRA, P-score) for decision-making.
+
+NMA assumes **transitivity**: the studies comparing
+different treatments are similar enough that indirect
+comparisons are valid. The biostatistician evaluates
+this assumption — it is a substantive judgement based
+on the included studies' populations and contexts.
+
+## Individual-patient-data meta-analysis
+
+When the original patient-level data from each study
+is available, IPD meta-analysis provides:
+
+- Standardised analysis (the same model in every
+  study).
+- Patient-level subgroup analysis (without ecological
+  bias).
+- Better handling of non-linear relationships and
+  interactions.
+
+The cost: data sharing, standardisation, IRB approvals
+across multiple studies. IPD MA is the gold standard
+for important questions but is operationally heavy.
+
+Two-stage IPD: fit the model in each study, pool the
+estimates. One-stage IPD: pool all individual data
+into one model with random study effects.
+
+## Publication bias
+
+Studies with significant results are more likely to be
+published. Three diagnostic tools:
+
+**Funnel plot**: scatter of effect estimate vs.
+standard error. A symmetric funnel suggests no bias;
+asymmetry (especially missing studies in the bottom-
+left, smaller studies with non-significant effects)
+suggests bias.
+
+```r
+funnel(ma)
+```
+
+**Egger's test** [@egger1997bias]: regression-based
+test for funnel asymmetry. Significant Egger's test
+suggests bias. Limited power with few studies.
+
+```r
+metabias(ma, method.bias = "Egger")
+```
+
+**Trim-and-fill**: imputes 'missing' studies from the
+funnel and recomputes the pooled estimate. The
+adjustment is a sensitivity, not a definitive
+correction.
+
+```r
+ma_tf <- trimfill(ma)
+summary(ma_tf)
+```
+
+For very few studies (under 10), publication-bias
+methods have low power; report the funnel plot but
+qualify the inference.
 
 ::: {.callout-note icon=false collapse=true}
-## Check your understanding: TODO
+## Check your understanding: random vs. fixed effects
 
-**Question.** TODO.
+**Question.** A meta-analysis of 8 RCTs of a
+hypertension drug shows pooled effect of -3.2 mmHg
+under fixed effects and -3.5 mmHg under random
+effects. The two CIs are similar but the random-
+effects CI is wider. $I^2 = 35\%$. Which estimate
+should be the primary?
 
 ::: {.content-visible when-format='html'}
 <details><summary>Answer</summary>
 :::
 
-TODO.
+Random effects, with Hartung-Knapp adjustment. The
+fixed-effects model assumes all studies estimate the
+same parameter, which $I^2 = 35\%$ argues against.
+Random effects acknowledges the between-study
+variation and produces a wider, more honest CI. The
+difference in point estimates (3.2 vs. 3.5) is
+typically small; the difference in inference (CI
+width) can be substantial. Modern meta-analyses
+default to random effects unless there is a strong
+clinical argument for fixed effects (e.g., very
+homogeneous studies of the same population). Report
+the prediction interval alongside the CI for full
+context.
 
 ::: {.content-visible when-format='html'}
 </details>
 :::
 :::
 
-## (TODO: subsequent content sections)
+## PRISMA
 
-(TODO)
+The Preferred Reporting Items for Systematic Reviews
+and Meta-Analyses [@page2021prisma] guidelines specify
+what a systematic review and meta-analysis must
+report. Highlights:
 
-## Worked example: TODO
+- **Title**: declares 'systematic review' or
+  'meta-analysis'.
+- **Abstract**: structured (background, methods,
+  results, conclusions).
+- **Methods**: the protocol (often pre-registered),
+  inclusion criteria, search strategy, study
+  selection, data extraction, risk of bias, data
+  synthesis, sensitivity analyses.
+- **Results**: the PRISMA flow diagram (studies
+  identified, screened, included, excluded), study
+  characteristics table, risk-of-bias assessment,
+  pooled effects, heterogeneity, sensitivity
+  analyses, publication bias.
 
-(TODO: a concrete worked example, ideally biomedical, that
-exercises the chapter's tools end to end.)
+The `PRISMAstatement` and `prisma2020` R packages
+generate the flow diagram. Review-quality assessment
+typically uses Cochrane RoB 2 (RCTs) or ROBINS-I
+(non-randomised studies).
+
+## GRADE
+
+The Grading of Recommendations, Assessment,
+Development and Evaluation framework
+[@guyatt2008grade] provides a systematic approach to
+assessing the quality of evidence in a meta-analysis.
+GRADE rates the certainty of evidence (high,
+moderate, low, very low) based on:
+
+- Risk of bias in the included studies.
+- Inconsistency (heterogeneity).
+- Indirectness (population, intervention, comparator,
+  outcome match).
+- Imprecision (CI width).
+- Publication bias.
+
+The GRADEpro tool implements the framework. Modern
+systematic reviews are increasingly expected to
+include GRADE assessments.
+
+## Worked example: a meta-analysis of SGLT2 trials
+
+Eight RCTs of SGLT2 inhibitors in heart failure with
+reduced ejection fraction (HFrEF). Outcome: all-cause
+mortality at 12 months. Each trial reports an HR with
+95% CI.
+
+```r
+library(tidyverse)
+library(meta)
+
+# Data: one row per trial
+sglt2_meta <- tribble(
+  ~study,           ~hr,    ~lower,  ~upper, ~n_t, ~n_c,
+  "DAPA-HF",        0.83,   0.71,    0.97,   2373, 2371,
+  "EMPEROR-Reduced", 0.92,   0.77,    1.10,   1863, 1867,
+  "DEFINE-HF",      0.79,   0.65,    0.96,   1234, 1230,
+  # ... etc
+)
+
+# convert HR to log-HR for pooling
+sglt2_meta <- sglt2_meta |>
+  mutate(loghr = log(hr),
+         se_loghr = (log(upper) - log(lower)) / (2 * 1.96))
+
+# random-effects meta-analysis
+ma <- metagen(TE = loghr, seTE = se_loghr,
+              studlab = study,
+              data = sglt2_meta,
+              sm = "HR",
+              method.tau = "REML",
+              hakn = TRUE)
+summary(ma)
+# pooled HR: 0.86 (95% CI 0.79-0.94, p < 0.001)
+# I^2 = 18%, tau^2 = 0.005
+
+# forest plot
+forest(ma)
+
+# funnel and Egger
+funnel(ma)
+metabias(ma, method.bias = "Egger")
+# p = 0.42, no evidence of asymmetry
+
+# meta-regression on baseline NT-proBNP
+mreg <- metareg(ma, ~ baseline_ntprobnp)
+summary(mreg)
+# beta_1 = ..., not significant
+```
+
+The reported synthesis: 'Across 8 RCTs (N = ~22,000),
+SGLT2 inhibitors reduced 12-month all-cause mortality
+by 14% (pooled HR 0.86, 95% CI 0.79-0.94) compared
+with placebo. Heterogeneity was low ($I^2 = 18\%$;
+$\tau = 0.07$). Meta-regression on baseline
+NT-proBNP did not explain the residual heterogeneity.
+Egger's test showed no evidence of publication bias.
+The result was consistent across SGLT2 agents.'
 
 ## Collaborating with an LLM on meta-analysis
 
-(TODO: introduction paragraph naming the LLM-collaboration
-patterns specific to this chapter.)
+Three patterns.
 
-**Prompt 1: TODO.** TODO.
+**Prompt 1: 'Pool these studies into a meta-analysis.'**
+Provide the trial-level data.
 
-*What to watch for.* TODO.
+*What to watch for.* The LLM produces working `meta`
+or `metafor` code. It often defaults to fixed-effects
+or DL random-effects without HK adjustment. Push for
+HK and prediction interval.
 
-*Verification.* TODO.
+*Verification.* Run with the suggested settings; verify
+$\tau^2$, $I^2$, and the prediction-interval width
+match the data.
 
-**Prompt 2: TODO.** TODO.
+**Prompt 2: 'What does this $I^2 = 65\%$ tell me?'**
+Provide the meta-analysis output.
 
-*What to watch for.* TODO.
+*What to watch for.* The LLM correctly explains $I^2$
+but tends to focus on the descriptive label (high
+heterogeneity). Push for the implications: prediction
+interval will be wide, meta-regression may be
+warranted, the pooled mean is one summary among
+several.
 
-*Verification.* TODO.
+*Verification.* Read the LLM's interpretation against
+the prediction interval. The width of the PI is the
+practical implication.
 
-**Prompt 3: TODO.** TODO.
+**Prompt 3: 'Diagnose publication bias in this
+meta-analysis.'** Provide the funnel plot, Egger's
+test result.
 
-*What to watch for.* TODO.
+*What to watch for.* The LLM produces a competent
+discussion. With few studies (under 10), it may
+overstate the power of Egger's test. Push for the
+appropriate qualification.
 
-*Verification.* TODO.
+*Verification.* The funnel plot is the visual; the
+Egger's test is supportive. Both should be reported,
+and the interpretation should be qualified by the
+number of studies.
 
-The meta-pattern: TODO.
+The meta-pattern: LLMs are good for the syntactic
+mechanics of meta-analysis (writing the `metagen`
+call, drafting the methods) and weak at the
+substantive judgement (whether the studies are
+poolable, whether heterogeneity is concerning).
+Use them for code, bring substantive judgement
+yourself.
 
 ## Principle in use
 
-Three habits define defensible work in this area:
+Three habits.
 
-1. **TODO.**
-2. **TODO.**
-3. **TODO.**
+1. **Random effects with HK as the default.** Fixed
+   effects only when the studies are unequivocally
+   homogeneous.
+
+2. **Report the prediction interval.** It is the
+   single most informative summary of how variable
+   true effects are likely to be in a new setting.
+
+3. **Address publication bias explicitly.** Funnel
+   plot, Egger's (with appropriate caveats),
+   trim-and-fill as sensitivity. With few studies,
+   the report names the limit.
 
 ## Exercises
 
-1. TODO.
-2. TODO.
-3. TODO.
-4. TODO.
-5. TODO.
+1. Take a published meta-analysis in your field.
+   Reproduce the pooled effect from the trial-level
+   data; verify $I^2$, $\tau^2$, and CI.
+
+2. Compute the prediction interval for a published
+   meta-analysis. Compare the width to the CI for the
+   pooled mean. Discuss the practical implication.
+
+3. For a meta-analysis with $I^2 = 70\%$, conduct a
+   meta-regression on a candidate moderator. Discuss
+   whether the moderator explains the heterogeneity.
+
+4. Construct a funnel plot for a meta-analysis of
+   8 studies. Apply Egger's test and trim-and-fill.
+   Report the result.
+
+5. Design a hypothetical network meta-analysis with
+   four treatments compared across 6 studies.
+   Identify the direct and indirect comparisons and
+   the transitivity assumption that must hold.
 
 ## Further reading
 
-- TODO (canonical reference).
-- TODO (modern applied reference).
-- TODO (software-documentation pointer).
+- @borenstein2009introduction, *Introduction to
+  Meta-Analysis*. The applied textbook.
+- @higgins2019cochrane, *Cochrane Handbook for
+  Systematic Reviews of Interventions*. The
+  reference for systematic-review methodology.
+- @rothstein2005publication, *Publication Bias in
+  Meta-Analysis*. The reference treatment.
+- @page2021prisma, the PRISMA 2020 statement and
+  flow diagram. The reporting standard.
+- The `meta`, `metafor`, `netmeta`, and `multinma`
+  R packages are the practical tools.

@@ -4,103 +4,535 @@
 
 By the end of this chapter you should be able to:
 
-- (TODO)
-- (TODO)
-- (TODO)
-- (TODO)
+- Distinguish MCAR, MAR, and MNAR mechanisms and
+  recognise each in applied contexts.
+- Apply Rubin's framework: multiple imputation,
+  Rubin's rules for combining estimates and
+  variances.
+- Implement multiple imputation by chained equations
+  (FCS) with the `mice` package, including
+  predictive-mean-matching for continuous variables
+  and logistic for binary.
+- Conduct pattern-mixture and selection-model
+  sensitivity analyses for MNAR.
+- Apply the tipping-point analysis for the
+  primary endpoint in a clinical trial.
 
 ## Orientation
 
-(TODO: short prose framing — what the chapter is, why it
-matters, how it relates to the sibling volumes.)
+The practicum volume's missing-data chapter (Ch 17)
+covered the basics: diagnose the pattern, choose a
+strategy, document. This chapter develops the
+methodology at the depth required for trials and
+publications: Rubin's framework rigorously,
+multiple imputation done well, sensitivity analyses
+for MNAR.
+
+The chapter is organised in three threads. **Theory**:
+MCAR / MAR / MNAR, Rubin's rules. **Practice**:
+multiple imputation with `mice`. **Sensitivity**:
+pattern-mixture, selection models, tipping point.
+
+The framing inherits the careful-causal-inference
+discipline from Chapters 3-4. Missing-data analysis is
+a special case of causal inference where the
+'treatment' is observation status, and the
+counterfactual is what the value would have been if
+observed. Many of the same identifying assumptions
+apply.
 
 ## The statistician's contribution {#sec-missing-data-human}
 
-(TODO: front-loaded section articulating the judgements at
-the centre of this chapter that no LLM can make on the
-reader's behalf.)
+Three judgements are not delegable.
 
-**(Judgement 1.)** TODO.
+**(Judgement 1.) The mechanism is an assumption, not a
+fact.** MAR vs. MNAR cannot be distinguished from the
+observed data alone. Whatever assumption you make is a
+substantive claim defended by the design and the
+context. The biostatistician makes the claim
+explicit, defends it, and conducts sensitivity
+analyses to quantify the consequences of violation.
 
-**(Judgement 2.)** TODO.
+**(Judgement 2.) Imputation is modelling.** Multiple
+imputation fits a model for the missing values; that
+model has assumptions about the joint distribution of
+the variables. Bad imputation introduces bias more
+cleanly than complete-case analysis would. The tools
+make imputation easy; making it correct is the
+biostatistician's responsibility.
 
-**(Judgement 3.)** TODO.
+**(Judgement 3.) Sensitivity analysis is mandatory.**
+The MAR assumption underlying most modern missing-
+data methods (multiple imputation, MMRM) cannot be
+verified from data. Reporting the primary analysis
+without quantifying what MNAR would do is incomplete.
+Tipping-point analyses or pattern-mixture models are
+part of the analysis, not optional.
 
-These judgements are what distinguish an analysis that
-survives review from one that does not.
+These judgements distinguish defensible
+missing-data handling from procedural acceptance of
+software defaults.
 
-## (TODO: first content section)
+## The three mechanisms
 
-(TODO)
+Rubin's classification [@rubin1976inference]:
+
+**MCAR (Missing Completely At Random).** Missingness
+is independent of all data, observed or unobserved:
+$$
+\Pr(R = 1 \mid Y, X) = \Pr(R = 1).
+$$
+Where $R$ is the missingness indicator. MCAR is
+testable (compare characteristics of complete and
+incomplete cases) but rarely true in clinical data.
+
+**MAR (Missing At Random).** Missingness depends only
+on observed variables:
+$$
+\Pr(R = 1 \mid Y_{\text{mis}}, Y_{\text{obs}}, X) =
+   \Pr(R = 1 \mid Y_{\text{obs}}, X).
+$$
+Conditional on what we observe, missingness is
+independent of the unobserved values. The standard
+assumption underlying multiple imputation, MMRM, and
+most modern missing-data methods.
+
+**MNAR (Missing Not At Random).** Missingness depends
+on the unobserved values:
+$$
+\Pr(R = 1 \mid Y_{\text{mis}}, Y_{\text{obs}}, X)
+  \ne \Pr(R = 1 \mid Y_{\text{obs}}, X).
+$$
+Standard methods are biased; sensitivity analyses are
+required.
+
+The mechanism is not testable from observed data
+alone. The defence of MAR is a substantive argument:
+the variables that drive missingness are observed and
+included in the imputation model.
+
+## Rubin's framework: multiple imputation
+
+The procedure [@rubin1987multiple]:
+
+1. Generate $M$ imputed datasets, each with the
+   missing values filled in.
+2. Analyse each dataset with the planned model.
+3. Combine the $M$ analyses with Rubin's rules:
+   pooled point estimate is the average; pooled
+   variance is the within-imputation variance plus
+   the between-imputation variance plus a finite-
+   sample correction.
+
+Rubin's pooled estimate:
+$$
+\bar{\theta} = \frac{1}{M}\sum_{m=1}^M \theta_m.
+$$
+
+Rubin's pooled variance:
+$$
+T = \bar{V} + \left(1 + \frac{1}{M}\right) B
+$$
+where $\bar V$ is the average within-imputation
+variance and $B$ is the between-imputation variance.
+
+In R, the `mice` package automates everything:
+
+```r
+library(mice)
+
+imp <- mice(data, m = 20, seed = 42, printFlag = FALSE)
+
+fit <- with(imp, lm(outcome ~ treatment + age + sex))
+
+pool_fit <- pool(fit)
+summary(pool_fit, conf.int = TRUE)
+```
+
+The `pool()` function applies Rubin's rules. Output
+includes pooled point estimate, pooled SE, t-statistic
+with adjusted degrees of freedom, p-value, 95% CI,
+fraction of missing information (FMI).
+
+The FMI tells you how much information was lost to
+missingness; high FMI (above ~30%) means the imputation
+is contributing substantial uncertainty and the
+result is sensitive to the imputation model.
+
+## Multiple imputation by chained equations (FCS)
+
+The mechanics:
+
+1. For each variable with missing values, specify a
+   conditional model (predictive mean matching for
+   continuous, logistic for binary, polyreg for
+   nominal).
+2. Iterate: impute one variable conditional on the
+   current values of all others; move to the next
+   variable; repeat until convergence.
+3. After convergence, generate $M$ imputed datasets.
+
+The `mice` defaults are reasonable starting points:
+
+- Continuous: predictive mean matching (`pmm`).
+  Imputed values are drawn from observed values
+  with similar predicted mean — preserves
+  distributional shape.
+- Binary: logistic regression (`logreg`).
+- Nominal categorical: multinomial logit (`polyreg`).
+- Ordinal: proportional-odds logit (`polr`).
+
+Configure when defaults are wrong:
+
+```r
+meth <- make.method(data)
+meth["age"] <- "pmm"
+meth["bmi"] <- "norm"  # normal regression
+meth["sex"] <- "logreg"
+
+pred <- make.predictorMatrix(data)
+pred[, "id"] <- 0  # do not use id as predictor
+
+imp <- mice(data, method = meth, predictorMatrix = pred,
+            m = 20, seed = 42)
+```
+
+### How many imputations?
+
+The classical rule of thumb $M = 5$ is too few for
+modern computers. The current recommendation
+[@vanbuuren2018flexible] is $M$ at least equal to
+the percentage of incomplete cases (e.g., 30
+imputations for 30% missing). For trials, $M = 50$
+or 100 is common.
+
+### The imputation model and the analysis model
+
+Both must be **congenial**: the imputation model
+should include all the variables in the analysis
+model, including interactions and any
+transformations. If the analysis includes
+$X_1 \times X_2$ interaction, the imputation model
+should include that interaction term.
+
+Failing congeniality biases the analysis toward
+'no interaction' (the imputation does not preserve
+the relationship that the analysis is trying to
+estimate). The `mice` package supports including
+interaction terms in the predictor matrix.
 
 ::: {.callout-note icon=false collapse=true}
-## Check your understanding: TODO
+## Check your understanding: what to include in the imputation model
 
-**Question.** TODO.
+**Question.** A trial has missing data on the primary
+endpoint and on baseline covariates. The analysis is
+ANCOVA: outcome ~ treatment + baseline. Should the
+imputation model include the treatment indicator?
 
 ::: {.content-visible when-format='html'}
 <details><summary>Answer</summary>
 :::
 
-TODO.
+Yes. The imputation model must be congenial with the
+analysis model, which means including all variables
+the analysis uses. Excluding treatment from the
+imputation would impose a 'no treatment effect'
+assumption on the imputation, biasing the analysis
+toward the null. Including treatment in the
+imputation lets the imputed values respect the
+treatment-effect relationship that the analysis is
+trying to estimate. The same logic applies to all
+variables in the analysis.
 
 ::: {.content-visible when-format='html'}
 </details>
 :::
 :::
 
-## (TODO: subsequent content sections)
+## Sensitivity to MNAR: pattern-mixture models
 
-(TODO)
+A pattern-mixture model decomposes the joint
+distribution by missingness pattern:
+$$
+f(Y) = \sum_R f(Y \mid R) \Pr(R).
+$$
+The distribution of $Y$ given missing differs from the
+distribution of $Y$ given observed; the analyst
+specifies how.
 
-## Worked example: TODO
+The standard implementation: **delta-adjustment**
+imputation. Impute under MAR, then add (or multiply
+by) a delta to the imputed values to reflect the
+hypothesised MNAR shift.
 
-(TODO: a concrete worked example, ideally biomedical, that
-exercises the chapter's tools end to end.)
+```r
+imp_mar <- mice(data, m = 50, seed = 42)
+
+# delta-adjustment: shift imputed values by 0.5 SD
+imp_mnar <- complete(imp_mar, action = "long",
+                    include = TRUE)
+imp_mnar$outcome[imp_mnar$.imp > 0 & is.na(...)] <-
+  imp_mnar$outcome[...] + 0.5 * sd(data$outcome)
+
+# convert back to mids and analyse
+imp_mnar_mids <- as.mids(imp_mnar)
+fit_mnar <- with(imp_mnar_mids, lm(outcome ~ treatment))
+pool(fit_mnar)
+```
+
+The interpretation: 'if we shift the imputed values
+by 0.5 SD (a worst-case adjustment for the treatment
+group), does the conclusion change?' Vary delta
+across a range and report the result for each.
+
+## Selection models
+
+A selection model factorises:
+$$
+f(Y, R) = f(Y) f(R \mid Y).
+$$
+The analyst specifies the missingness model
+$f(R \mid Y)$ — typically a logit or probit
+regression of the missingness indicator on the
+unobserved outcome.
+
+Selection models are computationally heavier than
+pattern-mixture and require stronger assumptions; in
+applied trials, pattern-mixture is the more common
+approach.
+
+## Tipping-point analysis
+
+The tipping-point analysis varies the delta-adjustment
+across a grid and reports the value at which the
+primary conclusion changes (the 'tipping point').
+
+```r
+deltas <- seq(-1, 1, by = 0.1)  # in SD units
+
+results <- map(deltas, function(d) {
+  imp_d <- impute_with_delta(imp_mar, d, treatment = 1)
+  fit <- with(imp_d, lm(outcome ~ treatment))
+  pool(fit)
+})
+
+p_values <- map_dbl(results, ...)
+
+plot(deltas, p_values)
+abline(h = 0.05)
+```
+
+The plot shows at what delta the p-value crosses 0.05.
+The tipping point is the answer to 'how strong does the
+MNAR effect need to be to overturn the conclusion'.
+The clinical context tells you whether that delta is
+plausible.
+
+For regulatory trials, the tipping-point analysis is
+increasingly the expected sensitivity for the primary
+endpoint. The protocol pre-specifies the grid and the
+interpretation rule.
+
+## Worked example: missing data in a hypertension trial
+
+The trial from Chapter 8: 800 patients, two arms,
+24-week SBP follow-up. About 12% of patients have
+missing week-24 SBP. The investigator wants to:
+
+1. Run the primary MMRM (handles MAR implicitly).
+2. Run a multiple-imputation sensitivity to verify
+   the MMRM result.
+3. Run a pattern-mixture sensitivity for MNAR
+   ('jump-to-reference': missing patients in the
+   treatment arm are imputed as if they were in the
+   control arm — a worst-case for the treatment).
+4. Run a tipping-point analysis.
+
+```r
+library(tidyverse)
+library(mice)
+library(mmrm)
+
+trial <- read_csv("data/bp-trial.csv")
+
+# 1. Primary MMRM
+fit_primary <- mmrm(...)
+emmeans(fit_primary, ~ treatment | visit,
+        at = list(visit = 24)) |>
+  pairs()
+# treatment effect: -11.3 mmHg, 95% CI -14.2, -8.4
+
+# 2. Multiple imputation
+imp <- mice(trial_long, m = 50, seed = 42,
+            method = "pmm")
+fit_mi <- with(imp, lm(week24_sbp ~ treatment +
+                       baseline_sbp))
+pool_mi <- pool(fit_mi)
+summary(pool_mi, conf.int = TRUE)
+# treatment effect: -11.1 mmHg, 95% CI -14.0, -8.3
+# Reassuring: matches MMRM
+
+# 3. Jump-to-reference
+trial_jr <- impute_jump_to_reference(
+  trial_long, imp,
+  group = "treatment",
+  reference = 0
+)
+fit_jr <- with(trial_jr, lm(week24_sbp ~ treatment +
+                            baseline_sbp))
+pool_jr <- pool(fit_jr)
+# treatment effect under JR: -8.7 mmHg, 95% CI -11.5, -5.9
+# Still significantly below zero — robust to JR
+
+# 4. Tipping-point
+delta_grid <- seq(-2, 0, by = 0.1)  # SD units
+tp_results <- map_dfr(delta_grid, function(d) {
+  trial_d <- impute_with_delta(trial_long, d,
+                                group_for = "treatment")
+  fit_d <- with(trial_d, lm(week24_sbp ~ treatment +
+                             baseline_sbp))
+  pool_d <- pool(fit_d)
+  tibble(delta = d, p = summary(pool_d)$p.value[2])
+})
+
+ggplot(tp_results, aes(delta, p)) +
+  geom_line() + geom_hline(yintercept = 0.05) +
+  labs(x = "Delta (SD units)", y = "p-value")
+# tipping point: delta = -1.4 SD
+# Interpretation: missing-data shift of 1.4 SD in the
+# adverse direction would overturn the conclusion;
+# this is implausibly large.
+```
+
+The methods section reports each: primary MMRM,
+multiple imputation as cross-check, jump-to-reference
+as a stress test, tipping point. The conclusion is
+that the treatment effect is robust to the missing-
+data assumption.
+
+## Multiple imputation in time-to-event data
+
+Time-to-event data has its own missing-data structure:
+covariates may be missing, but the event time is
+typically observed (or the patient is censored, which
+is its own kind of 'missing').
+
+Multiple imputation for survival analysis is
+implemented in `mice` with care to include the
+Nelson-Aalen estimator of the cumulative hazard as a
+predictor (so the imputation model knows which
+patients are at risk). The `smcfcs` package
+implements substantive-model-compatible FCS for
+survival outcomes.
+
+The introductory SCAI volume's survival chapter and
+the SCAI-advanced volume cover the methodology;
+this chapter notes the issue and points to the
+specialty references.
 
 ## Collaborating with an LLM on missing-data analysis
 
-(TODO: introduction paragraph naming the LLM-collaboration
-patterns specific to this chapter.)
+Three patterns.
 
-**Prompt 1: TODO.** TODO.
+**Prompt 1: 'Set up multiple imputation for this
+analysis.'** Provide the data structure and the
+analysis model.
 
-*What to watch for.* TODO.
+*What to watch for.* The LLM produces working `mice`
+code. It often defaults to $M = 5$ (too few) and
+omits the analysis-model variables from the imputation
+predictors. Push for $M$ at least equal to the
+percentage missing and for full congeniality.
 
-*Verification.* TODO.
+*Verification.* Run with the suggested settings;
+compare to a more conservative version with $M = 50$.
+Confirm the analysis-model variables (including
+interactions) are in the imputation.
 
-**Prompt 2: TODO.** TODO.
+**Prompt 2: 'Design a sensitivity analysis for
+unmeasured MNAR in this trial.'** Provide the
+trial setup.
 
-*What to watch for.* TODO.
+*What to watch for.* The LLM proposes pattern-
+mixture or selection. It tends to under-specify the
+range of delta values and the interpretation rule.
+Push for a concrete grid and a pre-specified
+threshold for 'tipping point reached'.
 
-*Verification.* TODO.
+*Verification.* The grid should span clinically
+plausible MNAR scenarios. The interpretation should be
+explicit (delta in original units, in SD units, or
+in absolute risk change).
 
-**Prompt 3: TODO.** TODO.
+**Prompt 3: 'Interpret the FMI for this analysis.'**
+Provide the `pool()` output.
 
-*What to watch for.* TODO.
+*What to watch for.* The LLM correctly explains FMI.
+It tends to provide generic thresholds (0.5 = high,
+etc.) without anchoring to the specific context.
+Push for the trial-specific implication.
 
-*Verification.* TODO.
+*Verification.* High FMI (>0.3) is a flag that the
+result depends substantially on the imputation. Plan
+for sensitivity.
 
-The meta-pattern: TODO.
+The meta-pattern: LLMs are good for the syntactic
+mechanics of `mice` and similar tools and weak at
+the substantive judgement of how to defend MAR vs.
+MNAR. Use them for code; bring the substantive
+reasoning yourself.
 
 ## Principle in use
 
-Three habits define defensible work in this area:
+Three habits.
 
-1. **TODO.**
-2. **TODO.**
-3. **TODO.**
+1. **Defend the missing-data mechanism explicitly.**
+   The protocol or SAP states which mechanism is
+   assumed and why.
+2. **Run multiple imputation with $M$ at least equal
+   to the percentage of incomplete cases.** Use full
+   congeniality.
+3. **Include sensitivity analyses for MNAR.** A
+   tipping-point or pattern-mixture analysis is part
+   of the result; the primary alone is incomplete.
 
 ## Exercises
 
-1. TODO.
-2. TODO.
-3. TODO.
-4. TODO.
-5. TODO.
+1. Take a dataset with missing values. Compute the
+   missingness pattern (`mice::md.pattern()`).
+   Identify which variables are missing for which
+   subsets.
+
+2. Run `mice` with default settings on a small
+   dataset. Examine the imputed values; check that
+   they look plausible.
+
+3. For a trial with missing primary-endpoint data,
+   run primary MMRM, multiple imputation
+   sensitivity, and jump-to-reference sensitivity.
+   Compare the three estimates.
+
+4. Construct a tipping-point analysis with a grid of
+   delta values. Identify the tipping point and
+   discuss whether it is clinically plausible.
+
+5. For a published trial with reported missing-data
+   handling, identify the assumed mechanism, the
+   primary analysis, and the sensitivity analyses.
+   Comment on whether the sensitivity analyses
+   adequately cover the plausible MNAR scenarios.
 
 ## Further reading
 
-- TODO (canonical reference).
-- TODO (modern applied reference).
-- TODO (software-documentation pointer).
+- @vanbuuren2018flexible, *Flexible Imputation of
+  Missing Data* (2nd edition). The reference textbook
+  for the `mice` framework.
+- @rubin1987multiple, *Multiple Imputation for
+  Nonresponse in Surveys*. The foundational text
+  for Rubin's framework.
+- @national2010prevention, the National Research
+  Council report on missing data in clinical trials.
+  Pre-ICH-E9-R1 but still relevant for sensitivity-
+  analysis design.
+- The `mice`, `mitml`, and `mi` package
+  documentation are the practical references.

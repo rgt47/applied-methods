@@ -4,103 +4,579 @@
 
 By the end of this chapter you should be able to:
 
-- (TODO)
-- (TODO)
-- (TODO)
-- (TODO)
+- Construct Kaplan-Meier curves and read them
+  correctly, including the censoring marks and the
+  number-at-risk table.
+- Fit a Cox proportional hazards model and check the
+  proportional-hazards assumption with `cox.zph`.
+- Distinguish cause-specific hazards from the
+  Fine-Gray subdistribution hazard model when
+  competing risks are present, and choose between them
+  by question.
+- Compute and interpret restricted mean survival time
+  (RMST) and recognise when it is the right summary.
+- Handle time-varying covariates with the (start,
+  stop, event) data structure.
+- Recognise and report immortal-time bias and
+  conditioning-on-the-future errors.
 
 ## Orientation
 
-(TODO: short prose framing — what the chapter is, why it
-matters, how it relates to the sibling volumes.)
+Survival analysis (more accurately, time-to-event
+analysis) is the methods area where biostatistics
+diverges most sharply from general statistics. Time-to-
+event data has censoring, the proportional-hazards
+assumption is testable, competing risks are common,
+and the most-reported summary (the hazard ratio) has
+known interpretive pitfalls. The introductory volume
+covered survival as a model class; this chapter
+develops the applied depth required for clinical
+research and regulatory submissions.
+
+The chapter is organised in three threads.
+**Foundations**: censoring, survival functions,
+hazards, Kaplan-Meier. **Cox PH and beyond**: the
+workhorse model, proportional-hazards diagnostics,
+extensions for time-varying covariates and competing
+risks. **Modern alternatives**: RMST, parametric
+models when PH fails.
 
 ## The statistician's contribution {#sec-survival-human}
 
-(TODO: front-loaded section articulating the judgements at
-the centre of this chapter that no LLM can make on the
-reader's behalf.)
+Three judgements are not delegable.
 
-**(Judgement 1.)** TODO.
+**(Judgement 1.) The hazard ratio is not always the
+right summary.** A Cox HR of 0.7 is reported routinely;
+the substantive interpretation ('30% reduction in
+hazard') is widely misread as 'survival is 30% better'.
+When proportional hazards fails, the HR is a weighted
+average over follow-up time and may not summarise the
+effect at any specific time point. The biostatistician
+chooses the summary (HR, RMST, milestone survival,
+absolute risk difference) by what the audience needs
+to act on, not by software default.
 
-**(Judgement 2.)** TODO.
+**(Judgement 2.) Competing risks change the question.**
+A patient who dies of competing causes cannot
+subsequently experience the event of interest (e.g.,
+disease recurrence). Treating death as 'censoring' in
+a standard Cox model overstates cumulative incidence.
+The biostatistician identifies competing risks and
+chooses cause-specific or subdistribution methods to
+match the question.
 
-**(Judgement 3.)** TODO.
+**(Judgement 3.) Time-varying covariates are common
+sources of bias.** The 'patient took drug X for at
+least 6 months' as a baseline covariate is immortal-
+time bias: patients who survived 6 months had to
+survive 6 months, so the comparison group is
+artificially impoverished. The biostatistician
+recognises immortal-time bias and reformulates the
+analysis using the (start, stop, event) structure
+or target-trial emulation.
 
-These judgements are what distinguish an analysis that
-survives review from one that does not.
+## Foundations: hazard, survival, Kaplan-Meier
 
-## (TODO: first content section)
+For a time-to-event variable $T$:
 
-(TODO)
+**Survival function** $S(t) = \Pr(T > t)$. The
+probability of being event-free at time $t$.
+
+**Hazard function** $\lambda(t)$. The instantaneous
+event rate among those still at risk:
+$$
+\lambda(t) = \lim_{\Delta t \to 0}
+              \frac{\Pr(t \le T < t + \Delta t \mid T \ge t)}{\Delta t}.
+$$
+
+The two are related by:
+$$
+S(t) = \exp\left(-\int_0^t \lambda(u) \, du\right) =
+       \exp(-\Lambda(t))
+$$
+where $\Lambda(t)$ is the cumulative hazard.
+
+**Censoring** is the defining feature: a patient is
+'censored' at time $c$ if their event time $T > c$
+but $T$ is not observed. The Kaplan-Meier estimator
+incorporates censoring:
+$$
+\hat S(t) = \prod_{t_i \le t}\left(1 - \frac{d_i}{n_i}\right)
+$$
+where $d_i$ is the number of events at time $t_i$ and
+$n_i$ is the number at risk just before $t_i$.
+
+```r
+library(survival)
+library(survminer)
+
+fit_km <- survfit(Surv(time, event) ~ treatment,
+                  data = trial)
+ggsurvplot(fit_km, data = trial,
+           risk.table = TRUE,
+           conf.int = TRUE,
+           pval = TRUE)
+```
+
+The plot includes the survival curves, 95% CIs, the
+log-rank p-value, and (essential) the
+number-at-risk table. The number-at-risk table is
+non-negotiable in published KM plots; without it the
+reader cannot evaluate the precision of the curves at
+later time points.
+
+## The Cox proportional hazards model
+
+The model:
+$$
+\lambda(t \mid X) = \lambda_0(t) \exp(X^T \beta)
+$$
+where $\lambda_0(t)$ is the (unspecified) baseline
+hazard. The coefficients $\beta$ are log-hazard ratios.
+
+Estimation via partial likelihood — no specification
+of $\lambda_0(t)$ required. This is what makes Cox the
+workhorse: minimal parametric assumptions, just
+proportional hazards.
+
+```r
+fit_cox <- coxph(Surv(time, event) ~ treatment + age +
+                   sex + stage,
+                 data = trial)
+summary(fit_cox)
+#> ...
+#>           coef exp(coef) se(coef)    z Pr(>|z|)
+#> treatment -0.36     0.70     0.10 -3.6   0.0003
+#> age        0.02     1.02     0.01  4.0   <0.001
+#> ...
+```
+
+The `exp(coef)` is the hazard ratio. `treatment`'s HR
+of 0.70 means the hazard is 70% of the control hazard
+at any time, holding other covariates fixed.
+
+### Proportional-hazards assumption
+
+The model assumes the hazard ratio is constant over
+follow-up. Test with `cox.zph`:
+
+```r
+ph_test <- cox.zph(fit_cox)
+print(ph_test)
+plot(ph_test)
+```
+
+A significant p-value indicates non-proportional
+hazards. Inspection of the plot shows whether the
+violation is mild or severe.
+
+If proportional hazards fails:
+
+1. **Stratify** the violator: include it as a stratum
+   variable (`strata(stage)`) rather than a
+   covariate. The model fits separate baseline
+   hazards within each stratum.
+2. **Add a time-varying coefficient** for the
+   violator (`tt(variable)` syntax in `coxph` or
+   manually constructed time interactions).
+3. **Switch summary**: report RMST, milestone
+   survival, or hazard ratios at specific time
+   intervals.
+
+The first option is the most common.
+
+### Time-varying covariates
+
+For covariates that change over follow-up (e.g., a
+biomarker measured periodically), use the (start,
+stop, event) data structure:
+
+```r
+# Each patient contributes multiple rows, one per interval
+# during which the covariate value is constant
+trial_long <- expand_to_intervals(trial, biomarker_data)
+
+fit_tvc <- coxph(Surv(start, stop, event) ~
+                   treatment + biomarker_current,
+                 data = trial_long)
+```
+
+The (start, stop, event) form is also the right
+structure for clone-censor-weight analyses (Ch 4) and
+for handling left truncation (when patients enter the
+risk set after time zero).
 
 ::: {.callout-note icon=false collapse=true}
-## Check your understanding: TODO
+## Check your understanding: when stratified beats covariate
 
-**Question.** TODO.
+**Question.** A trial Cox model includes 'stage'
+(I, II, III, IV) as a covariate. The PH test on
+'stage' is significant — the hazard ratios across
+stages are not constant over time. Should you
+include stage as a covariate, as a stratum, or
+both?
 
 ::: {.content-visible when-format='html'}
 <details><summary>Answer</summary>
 :::
 
-TODO.
+Stratify on stage. Including stage as a covariate
+when its hazard ratio is non-proportional gives a
+biased estimate of the treatment effect (the model
+mis-specifies the baseline hazard). Stratifying lets
+each stage have its own baseline hazard, and the
+treatment effect is estimated within strata. The
+trade is that you lose the ability to estimate the
+'effect of stage' from the model — but you would
+not have wanted that estimate anyway under non-
+proportional hazards (it is not a single number). Use
+stage's effect on survival from a separate
+KM-by-stage analysis or absolute risks.
 
 ::: {.content-visible when-format='html'}
 </details>
 :::
 :::
 
-## (TODO: subsequent content sections)
+## Competing risks
 
-(TODO)
+A competing risk is an event that prevents the event
+of interest from occurring. In oncology, death from
+non-cancer causes competes with death from cancer or
+disease progression.
 
-## Worked example: TODO
+The naive Cox analysis treats competing risks as
+censoring, which assumes patients censored due to
+death from non-cancer causes have the same future
+risk of cancer death as those who continue at risk
+— biologically false. Two correct approaches:
 
-(TODO: a concrete worked example, ideally biomedical, that
-exercises the chapter's tools end to end.)
+**Cause-specific hazards** estimate the hazard of
+each cause separately:
+$$
+\lambda_k(t \mid X) = \lambda_{0k}(t)\exp(X^T\beta_k)
+$$
+Useful when the question is 'what affects the rate of
+this specific cause of failure'. Estimated by Cox with
+each cause treated as the event and all others
+censored:
+
+```r
+# cause-specific for cancer death
+fit_cs_cancer <- coxph(Surv(time, status == "cancer") ~
+                         treatment + age,
+                       data = trial)
+
+# cause-specific for non-cancer death
+fit_cs_non <- coxph(Surv(time, status == "non_cancer") ~
+                      treatment + age,
+                    data = trial)
+```
+
+**Fine-Gray subdistribution hazard** estimates the
+'subdistribution hazard' for one cause, which models
+the cumulative incidence directly:
+$$
+\bar\lambda_k(t \mid X) =
+   \lim_{\Delta t \to 0}
+   \frac{\Pr(t \le T < t + \Delta t,
+             K = k \mid T \ge t \cup
+             (T < t \cap K \ne k))}{\Delta t}
+$$
+Useful when the question is 'what is the cumulative
+incidence of this cause' (and you want the model to
+respect the competing risks).
+
+```r
+library(cmprsk)
+
+fit_fg <- crr(ftime = trial$time,
+              fstatus = trial$status,
+              cov1 = trial[, c("treatment", "age")],
+              failcode = 1, cencode = 0)
+summary(fit_fg)
+```
+
+The choice between cause-specific and Fine-Gray
+depends on the question. Aetiology questions (what
+affects the rate of this cause) favour cause-specific.
+Prediction and risk-stratification questions (what is
+the cumulative incidence) favour Fine-Gray. Modern
+applied work often reports both [@austin2017competing].
+
+The `tidycmprsk` package provides a tidy interface to
+both.
+
+## Restricted mean survival time
+
+When proportional hazards fails or the audience needs
+an absolute summary, RMST is the modern alternative
+[@uno2014moving]:
+$$
+\text{RMST}(t^*) = E[\min(T, t^*)] =
+                   \int_0^{t^*} S(u) \, du.
+$$
+The expected survival time over the follow-up window
+$[0, t^*]$. Has units of time (e.g., months).
+
+The RMST difference between treatment and control is
+the difference in expected survival time over the
+window — interpretable directly as 'patients on
+treatment lived an average of X months longer over Y
+months of follow-up'.
+
+```r
+library(survRM2)
+
+rmst_result <- rmst2(time = trial$time,
+                     status = trial$event,
+                     arm = trial$treatment,
+                     tau = 24)  # 24-month window
+print(rmst_result)
+#> Restricted Mean Survival Time
+#> tau = 24
+#> Group 1 RMST: 18.4 (SE 0.8)
+#> Group 0 RMST: 16.1 (SE 0.9)
+#> Difference  : 2.3 (95% CI 0.7-3.9, p = 0.005)
+```
+
+The interpretation: over 24 months, patients on
+treatment lived an average of 2.3 months longer than
+control (95% CI 0.7-3.9 months). Compare to the HR
+of 0.7 — the RMST difference grounds the effect in
+absolute time, which is what clinicians and patients
+can act on.
+
+For RMST as a primary summary: `nph::nphHR()` provides
+similar functionality. The choice of $t^*$ should be
+specified in the protocol; the maximum observed
+follow-up time is a common choice but artificial.
+
+## Recurrent events
+
+Some events recur within patients (hospitalisations,
+infections, exacerbations). Treating only the first
+event ignores most of the information. Approaches:
+
+- **Anderson-Gill model**: extends Cox to recurrent
+  events using the counting-process framework.
+  Treats events as conditionally independent given
+  covariates.
+- **Frailty models** (`coxme`, `frailtypack`): random
+  effects for unobserved patient-level
+  susceptibility.
+- **Marginal models** (`survival::coxph` with
+  `cluster`): population-average effects with
+  robust SE.
+
+The `survival` package's vignette on time-dependent
+covariates and recurrent events is the practical
+reference.
+
+## Immortal-time bias and the target-trial framework
+
+Immortal-time bias is the most common error in
+observational survival analysis. Example: a study
+compares 'patients on drug X for at least 6 months'
+to 'patients not on drug X'. The drug-X group is
+guaranteed to have survived 6 months; the comparison
+group is not. The 'time at risk' is asymmetric, and
+the apparent benefit of drug X is exaggerated.
+
+The fix: use the (start, stop, event) structure to
+treat drug-X exposure as a time-varying covariate
+that turns on when the patient initiates the drug.
+Or use the target-trial framework (Ch 2) to define
+exposure groups at time zero.
+
+Other survival-specific traps:
+
+- **Conditioning on the future**: defining a
+  baseline covariate using information observed
+  after time zero. E.g., 'patients who eventually
+  reach disease milestone X' — by conditioning on
+  reaching the milestone, you condition on a
+  function of the outcome.
+- **Differential follow-up**: when treatment groups
+  have different follow-up durations (e.g., one arm
+  enrolled later), the 'censoring' patterns differ
+  and bias may result.
+
+These are deep traps; the careful biostatistician
+recognises them before fitting the model.
+
+## Worked example: a survival analysis with all the pieces
+
+A trial of treatment X vs. standard care in
+metastatic cancer. Outcome: overall survival.
+Competing risk: death from non-cancer causes.
+Median follow-up: 24 months.
+
+```r
+library(survival)
+library(survminer)
+library(tidycmprsk)
+library(survRM2)
+
+trial <- read_csv("data/cancer-trial.csv")
+
+# 1. KM curves with risk table
+ggsurvplot(survfit(Surv(time, event) ~ treatment,
+                   data = trial),
+           data = trial,
+           risk.table = TRUE,
+           conf.int = TRUE,
+           pval = TRUE)
+
+# 2. Cox PH model
+fit_cox <- coxph(Surv(time, event) ~ treatment + age +
+                   sex + ecog,
+                 data = trial)
+summary(fit_cox)
+
+# 3. Check PH assumption
+cox.zph(fit_cox)
+# Suppose the test on 'stage' is significant —
+# stratify
+fit_cox2 <- coxph(Surv(time, event) ~ treatment + age +
+                    sex + ecog + strata(stage),
+                  data = trial)
+cox.zph(fit_cox2)  # all p > 0.05
+
+# 4. Competing-risks analysis
+fit_cs <- cuminc(Surv(time, status) ~ treatment,
+                 data = trial)
+plot(fit_cs)
+
+# 5. RMST as a sensitivity summary
+rmst2(time = trial$time, status = trial$event,
+      arm = trial$treatment, tau = 24)
+```
+
+The reported analysis includes:
+
+- KM curves and the log-rank p-value as the primary
+  visual.
+- Cox HR (with appropriate stratification) for the
+  primary effect estimate.
+- RMST difference at 24 months as a clinically
+  interpretable summary.
+- Competing-risks cumulative incidence to address
+  the elderly population (where non-cancer death is
+  substantial).
+
+The methods section names each: 'we report the Cox
+hazard ratio, with stratification on stage to address
+non-proportional hazards. The treatment effect is also
+summarised as a 24-month RMST difference and as
+cumulative incidence functions to address competing
+risks from non-cancer death.'
 
 ## Collaborating with an LLM on applied survival analysis
 
-(TODO: introduction paragraph naming the LLM-collaboration
-patterns specific to this chapter.)
+Three patterns.
 
-**Prompt 1: TODO.** TODO.
+**Prompt 1: 'Build the survival model for this trial.'**
+Provide the data structure and the protocol.
 
-*What to watch for.* TODO.
+*What to watch for.* The LLM produces a clean Cox
+formulation. It often defaults to including all
+covariates without stratification; if PH fails on a
+covariate, the model is biased. Push for the PH check
+and stratification or alternative summary.
 
-*Verification.* TODO.
+*Verification.* Run `cox.zph()` on the proposed model;
+inspect the result.
 
-**Prompt 2: TODO.** TODO.
+**Prompt 2: 'Should we use Fine-Gray or cause-specific
+for this competing-risks question?'** Provide the
+question and the data.
 
-*What to watch for.* TODO.
+*What to watch for.* The LLM gives a competent
+distinction. It tends to default to one or the other
+without anchoring to the substantive question. Push
+for the link between question and method.
 
-*Verification.* TODO.
+*Verification.* Map the choice back to the question.
+Aetiology favours cause-specific; risk prediction
+favours Fine-Gray.
 
-**Prompt 3: TODO.** TODO.
+**Prompt 3: 'Is this analysis vulnerable to
+immortal-time bias?'** Provide the analysis description.
 
-*What to watch for.* TODO.
+*What to watch for.* The LLM correctly identifies
+classic immortal-time-bias patterns ('on-treatment
+for X days as baseline covariate'). It tends to miss
+subtler versions ('survived to receive a particular
+test result'). Provide enough detail for the LLM to
+judge.
 
-*Verification.* TODO.
+*Verification.* The clearest test: is the exposure
+defined using information observed after time zero?
+If yes, you have the bias.
 
-The meta-pattern: TODO.
+The meta-pattern: LLMs are good at the syntactic
+mechanics (writing the Cox formula, suggesting
+diagnostics) and weak at the substantive judgement
+(whether PH holds in your data, which framework
+matches the question, whether immortal time is
+present). Use them for code; bring the substantive
+reasoning yourself.
 
 ## Principle in use
 
-Three habits define defensible work in this area:
+Three habits.
 
-1. **TODO.**
-2. **TODO.**
-3. **TODO.**
+1. **Always check proportional hazards.** `cox.zph()`
+   is one line; report the result.
+2. **Address competing risks deliberately.**
+   Cause-specific or Fine-Gray, chosen by question.
+   Both reported when the audience benefits.
+3. **Pair the HR with an absolute summary.** The HR
+   is fine for the primary; RMST or milestone
+   survival makes the magnitude interpretable.
 
 ## Exercises
 
-1. TODO.
-2. TODO.
-3. TODO.
-4. TODO.
-5. TODO.
+1. For a published trial in your area, compute the
+   RMST difference at the trial's primary follow-up
+   point. Compare to the reported HR. Reflect on
+   which is the better summary for a clinical
+   audience.
+
+2. Take a competing-risks dataset (e.g., the `bmt`
+   data in `cmprsk`). Compute cumulative incidence
+   functions for both events. Compare to the naive
+   1-KM estimate; quantify the overestimation.
+
+3. Run `cox.zph()` on a Cox model from your work.
+   For any covariate with a significant
+   non-proportionality, fit a stratified version and
+   compare the treatment HR.
+
+4. Construct a hypothetical immortal-time bias
+   situation. Estimate the magnitude of the bias by
+   simulation. Document.
+
+5. Implement an analysis with time-varying
+   covariates using the (start, stop, event)
+   structure. Verify the result against a
+   single-baseline-covariate model on a dataset
+   without changes.
 
 ## Further reading
 
-- TODO (canonical reference).
-- TODO (modern applied reference).
-- TODO (software-documentation pointer).
+- @therneau2000modeling, *Modeling Survival Data:
+  Extending the Cox Model*. The reference for the
+  applied survival material in this chapter.
+- @kleinbaum2012survival, *Survival Analysis: A
+  Self-Learning Text*. The applied textbook.
+- @austin2017competing, 'Practical recommendations
+  for reporting Fine-Gray model analyses for
+  competing risk data'. The applied reference.
+- @uno2014moving, 'Moving beyond the hazard ratio
+  in quantifying the between-group difference'. The
+  RMST reference.
+- The `survival`, `cmprsk`, `tidycmprsk`,
+  `survminer`, and `survRM2` package documentation
+  are the practical references.

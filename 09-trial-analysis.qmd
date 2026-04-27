@@ -4,103 +4,550 @@
 
 By the end of this chapter you should be able to:
 
-- (TODO)
-- (TODO)
-- (TODO)
-- (TODO)
+- Distinguish ITT, modified-ITT, per-protocol, and
+  as-treated analysis populations and choose the
+  primary analysis that matches the trial's primary
+  estimand.
+- Apply standard adjustment strategies (stratified
+  analysis, ANCOVA, MMRM) and recognise when each is
+  appropriate.
+- Implement multiplicity control for multiple
+  endpoints, multiple comparisons, and interim
+  analyses (Bonferroni, Hochberg, gatekeeping,
+  spending functions).
+- Draft a CONSORT-compliant trial report including the
+  flow diagram, baseline-characteristics table,
+  primary analysis, and pre-specified subgroup
+  analyses.
+- Conduct ICH E9 R1-style sensitivity analyses for
+  the primary estimand.
 
 ## Orientation
 
-(TODO: short prose framing — what the chapter is, why it
-matters, how it relates to the sibling volumes.)
+Chapter 8 covered the design decisions made before
+enrolment. This chapter covers the analysis decisions
+made after database lock, and the reporting
+conventions the trial must satisfy. The boundary is
+not perfectly clean — the SAP is finalised before
+unblinding — but the methodological focus is.
+
+The chapter is organised in three threads. **Analysis
+populations**: ITT, mITT, PP, AT, and the connection
+to the primary estimand. **Adjustment and
+multiplicity**: stratified analysis, ANCOVA, MMRM,
+multiplicity-controlled testing. **Reporting**: the
+CONSORT flow diagram, the baseline-characteristics
+table, the primary-analysis presentation, sensitivity
+analyses. The chapter closes with the regulatory
+expectations as of 2026.
 
 ## The statistician's contribution {#sec-trial-analysis-human}
 
-(TODO: front-loaded section articulating the judgements at
-the centre of this chapter that no LLM can make on the
-reader's behalf.)
+Three judgements are not delegable.
 
-**(Judgement 1.)** TODO.
+**(Judgement 1.) The primary analysis matches the
+primary estimand.** The protocol specifies the primary
+estimand; the SAP specifies the primary analysis. The
+analysis must estimate the estimand. ITT for
+treatment-policy estimands; PP or hypothetical for
+adherence-conditional estimands. The biostatistician
+identifies any discrepancy between primary estimand and
+primary analysis before unblinding and corrects it.
 
-**(Judgement 2.)** TODO.
+**(Judgement 2.) Pre-specification is a discipline,
+not a formality.** Every analysis decision in the SAP
+constrains the analysis team. Decisions made after
+unblinding (or after seeing the data) introduce
+flexibility that biases the result toward whatever
+hypothesis the analyst preferred. The biostatistician
+maintains the SAP as a contract: deviations are
+documented and justified, not silent.
 
-**(Judgement 3.)** TODO.
+**(Judgement 3.) Sensitivity analyses are part of the
+result.** The primary analysis estimates the primary
+estimand under the primary assumptions. Sensitivity
+analyses estimate the same estimand under perturbed
+assumptions (different missing-data mechanism,
+different intercurrent-event strategy, different
+covariates). The biostatistician designs the
+sensitivity analyses with the primary, not after the
+primary result is in.
 
-These judgements are what distinguish an analysis that
-survives review from one that does not.
+These judgements are what distinguish a defensible
+trial report from one that produces a number with
+inadequate context.
 
-## (TODO: first content section)
+## Analysis populations
 
-(TODO)
+Four standard populations:
+
+**Intention-to-treat (ITT)**: every randomised patient
+analysed in the arm to which they were assigned,
+regardless of treatment received. Estimates the
+treatment-policy estimand. The most conservative
+choice for superiority trials (deviations from the
+assigned treatment dilute toward the null); typically
+the primary for regulatory superiority trials.
+
+**Modified ITT (mITT)**: ITT excluding specific
+subsets (e.g., patients who never received any dose,
+patients with no post-baseline measurement). The
+exclusions must be pre-specified and justified;
+otherwise mITT becomes a vehicle for selecting the
+best-looking analysis.
+
+**Per-protocol (PP)**: only patients who received the
+assigned treatment as specified, with adequate
+adherence and no major protocol deviations.
+Estimates closer to the hypothetical estimand.
+Sometimes the primary in non-inferiority trials.
+
+**As-treated (AT)**: patients analysed in the arm of
+the treatment they actually received. Useful for
+safety analyses; rarely appropriate as the primary
+efficacy population.
+
+The choice of population is part of the protocol;
+it is not made post-hoc. Every analysis defines its
+population precisely.
+
+## Adjustment strategies
+
+**Stratified analysis** when randomisation was
+stratified. The stratification variables enter the
+analysis as fixed effects (or as a stratified test
+statistic for non-parametric methods). Failing to
+stratify when the design did inflates type I error
+and reduces power.
+
+**ANCOVA (Analysis of Covariance)** for continuous
+endpoints with a pre-specified baseline covariate (the
+baseline value of the endpoint, in particular).
+Adjusting for baseline removes a known source of
+variability, narrows the CI for the treatment effect,
+and is the default for change-from-baseline analyses.
+
+```r
+fit_ancova <- lm(week24 ~ treatment + baseline + stratum,
+                 data = trial)
+summary(fit_ancova)
+```
+
+ANCOVA on the change score (`week24 - baseline ~ treatment`)
+gives a different result from ANCOVA on the raw
+endpoint. The latter is preferred (regression to the
+mean is properly handled).
+
+**MMRM (Mixed Model for Repeated Measures)** for
+longitudinal continuous endpoints. The standard for
+trials with repeated measurements:
+
+```r
+library(nlme)
+
+fit_mmrm <- gls(value ~ visit * treatment + baseline +
+                  stratum,
+                data = trial_long,
+                correlation = corSymm(form = ~ visit_num | id),
+                weights = varIdent(form = ~ 1 | visit))
+```
+
+The `corSymm` allows arbitrary correlation across
+visits; `varIdent` allows different variance at each
+visit. This unstructured covariance is the standard
+choice and is robust to mis-specification.
+
+The `mmrm` package provides a more user-friendly
+interface specific to clinical trials.
+
+For binary or categorical endpoints, the standard
+adjustments are stratified Cochran-Mantel-Haenszel
+or logistic regression with covariates. For
+time-to-event, stratified Cox regression.
+
+The pre-specified covariates and stratification
+factors should be listed in the SAP. Adding
+covariates post-hoc is a deviation that requires
+justification and is typically reported as a
+sensitivity rather than the primary.
+
+## Multiplicity
+
+Multiple comparisons inflate type I error if not
+controlled. Four contexts:
+
+**Multiple primary endpoints.** Two or more endpoints
+that must each be statistically significant for the
+trial to succeed (the **co-primary** structure) — no
+multiplicity adjustment needed for the conjunction
+because the joint type I error is already controlled.
+Or one endpoint that 'wins' if any is significant
+(the **multiple-primary** structure) — multiplicity
+adjustment required.
+
+**Multiple secondary endpoints.** Hierarchical testing
+(test endpoint 2 only if endpoint 1 is significant)
+controls familywise error without explicit
+adjustment. Bonferroni or Hochberg adjustment if all
+are tested simultaneously.
+
+**Multiple comparisons across treatment arms.** In a
+multi-arm trial, comparing each new treatment to
+control requires adjustment (Dunnett's procedure is
+standard).
+
+**Multiple looks (interim analyses).** Group-sequential
+boundaries (Ch 8) control type I error across
+interim analyses.
+
+The SAP specifies the multiplicity strategy
+explicitly. Common patterns:
+
+- **Bonferroni**: simple, conservative. Divide $\alpha$
+  by the number of tests. $\alpha/k$.
+- **Holm**: step-down. Test the most significant first
+  at $\alpha/k$, then $\alpha/(k-1)$, etc. Less
+  conservative than Bonferroni; uniformly more
+  powerful.
+- **Hochberg**: step-up. Test the least significant
+  first at $\alpha$, then $\alpha/2$, etc. More
+  powerful than Holm under PRDS.
+- **Hierarchical (gatekeeping)**: test endpoints in
+  pre-specified order; subsequent tests only if all
+  prior pass. No formal adjustment.
+
+The `multcomp` and `gMCP` packages implement
+these in R.
+
+## CONSORT and reporting standards
+
+The CONSORT 2010 guidelines [@schulz2010consort] are
+the reference for trial reporting. The most-cited
+elements:
+
+**The CONSORT flow diagram**: shows enrolment,
+randomisation, allocation, follow-up, and analysis
+counts at each stage. Required by most journals.
+
+The `consort` R package generates the diagram
+programmatically:
+
+```r
+library(consort)
+g <- consort_plot(...)
+```
+
+**Table 1** (baseline characteristics by treatment
+arm) demonstrates the success of randomisation. It is
+a description, not a hypothesis test; the convention
+is to NOT report p-values for differences in baseline
+variables in randomised trials [@knol2012randomization].
+The `tableone` and `gtsummary` packages produce
+publication-ready tables.
+
+```r
+library(gtsummary)
+trial |>
+  select(treatment, age, sex, bmi, severity) |>
+  tbl_summary(by = treatment) |>
+  add_overall()
+```
+
+**Primary analysis presentation**: the point estimate,
+its 95% CI, the p-value (where applicable), the
+analysis method, the population, the
+intercurrent-event strategy. A complete sentence:
+
+> 'In the ITT population, treatment with X reduced
+> mean change in HbA1c at week 24 by 0.42% (95% CI
+> 0.31-0.53%, p < 0.001) compared with placebo,
+> using MMRM with treatment, visit,
+> treatment-by-visit, and baseline HbA1c as fixed
+> effects, with unstructured covariance.'
+
+**Subgroup analyses**: pre-specified subgroups (age,
+sex, baseline severity) with forest plots. Reported
+as point estimates and CIs, not as subgroup
+p-values. The `forestplot` package draws these.
+
+**Sensitivity analyses**: alternative
+intercurrent-event strategies, alternative missing-
+data assumptions (Ch 10), alternative populations.
+Each reported with its rationale.
+
+## ICH E9 R1 sensitivity analyses
+
+The estimand framework (Chs 1, 8) demands sensitivity
+analyses. Specifically:
+
+- **Sensitivity to the intercurrent-event strategy**:
+  if treatment-policy is primary, also report
+  hypothetical (treating discontinuation as if it
+  did not happen). The discrepancy is informative
+  about adherence.
+- **Sensitivity to missing-data assumption**: primary
+  under MAR (the MMRM assumption); sensitivity under
+  MNAR (Ch 10). Pattern-mixture or
+  selection-model-based.
+- **Sensitivity to model specification**: primary with
+  the planned covariate set; sensitivity with a wider
+  or narrower set.
+
+The sensitivity analyses are pre-specified in the SAP.
+The reporting separates the primary result from the
+sensitivities; the latter contextualise the former.
 
 ::: {.callout-note icon=false collapse=true}
-## Check your understanding: TODO
+## Check your understanding: when ITT is not the right primary
 
-**Question.** TODO.
+**Question.** A non-inferiority trial of a new
+anticoagulant vs. warfarin for preventing stroke. The
+non-inferiority margin is 1.38 on the HR scale (the
+new drug must not be more than 38% worse). Should
+the primary analysis be ITT or per-protocol?
 
 ::: {.content-visible when-format='html'}
 <details><summary>Answer</summary>
 :::
 
-TODO.
+For non-inferiority, **per-protocol** (or hypothetical)
+is often preferred as the primary, with ITT as
+sensitivity. The reason: ITT in non-inferiority biases
+toward the null (no difference), which makes it
+*easier* to declare non-inferiority. A per-protocol
+analysis, where adherence is enforced, is more
+conservative for the non-inferiority claim. The
+typical regulatory pattern is to require both ITT and
+PP analyses, with consistency between them required to
+declare non-inferiority. The protocol must specify the
+choice and defend it.
 
 ::: {.content-visible when-format='html'}
 </details>
 :::
 :::
 
-## (TODO: subsequent content sections)
+## Bayesian analyses in trials
 
-(TODO)
+Modern regulatory trials increasingly include
+Bayesian analyses, either as primary (in some
+device trials and adaptive trials) or as sensitivity.
+The framework:
 
-## Worked example: TODO
+- A pre-specified prior (often weakly informative or
+  reference).
+- Posterior distribution of the treatment effect.
+- The 'success criterion' is a posterior probability
+  threshold (e.g., $\Pr(\text{effect} > 0) > 0.975$).
 
-(TODO: a concrete worked example, ideally biomedical, that
-exercises the chapter's tools end to end.)
+The FDA's guidance on Bayesian methods
+[@fda2010bayesian] is the regulatory reference. The
+methodology is well-developed; the operational
+challenge is pre-specification of the prior. The
+prior should be defended with reference to
+historical data or via robustness checks across
+priors.
+
+```r
+library(brms)
+
+fit_bayes <- brm(value ~ visit * treatment + baseline,
+                 data = trial,
+                 prior = c(prior(normal(0, 1), class = "b")),
+                 chains = 4, cores = 4)
+summary(fit_bayes)
+```
+
+For most MS-level applied work, frequentist analyses
+remain the primary; Bayesian methods are sensitivity
+or specialty. The introductory SCAI volume's Bayesian
+chapter and the SCAI-advanced volume's MCMC and
+Modern Bayesian chapters provide the computing
+foundation.
+
+## Worked example: analysing a Phase III diabetes trial
+
+A trial has randomised 800 patients (400 per arm) to
+treatment X or placebo for 24 weeks. Primary endpoint:
+change in HbA1c from baseline to week 24.
+
+```r
+library(tidyverse)
+library(mmrm)
+library(gtsummary)
+
+trial <- read_csv("data/diabetes-trial.csv")
+
+# 1. CONSORT flow numbers
+trial |>
+  count(stage = "Randomised", treatment)
+trial |>
+  filter(received_treatment == 1) |>
+  count(stage = "Received treatment", treatment)
+# (etc.)
+
+# 2. Table 1 by arm
+tbl_summary(trial |> filter(visit == 0) |>
+              select(treatment, age, sex, bmi,
+                     hba1c, sbp, dbp),
+            by = treatment) |>
+  add_overall()
+
+# 3. Primary analysis (MMRM, ITT)
+fit_primary <- mmrm(
+  formula = hba1c ~ treatment + visit +
+              treatment:visit + baseline_hba1c +
+              us(visit | id),
+  data = trial_long
+)
+summary(fit_primary)
+
+# extract the contrast at week 24
+emmeans::emmeans(fit_primary, ~ treatment | visit,
+                 at = list(visit = 24))
+emmeans::contrast(...)
+
+# 4. Sensitivity: per-protocol
+fit_pp <- mmrm(formula = ..., data = trial_pp)
+
+# 5. Sensitivity: jump-to-reference for missing data
+# (Ch 10 develops the methodology)
+fit_jr <- ...
+
+# 6. Pre-specified subgroup forest plot
+subgroups <- c("age_group", "sex", "baseline_hba1c_q",
+               "duration_diabetes")
+forest_data <- subgroups |> map_dfr(...)
+forestplot(forest_data)
+
+# 7. Safety summary (different population: AT)
+tbl_summary(trial_at |> select(treatment, ae_any,
+                               ae_serious, discontinuation),
+            by = treatment) |>
+  add_p()
+```
+
+The methods section reads:
+
+> The primary analysis was performed in the ITT
+> population using mixed model for repeated measures
+> with fixed effects for treatment, visit,
+> treatment-by-visit, baseline HbA1c, and the
+> stratification factor (baseline severity). An
+> unstructured covariance for repeated measurements
+> was specified, and Kenward-Roger degrees of freedom
+> were used. Missing data were handled under
+> missing-at-random assumptions implicit in the MMRM.
+> Sensitivity analyses included a per-protocol
+> analysis and a jump-to-reference imputation under
+> MNAR. Pre-specified subgroup analyses were
+> performed; no adjustment was made for multiplicity
+> across subgroups.
+
+The structure is the regulatory standard.
 
 ## Collaborating with an LLM on clinical trial analysis
 
-(TODO: introduction paragraph naming the LLM-collaboration
-patterns specific to this chapter.)
+Three patterns.
 
-**Prompt 1: TODO.** TODO.
+**Prompt 1: 'Draft the SAP analysis section for this
+trial.'** Provide the protocol summary.
 
-*What to watch for.* TODO.
+*What to watch for.* The LLM produces a clean draft.
+It commonly under-specifies the covariate set, the
+multiplicity strategy, and the sensitivity analyses.
+Push back on each.
 
-*Verification.* TODO.
+*Verification.* The SAP is reviewed by senior
+biostatistician and the regulatory affairs team.
+LLM drafts accelerate the review; they do not
+substitute for it.
 
-**Prompt 2: TODO.** TODO.
+**Prompt 2: 'Implement MMRM for this trial.'** Provide
+the data structure and the SAP.
 
-*What to watch for.* TODO.
+*What to watch for.* The LLM produces working code
+using `mmrm` or `nlme::gls`. It often defaults to a
+simpler covariance structure than unstructured.
+Verify against the SAP.
 
-*Verification.* TODO.
+*Verification.* The output should match the
+pre-specified analysis exactly. Any deviation is a
+deviation from the SAP and must be documented.
 
-**Prompt 3: TODO.** TODO.
+**Prompt 3: 'Generate the CONSORT flow diagram for
+this trial.'** Provide the screening, randomisation,
+follow-up, and analysis counts.
 
-*What to watch for.* TODO.
+*What to watch for.* The LLM produces working code
+using the `consort` package. The numbers must match
+the SAP and the actual data; verify.
 
-*Verification.* TODO.
+*Verification.* The flow diagram is double-checked
+against the SAP. Discrepancies are a serious problem
+that must be resolved before publication.
 
-The meta-pattern: TODO.
+The meta-pattern: LLMs are good for the syntactic
+mechanics (writing the MMRM call, drafting the SAP)
+and weak at the substantive judgement (whether the
+analysis matches the estimand, whether the
+sensitivity is appropriate). Use them for code and
+drafts; bring substantive judgement yourself.
 
 ## Principle in use
 
-Three habits define defensible work in this area:
+Three habits.
 
-1. **TODO.**
-2. **TODO.**
-3. **TODO.**
+1. **Match analysis to estimand.** The primary analysis
+   estimates the primary estimand. ITT is appropriate
+   for treatment-policy; per-protocol or hypothetical
+   for other estimands.
+
+2. **Pre-specify everything.** Every analysis decision
+   is in the SAP before unblinding. Deviations are
+   documented and justified.
+
+3. **Sensitivity analyses are part of the result.**
+   Report them alongside the primary, not as an
+   afterthought.
 
 ## Exercises
 
-1. TODO.
-2. TODO.
-3. TODO.
-4. TODO.
-5. TODO.
+1. Take a published Phase III trial in your area.
+   Identify the primary estimand, the primary
+   analysis, and the analysis population. Are they
+   consistent?
+
+2. For a hypothetical trial with three primary
+   endpoints, design a multiplicity strategy. Compare
+   Bonferroni, Hochberg, and a hierarchical (gatekeeping)
+   approach in terms of power.
+
+3. Implement MMRM on a longitudinal trial dataset.
+   Compute the contrast at the final visit and
+   compare to a simple ANCOVA on the change score
+   from baseline.
+
+4. Generate a CONSORT flow diagram from a trial
+   dataset. Verify each number against the trial
+   protocol.
+
+5. Conduct a tipping-point sensitivity analysis (Ch 10
+   develops this) for a trial with 8% missing data on
+   the primary endpoint. Identify the smallest delta
+   that overturns the conclusion.
 
 ## Further reading
 
-- TODO (canonical reference).
-- TODO (modern applied reference).
-- TODO (software-documentation pointer).
+- @ich2019e9r1, *ICH E9(R1) Addendum*. The estimand
+  framework as it applies to trial analysis.
+- @schulz2010consort, 'CONSORT 2010 statement:
+  updated guidelines for reporting parallel group
+  randomised trials'. The reporting reference.
+- @piantadosi2017clinical, *Clinical Trials: A
+  Methodologic Perspective*. The reference textbook.
+- @ema2021guideline, EMA Guideline on Multiplicity
+  Issues in Clinical Trials. Authoritative on
+  multiplicity for European regulatory submissions.
+- The `mmrm`, `gtsummary`, `consort`, and `forestplot`
+  packages are the contemporary applied tools.
