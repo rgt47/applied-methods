@@ -1,0 +1,97 @@
+# Preface {.unnumbered}
+
+This volume covers the applied methodological core of an
+MS-level biostatistics curriculum: the methods that every
+practising biostatistician encounters and that every MS
+programme requires, but that the four sister volumes
+either treat at foundation level or omit deliberately.
+
+The book is the response to a curriculum-gap analysis
+across 24 graduate biostatistics programmes in the US and
+Europe (documented in `docs/curriculum-gap-analysis.md`).
+The analysis identified six topics that appear as core
+or required-elective material in 10 or more programmes
+but are absent from the existing four-volume sequence:
+longitudinal and correlated data at applied depth,
+survival analysis at applied depth, causal inference for
+observational data, clinical trial design and analysis,
+epidemiologic methods, and missing data at methodological
+depth. This volume covers all six, plus mediation,
+meta-analysis, and advanced categorical-data methods.
+
+## What this book covers
+
+The 12 chapters are organised in five parts:
+
+1. **Foundations.** Estimands and the
+   estimand-estimator-estimate chain; epidemiologic
+   measures and study design.
+2. **Causal inference.** Foundations (potential outcomes,
+   DAGs, exchangeability); estimation (propensity scores,
+   IPW, g-methods, IV, RD, sensitivity); mediation.
+3. **Correlated data and time-to-event.** Longitudinal
+   and correlated data at applied depth; survival
+   analysis (Cox, competing risks, RMST, recurrent
+   events).
+4. **Clinical trials.** Design (ICH E9 R1 estimands,
+   adaptive, pragmatic); analysis and reporting.
+5. **Specialised methods.** Missing data at depth;
+   meta-analysis and evidence synthesis; advanced
+   categorical (ordinal, multinomial, log-linear).
+
+## What this book does not cover
+
+The book deliberately omits topics treated in the sister
+volumes or in dedicated specialty texts:
+
+- The R / programming foundation (see *R for
+  Biostatistics: A One-Week Boot Camp*).
+- Reproducibility infrastructure (see *Biostatistics
+  Practicum*).
+- Linear models, GLM, mixed models, basic survival as
+  model classes (see *Statistical Computing in the Age
+  of AI*).
+- Numerical stability, MCMC depth, HPC, high-dimensional
+  methods (see *Advanced Statistical Computing in the
+  Age of AI*).
+- Generative AI as a workflow component (see *Applied
+  Generative AI for Public Health and Biostatistics*).
+
+Specialty topics that appear in fewer programmes but
+each warrant book-length treatment elsewhere:
+statistical genetics (see Foulkes; Laird and Lange),
+spatial statistics (Moraga; Banerjee/Carlin/Gelfand),
+time series for public health (Shumway and Stoffer),
+infectious-disease modelling (Vynnycky and White),
+health economics (Briggs/Sculpher/Claxton), categorical
+data theory (Agresti).
+
+## How this book relates to its siblings
+
+Read the boot camp and the practicum first, then the
+introductory SCAI for the modelling foundations. Then
+read this volume; the methods here build on the GLM /
+mixed-model / survival foundations from SCAI but extend
+them in the directions an applied biostatistician
+actually needs. *Applied GenAI* is the orthogonal axis
+and can be read in parallel. *SCAI Advanced* is the
+companion deep-computing volume that picks up where SCAI
+leaves off.
+
+## Chapter template
+
+Each content chapter follows the established sequence-wide
+structure: Learning objectives, Orientation, The
+statistician's contribution, content sections (with
+collapsible Check-your-understanding callouts), Worked
+example, Collaborating with an LLM, Principle in use,
+Exercises, Further reading. The template puts human
+judgement and verification at the centre of every
+chapter, rather than treating them as afterthoughts.
+
+## Acknowledgements
+
+The chapter list reflects the curriculum-gap analysis
+across 24 programmes. The methodological literature
+underwriting each chapter is rich; canonical references
+appear in each chapter's Further reading.

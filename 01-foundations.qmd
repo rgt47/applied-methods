@@ -1,0 +1,106 @@
+# Foundations of Applied Health-Research Statistics {#sec-foundations}
+
+## Learning objectives
+
+By the end of this chapter you should be able to:
+
+- (TODO)
+- (TODO)
+- (TODO)
+- (TODO)
+
+## Orientation
+
+(TODO: short prose framing — what the chapter is, why it
+matters, how it relates to the sibling volumes.)
+
+## The statistician's contribution {#sec-foundations-human}
+
+(TODO: front-loaded section articulating the judgements at
+the centre of this chapter that no LLM can make on the
+reader's behalf.)
+
+**(Judgement 1.)** TODO.
+
+**(Judgement 2.)** TODO.
+
+**(Judgement 3.)** TODO.
+
+These judgements are what distinguish an analysis that
+survives review from one that does not.
+
+## (TODO: first content section)
+
+(TODO)
+
+::: {.callout-note icon=false collapse=true}
+## Check your understanding: TODO
+
+**Question.** TODO.
+
+::: {.content-visible when-format='html'}
+<details><summary>Answer</summary>
+:::
+
+TODO.
+
+::: {.content-visible when-format='html'}
+</details>
+:::
+:::
+
+## (TODO: subsequent content sections)
+
+(TODO)
+
+## Worked example: TODO
+
+(TODO: a concrete worked example, ideally biomedical, that
+exercises the chapter's tools end to end.)
+
+## Collaborating with an LLM on applied-methods foundations
+
+(TODO: introduction paragraph naming the LLM-collaboration
+patterns specific to this chapter.)
+
+**Prompt 1: TODO.** TODO.
+
+*What to watch for.* TODO.
+
+*Verification.* TODO.
+
+**Prompt 2: TODO.** TODO.
+
+*What to watch for.* TODO.
+
+*Verification.* TODO.
+
+**Prompt 3: TODO.** TODO.
+
+*What to watch for.* TODO.
+
+*Verification.* TODO.
+
+The meta-pattern: TODO.
+
+## Principle in use
+
+Three habits define defensible work in this area:
+
+1. **TODO.**
+2. **TODO.**
+3. **TODO.**
+
+## Exercises
+
+1. TODO.
+2. TODO.
+3. TODO.
+4. TODO.
+5. TODO.
+
+## Further reading
+
+- TODO (canonical reference).
+- TODO (modern applied reference).
+- TODO (software-documentation pointer).

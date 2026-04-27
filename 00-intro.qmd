@@ -1,0 +1,65 @@
+# How to use this book {.unnumbered}
+
+This short orientation chapter explains the chapter
+template, the cross-references to sibling volumes, and the
+conventions used throughout the book. The template is the
+same as the SCAI-advanced and applied-genai sister volumes.
+
+## Chapter template
+
+Every content chapter follows the same nine-section
+structure:
+
+1. **Learning objectives.** A bulleted list of capabilities
+   the reader should have after working through the
+   chapter.
+2. **Orientation.** Two to four paragraphs of prose framing:
+   what the chapter is, why it matters, how it relates to
+   adjacent chapters and to the sister volumes.
+3. **The statistician's contribution.** A front-loaded
+   section articulating the judgements at the centre of
+   the chapter that no large language model can make on
+   the reader's behalf.
+4. **Content sections.** The chapter's substantive
+   material, broken into sections with descriptive
+   headings. Collapsible *Check your understanding*
+   callouts appear at natural pauses.
+5. **Worked example.** A concrete worked example, ideally
+   biomedical, that exercises the chapter's tools end to
+   end.
+6. **Collaborating with an LLM on *topic*.** Three
+   prompt patterns paired with what to watch for and how
+   to verify, specific to the chapter's content.
+7. **Principle in use.** Three habits that define
+   defensible work in this area.
+8. **Exercises.** Five exercises ranging from short
+   conceptual checks to extended applied work.
+9. **Further reading.** Canonical, modern applied, and
+   software-documentation pointers.
+
+The template is identical to the SCAI-advanced and
+applied-genai sister volumes; readers familiar with those
+volumes can read this one in the same rhythm.
+
+## Conventions
+
+Visual cues used throughout the book are described on the
+[Conventions](conventions.qmd) page. Code blocks default
+to R; Python and Stan snippets are labelled. LLM prompts
+are shown in fenced blocks with the prompt text and
+verification commentary.
+
+## Companion repositories and audit trail
+
+The book repository at <https://github.com/rgt47/applied-methods>
+contains:
+
+- `docs/curriculum-gap-analysis.md` — the survey across
+  24 graduate programmes that identified the topical gaps
+  this volume fills.
+- `references.bib` — the working bibliography.
+
+The audit trail is intentional: subsequent revisions of
+the volume will be informed by tracking how MS-programme
+curricula evolve, and the survey document is the
+benchmark.
