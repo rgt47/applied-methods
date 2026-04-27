@@ -306,9 +306,7 @@ non-inferiority margin is 1.38 on the HR scale (the
 new drug must not be more than 38% worse). Should
 the primary analysis be ITT or per-protocol?
 
-::: {.content-visible when-format='html'}
-<details><summary>Answer</summary>
-:::
+**Answer.**
 
 For non-inferiority, **per-protocol** (or hypothetical)
 is often preferred as the primary, with ITT as
@@ -322,9 +320,6 @@ PP analyses, with consistency between them required to
 declare non-inferiority. The protocol must specify the
 choice and defend it.
 
-::: {.content-visible when-format='html'}
-</details>
-:::
 :::
 
 ## Bayesian analyses in trials

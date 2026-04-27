@@ -153,9 +153,7 @@ quantity for the decision 'should the drug be added to
 guideline-recommended treatment for all diabetic
 patients'?
 
-::: {.content-visible when-format='html'}
-<details><summary>Answer</summary>
-:::
+**Answer.**
 
 The ATE is the relevant quantity. The ATT applies only
 to the historical pattern of treatment (poorly-controlled
@@ -166,9 +164,6 @@ expected average effect under universal treatment.
 Reporting only the ATT for a guideline-change question
 overstates the expected benefit.
 
-::: {.content-visible when-format='html'}
-</details>
-:::
 :::
 
 ## The three core assumptions

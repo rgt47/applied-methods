@@ -216,9 +216,7 @@ stages are not constant over time. Should you
 include stage as a covariate, as a stratum, or
 both?
 
-::: {.content-visible when-format='html'}
-<details><summary>Answer</summary>
-:::
+**Answer.**
 
 Stratify on stage. Including stage as a covariate
 when its hazard ratio is non-proportional gives a
@@ -233,9 +231,6 @@ proportional hazards (it is not a single number). Use
 stage's effect on survival from a separate
 KM-by-stage analysis or absolute risks.
 
-::: {.content-visible when-format='html'}
-</details>
-:::
 :::
 
 ## Competing risks

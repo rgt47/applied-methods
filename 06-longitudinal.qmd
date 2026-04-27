@@ -312,9 +312,7 @@ effects, GEE is the wrong tool.
 treatment vs. control'. Should the analysis use GEE
 or GLMM?
 
-::: {.content-visible when-format='html'}
-<details><summary>Answer</summary>
-:::
+**Answer.**
 
 GEE is the cleaner choice. The question asks about the
 population-average effect (marginal OR), which GEE
@@ -328,9 +326,6 @@ genuinely about subject-specific (or centre-specific)
 effects, or when the missing-data mechanism makes GEE
 biased.
 
-::: {.content-visible when-format='html'}
-</details>
-:::
 :::
 
 ## Joint models for longitudinal and time-to-event

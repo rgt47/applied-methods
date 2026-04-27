@@ -289,9 +289,7 @@ shows substantial overlap, but a few treated patients
 have propensity scores near 0.05. Which estimator is the
 safer choice: IPTW or 1:1 propensity matching?
 
-::: {.content-visible when-format='html'}
-<details><summary>Answer</summary>
-:::
+**Answer.**
 
 1:1 matching. The treated patients with propensity near
 0.05 would receive weights of 20 in IPTW, dominating
@@ -306,9 +304,6 @@ audience evaluating positivity violations directly.
 The trade is that 1:1 matching estimates the ATT (not
 the ATE), so the substantive question matters.
 
-::: {.content-visible when-format='html'}
-</details>
-:::
 :::
 
 ## Instrumental variables

@@ -171,9 +171,7 @@ the question:
 the association between a binary exposure and a binary
 outcome. The unexposed risk is 0.30. What is the RR?
 
-::: {.content-visible when-format='html'}
-<details><summary>Answer</summary>
-:::
+**Answer.**
 
 The unexposed odds is 0.30/0.70 = 0.43; the exposed
 odds is 2.5 × 0.43 = 1.07; the exposed risk is
@@ -182,9 +180,6 @@ smaller than the OR of 2.5. For a common outcome,
 reporting the OR makes the effect look larger than it
 is. The RR is the more interpretable measure here.
 
-::: {.content-visible when-format='html'}
-</details>
-:::
 :::
 
 ## Cohort studies

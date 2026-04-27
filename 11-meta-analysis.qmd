@@ -332,9 +332,7 @@ effects. The two CIs are similar but the random-
 effects CI is wider. $I^2 = 35\%$. Which estimate
 should be the primary?
 
-::: {.content-visible when-format='html'}
-<details><summary>Answer</summary>
-:::
+**Answer.**
 
 Random effects, with Hartung-Knapp adjustment. The
 fixed-effects model assumes all studies estimate the
@@ -350,9 +348,6 @@ homogeneous studies of the same population). Report
 the prediction interval alongside the CI for full
 context.
 
-::: {.content-visible when-format='html'}
-</details>
-:::
 :::
 
 ## PRISMA

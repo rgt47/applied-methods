@@ -169,9 +169,7 @@ the other uses per-protocol (only patients who actually
 received their assigned treatment). They produce
 different numbers. Which one is correct?
 
-::: {.content-visible when-format='html'}
-<details><summary>Answer</summary>
-:::
+**Answer.**
 
 Both can be correct, because they are estimating
 different estimands. ITT estimates the
@@ -189,9 +187,6 @@ The careful analyst reports both, identifies which is
 the primary estimand per the protocol, and discusses
 the discrepancy as informative about adherence.
 
-::: {.content-visible when-format='html'}
-</details>
-:::
 :::
 
 ## Target population vs. sampled population

@@ -229,9 +229,7 @@ endpoint and on baseline covariates. The analysis is
 ANCOVA: outcome ~ treatment + baseline. Should the
 imputation model include the treatment indicator?
 
-::: {.content-visible when-format='html'}
-<details><summary>Answer</summary>
-:::
+**Answer.**
 
 Yes. The imputation model must be congenial with the
 analysis model, which means including all variables
@@ -244,9 +242,6 @@ treatment-effect relationship that the analysis is
 trying to estimate. The same logic applies to all
 variables in the analysis.
 
-::: {.content-visible when-format='html'}
-</details>
-:::
 :::
 
 ## Sensitivity to MNAR: pattern-mixture models

@@ -291,9 +291,7 @@ TE = 0.05, NIE = 0.03, NDE = 0.02, proportion mediated
 goes through the mediator. Is the 60% figure
 informative?
 
-::: {.content-visible when-format='html'}
-<details><summary>Answer</summary>
-:::
+**Answer.**
 
 It is mathematically correct but pragmatically
 misleading. Proportion mediated is the ratio of two
@@ -307,9 +305,6 @@ substantial. Several published mediation analyses have
 reported proportion mediated of 80% or 100% when TE
 is near zero, producing misleading conclusions.
 
-::: {.content-visible when-format='html'}
-</details>
-:::
 :::
 
 ## Sensitivity analysis

@@ -290,9 +290,7 @@ requires INR monitoring). The new drug is expected to
 have similar efficacy. Should the trial be designed
 as superiority, non-inferiority, or equivalence?
 
-::: {.content-visible when-format='html'}
-<details><summary>Answer</summary>
-:::
+**Answer.**
 
 Non-inferiority is the right design. The clinical
 question is 'is the new drug at least as good as
@@ -310,9 +308,6 @@ anticoagulant effect on the primary endpoint
 (stroke), to preserve at least half of warfarin's
 historical benefit.
 
-::: {.content-visible when-format='html'}
-</details>
-:::
 :::
 
 ## Estimand framework for trials
