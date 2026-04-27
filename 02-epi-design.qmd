@@ -4,103 +4,514 @@
 
 By the end of this chapter you should be able to:
 
-- (TODO)
-- (TODO)
-- (TODO)
-- (TODO)
+- Compute and interpret the standard epidemiologic
+  measures: prevalence, incidence rate, cumulative
+  incidence, risk ratio, odds ratio, rate ratio.
+- Choose between cohort, case-control, and
+  cross-sectional designs for a given research question,
+  and articulate the tradeoffs.
+- Distinguish confounding, effect modification, selection
+  bias, and information bias, and recognise each in
+  applied work.
+- Apply the modern target-trial-emulation framework to a
+  proposed observational analysis.
 
 ## Orientation
 
-(TODO: short prose framing — what the chapter is, why it
-matters, how it relates to the sibling volumes.)
+Chapter 1 established estimands and study designs at
+the framework level. This chapter operationalises them:
+how to compute the standard measures, how to choose
+designs, how to recognise the biases that threaten each
+design's validity. The material is the entry point to
+applied epidemiology and the conceptual scaffolding for
+the causal-inference chapters that follow.
+
+The chapter is organised around three threads.
+**Measures**: prevalence, incidence, and the rate / risk
+/ odds ratios that summarise associations and effects.
+**Designs**: cohort, case-control, cross-sectional, with
+explicit attention to when each is the right choice.
+**Biases**: confounding, selection, information, with
+examples drawn from public-health practice.
+
+Modern epidemiology has converged on **target-trial
+emulation** [@hernan2016using] as the discipline for
+observational causal inference. The target-trial
+framework asks the analyst to specify the hypothetical
+randomised trial that would answer the question, and
+then to design the observational analysis to emulate
+that trial as closely as possible. The chapter ends by
+walking through this framework on a concrete example.
 
 ## The statistician's contribution {#sec-epi-design-human}
 
-(TODO: front-loaded section articulating the judgements at
-the centre of this chapter that no LLM can make on the
-reader's behalf.)
+Three judgements at the centre of epidemiologic design
+are not delegable.
 
-**(Judgement 1.)** TODO.
+**(Judgement 1.) Choose the measure that matches the
+decision.** A risk ratio of 1.5 sounds different from a
+risk difference of 0.05, but they may describe the same
+data. The right measure is the one that informs the
+decision under consideration: relative measures for
+mechanism and aetiology questions; absolute measures
+(risk differences, NNT) for clinical and policy
+decisions where the baseline risk matters. The
+biostatistician chooses the measure deliberately and
+presents the alternative when the decision benefits.
 
-**(Judgement 2.)** TODO.
+**(Judgement 2.) The design constrains the inference.**
+A case-control study cannot estimate prevalence; a
+cross-sectional study cannot establish temporal order;
+an unmatched cohort is vulnerable to confounding by
+indication. The biostatistician identifies what the
+chosen design can and cannot say, and limits the
+report's claims accordingly. Reviewers will identify
+the limit if the analyst does not; better to disclose
+than to defend.
 
-**(Judgement 3.)** TODO.
+**(Judgement 3.) Bias is not a hypothesis test.** The
+question is not 'is there confounding' (the answer is
+almost always yes) but 'how large is the bias relative
+to the effect, and in which direction'. The
+biostatistician quantifies bias through sensitivity
+analyses (E-values, tipping-point analyses, negative
+controls) rather than asserting its absence. The
+discipline applies as much to RCTs (where confounding
+is in expectation zero but in any specific trial may
+be present) as to observational studies.
 
-These judgements are what distinguish an analysis that
-survives review from one that does not.
+These judgements distinguish epidemiologic work that
+informs decisions from work that produces numbers in
+search of a question.
 
-## (TODO: first content section)
+## Prevalence and incidence
 
-(TODO)
+**Prevalence** is the proportion of a population with
+the condition at a point in time:
+$$
+P = \frac{\text{cases at time } t}{\text{population at time } t}
+$$
+Prevalence is dimensionless. It depends on incidence
+(how often the condition is acquired) and duration (how
+long it lasts). High-prevalence conditions can have
+either high incidence or long duration or both.
+
+**Incidence rate** is the number of new cases per
+person-time:
+$$
+\text{IR} = \frac{\text{new cases in period}}{\text{person-time at risk}}
+$$
+Person-time has units (person-years, person-months).
+Incidence rate has the corresponding inverse units (per
+person-year). It is the rate parameter of the underlying
+point process.
+
+**Cumulative incidence** is the proportion of an
+initially-disease-free cohort that develops the
+condition over a defined period:
+$$
+\text{CI}(t) = \Pr(T \le t)
+$$
+Cumulative incidence is dimensionless. For short
+follow-up with a constant rate, $\text{CI}(t) \approx
+\text{IR} \cdot t$; the approximation breaks at longer
+follow-up. The full relationship via the survival
+function (Ch 7) is $\text{CI}(t) = 1 - S(t)$.
+
+The three measures answer different questions:
+prevalence tells you the burden at a moment; incidence
+rate tells you how fast new cases appear; cumulative
+incidence tells you the total proportion affected over
+a follow-up period. Reports often confuse these;
+distinguish them carefully.
+
+## Risk, rate, and odds ratios
+
+Three ratios summarise associations between an exposure
+and an outcome.
+
+**Risk ratio (RR)**: ratio of cumulative incidence
+between exposed and unexposed.
+$$
+\text{RR} = \frac{\text{CI}_{\text{exposed}}}{\text{CI}_{\text{unexposed}}}
+$$
+
+**Rate ratio (or hazard ratio in survival contexts)**:
+ratio of incidence rates.
+$$
+\text{IRR} = \frac{\text{IR}_{\text{exposed}}}{\text{IR}_{\text{unexposed}}}
+$$
+
+**Odds ratio (OR)**: ratio of odds of disease.
+$$
+\text{OR} = \frac{p_{\text{exposed}}/(1-p_{\text{exposed}})}{p_{\text{unexposed}}/(1-p_{\text{unexposed}})}
+$$
+
+When the outcome is rare ($p \ll 0.1$), OR $\approx$ RR.
+For common outcomes, OR exaggerates effect size relative
+to RR; reporting only OR for a common outcome can
+mislead.
+
+The choice between measures depends on the design and
+the question:
+
+- **RCT or cohort, common outcome**: prefer RR or risk
+  difference. Logistic regression's OR is a software
+  default but not always the right reporting choice.
+- **Case-control**: OR is what the design naturally
+  estimates; under the rare-disease assumption it
+  approximates the RR.
+- **Cohort with time-to-event**: rate ratio or hazard
+  ratio (Ch 7).
 
 ::: {.callout-note icon=false collapse=true}
-## Check your understanding: TODO
+## Check your understanding: OR vs. RR for common outcomes
 
-**Question.** TODO.
+**Question.** A cohort study estimates an OR of 2.5 for
+the association between a binary exposure and a binary
+outcome. The unexposed risk is 0.30. What is the RR?
 
 ::: {.content-visible when-format='html'}
 <details><summary>Answer</summary>
 :::
 
-TODO.
+The unexposed odds is 0.30/0.70 = 0.43; the exposed
+odds is 2.5 × 0.43 = 1.07; the exposed risk is
+1.07/(1+1.07) = 0.52. The RR is 0.52/0.30 = 1.73, much
+smaller than the OR of 2.5. For a common outcome,
+reporting the OR makes the effect look larger than it
+is. The RR is the more interpretable measure here.
 
 ::: {.content-visible when-format='html'}
 </details>
 :::
 :::
 
-## (TODO: subsequent content sections)
+## Cohort studies
 
-(TODO)
+Subjects are sampled by exposure (or unselectively) and
+followed forward in time; outcomes are recorded as they
+occur. Strengths:
 
-## Worked example: TODO
+- Establishes temporal order (exposure precedes
+  outcome).
+- Estimates absolute risks and rates directly.
+- Suitable for causal inference under a
+  no-unmeasured-confounding argument plus appropriate
+  adjustment.
 
-(TODO: a concrete worked example, ideally biomedical, that
-exercises the chapter's tools end to end.)
+Weaknesses:
+
+- Expensive and slow; long follow-up to accrue events
+  for rare outcomes.
+- Loss to follow-up creates differential bias if loss
+  correlates with exposure or outcome.
+- Confounding by indication when exposure is
+  treatment-like.
+
+Cohorts can be **prospective** (assembled at exposure,
+followed forward) or **retrospective** (assembled from
+records that already exist, with exposure and outcome
+already observed). Retrospective cohorts use the
+prospective machinery on records data; the analyst must
+take care that exposure was recorded before outcome and
+not produced by knowledge of the outcome.
+
+## Case-control studies
+
+Subjects are sampled by outcome status: cases (with the
+disease) and controls (without). Exposure is then
+assessed retrospectively. Strengths:
+
+- Efficient for rare outcomes (cases are oversampled
+  relative to their population frequency).
+- Multiple exposures can be studied for the same
+  outcome.
+- Often the only feasible design for slow-developing
+  conditions.
+
+Weaknesses:
+
+- Recall bias when exposure is self-reported (cases may
+  remember exposure differently from controls).
+- Selection bias is a constant threat: how were the
+  controls chosen?
+- Estimates only the OR; no absolute risks.
+
+The OR from a case-control study approximates the RR in
+the underlying population only when the outcome is rare.
+For common outcomes, the OR is the parameter the design
+naturally estimates and should be reported as such.
+
+**Nested case-control** designs sample cases and a
+matched set of controls from within an existing cohort,
+combining the efficiency of case-control with the
+defensibility of cohort sampling.
+
+## Cross-sectional studies
+
+A snapshot of a population at one time point. Estimates
+prevalence and prevalence ratios. Cannot establish
+temporal order: if exposure and outcome are both
+observed at one time, you cannot tell which preceded.
+
+Useful for surveillance and prevalence estimation; less
+useful for inference about causes (the temporal-order
+problem is fundamental, not addressable by adjustment).
+Many published cross-sectional studies overstate causal
+claims; the careful reader treats their associations as
+hypothesis-generating, not hypothesis-testing.
+
+## Confounding, effect modification, selection, information
+
+Four threats to validity. Each requires a different
+response.
+
+**Confounding** is a third variable that affects both
+exposure and outcome and biases the exposure-outcome
+association. The classic test: smoking confounds the
+coffee-lung-cancer association because smokers drink
+more coffee and smokers get lung cancer at higher
+rates. Adjustment, restriction, matching, or design
+(randomisation) addresses confounding. The
+identification assumption is no unmeasured confounding
+given the adjustment set; sensitivity analysis
+quantifies what unmeasured confounding would need to
+do to overturn the conclusion.
+
+**Effect modification** (interaction) is when the
+effect of the exposure differs across levels of a third
+variable. Sex modifies the effect of cardiovascular
+medications; age modifies the effect of vaccinations.
+Effect modification is a feature of the data, not a
+bias; it is reported by stratification or interaction
+terms in the model.
+
+**Selection bias** arises when inclusion in the study
+depends on both exposure and outcome. The classic
+example: hospital-based controls in a case-control
+study, where hospitalisation is itself associated with
+the exposure. Selection bias cannot be fixed by
+adjustment; it is addressed by design (sampling
+controls appropriately) or by sensitivity analysis
+(quantifying the magnitude of bias under plausible
+selection mechanisms).
+
+**Information (measurement) bias** arises when exposure
+or outcome is mismeasured, and the mismeasurement
+correlates with the other variable. Differential
+misclassification is the worst case: cases recall
+exposure better than controls. Non-differential
+misclassification (random measurement error) generally
+biases toward the null. Validation studies and
+quantitative-bias analyses address information bias.
+
+The four are distinct. A common error is to treat
+'confounding' as a catch-all for 'something is wrong
+with this association'; precision in naming the bias
+informs the right response.
+
+## Target-trial emulation
+
+The discipline that has emerged for observational
+causal inference [@hernan2016using; @hernan2020causal]:
+
+1. **Specify the target trial.** What randomised trial
+   would answer the question if it could be run?
+   Specify eligibility, treatment strategies,
+   assignment, follow-up, outcome, intercurrent
+   events.
+2. **Identify the observational data that emulates the
+   trial.** Eligibility maps to inclusion at time
+   zero; treatment strategies map to observed
+   exposure patterns; assignment maps to the analyst's
+   adjustment for confounding.
+3. **Document the emulation.** Where the observational
+   data fails to emulate the target trial (e.g.,
+   immortal-time bias from how exposure is defined in
+   the records), name the failure and address it
+   (typically by redefining time zero so exposure and
+   eligibility are simultaneous).
+
+The framework eliminates a class of common
+observational-design errors: immortal-time bias,
+prevalent-user bias, selection-on-treatment-after-
+baseline. Most published observational studies of drug
+effects can be substantially improved by applying the
+target-trial framework retroactively. The discipline
+has become standard practice in modern
+pharmacoepidemiology.
+
+## Worked example: target-trial emulation for SGLT2 inhibitors
+
+The example from Chapter 1 (SGLT2 effectiveness in
+HFrEF, EHR data from three hospitals) is a textbook
+target-trial application.
+
+**Step 1. Specify the target trial.** A hypothetical
+RCT enrols adult HFrEF patients within 30 days of
+diagnosis, randomises to SGLT2 vs. no SGLT2 (treatment
+policy: any subsequent treatment changes are followed
+under the assigned arm), follows for 12 months, and
+records all-cause mortality.
+
+**Step 2. Emulate.** From the EHR cohort:
+
+- **Eligibility.** Adults aged 18+, HFrEF (EF < 40%)
+  diagnosed during the study period. Exclude prior
+  SGLT2 users (who would not be eligible for the
+  hypothetical trial).
+- **Time zero.** Date of HFrEF diagnosis.
+- **Treatment groups.** 'SGLT2 initiator' = SGLT2
+  prescription within 30 days of time zero.
+  'Non-initiator' = no SGLT2 prescription within 30
+  days. Note: this requires defining the groups at time
+  zero, before observing the treatment decision; common
+  in target-trial emulation, awkward without it.
+- **Follow-up.** From time zero to 12 months, death,
+  or end of records.
+- **Confounding.** Adjust for baseline confounders at
+  time zero (age, sex, EF, NT-proBNP, eGFR,
+  comorbidities, baseline medications). Use IPW (Ch 4).
+- **Sensitivity.** E-value for unmeasured confounding
+  (Ch 4).
+
+**Step 3. Identify failures of emulation.**
+
+- Patients who initiate SGLT2 between days 30 and 90
+  are misclassified as non-initiators in the
+  observational data but would be in the initiator arm
+  under treatment policy in the target trial. The
+  target-trial framework calls this 'misclassification
+  of grace period'; the fix is either to extend the
+  grace period or to use a clone-censor-weight
+  approach.
+- Time zero is hard to define for patients diagnosed
+  at outside hospitals and transferred in. Address by
+  either restricting to in-network diagnoses or using
+  a sensitivity analysis.
+
+The target-trial protocol is now the analysis plan.
+Six months later, a reviewer asking 'why this 30-day
+window?' is answered by 'the target trial defined
+treatment groups at time zero with a 30-day grace
+period; the alternative would be a different target
+trial'.
 
 ## Collaborating with an LLM on epidemiologic study design
 
-(TODO: introduction paragraph naming the LLM-collaboration
-patterns specific to this chapter.)
+Three patterns that work.
 
-**Prompt 1: TODO.** TODO.
+**Prompt 1: 'Write the target trial for this
+observational study.'** Provide the research question
+and the data source.
 
-*What to watch for.* TODO.
+*What to watch for.* The LLM produces a competent draft
+of the seven target-trial components (eligibility,
+treatment, assignment, follow-up, outcome, intercurrent
+events, analysis). It tends to under-specify the
+treatment-strategy definition and the time-zero
+question. Push back: 'how would you define time zero
+given that exposure is observed in records, not
+assigned at time zero?'
 
-*Verification.* TODO.
+*Verification.* Read the LLM's target trial against
+@hernan2016using; check that all seven components are
+specified concretely and that the immortal-time issue
+is addressed.
 
-**Prompt 2: TODO.** TODO.
+**Prompt 2: 'Identify the threats to validity in this
+analysis.'** Provide the analysis description.
 
-*What to watch for.* TODO.
+*What to watch for.* The LLM lists the standard biases
+(confounding, selection, measurement) but tends to be
+generic. Push for specific confounders, specific
+selection mechanisms, specific measurement-error
+patterns informed by the data source.
 
-*Verification.* TODO.
+*Verification.* The LLM's threats are a starting list;
+your knowledge of the data source is what specialises
+them. Add threats the LLM missed; remove ones that do
+not apply.
 
-**Prompt 3: TODO.** TODO.
+**Prompt 3: 'Compute the relevant epidemiologic
+measures from this 2x2 table.'** Provide the cell
+counts.
 
-*What to watch for.* TODO.
+*What to watch for.* The LLM gets the arithmetic right
+for risk ratio, odds ratio, etc. It sometimes confuses
+the OR-RR distinction for common outcomes. Verify the
+specific case the LLM is computing.
 
-*Verification.* TODO.
+*Verification.* Recompute by hand; the formulas are
+elementary.
 
-The meta-pattern: TODO.
+The meta-pattern: LLMs are useful for drafting
+target-trial protocols and for listing the threats to
+validity in standard form. They cannot evaluate
+whether your specific data emulates the target trial
+well; that judgement is yours.
 
 ## Principle in use
 
-Three habits define defensible work in this area:
+Three habits define defensible epidemiologic work.
 
-1. **TODO.**
-2. **TODO.**
-3. **TODO.**
+1. **Match the measure to the decision.** Relative
+   measures for aetiology; absolute measures for
+   policy and clinical decisions. Report both when the
+   audience benefits.
+2. **Apply the target-trial framework.** Every
+   observational causal analysis specifies its target
+   trial and documents where the emulation succeeds or
+   fails.
+3. **Quantify bias rather than assert its absence.**
+   Sensitivity analyses (E-values, tipping points)
+   are part of every causal analysis, not an
+   afterthought.
 
 ## Exercises
 
-1. TODO.
-2. TODO.
-3. TODO.
-4. TODO.
-5. TODO.
+1. For a published cohort study in your field,
+   identify the prevalence, incidence rate, and
+   cumulative incidence reported (or compute them from
+   the reported data). Note the units of each.
+
+2. Take a 2x2 contingency table (exposed-vs-unexposed
+   by outcome-vs-no-outcome) of your choice. Compute
+   the risk ratio, the odds ratio, the rate ratio
+   (assuming person-time is proportional to sample
+   size), and the risk difference. Discuss when each
+   measure is the right choice for reporting.
+
+3. Identify a published case-control study in your
+   field. Identify how controls were sampled and
+   whether the sampling could introduce selection
+   bias. If yes, describe the likely direction.
+
+4. For an observational study of a drug effect, write
+   the target-trial protocol following the seven
+   components. Identify two specific places where the
+   observational data will fail to emulate the target
+   trial perfectly, and propose a remediation for
+   each.
+
+5. Compute an E-value for an observed risk ratio of
+   1.6. What does the E-value tell you about the
+   strength of unmeasured confounding required to
+   explain away the association?
 
 ## Further reading
 
-- TODO (canonical reference).
-- TODO (modern applied reference).
-- TODO (software-documentation pointer).
+- @lash2021modern, *Modern Epidemiology* (4th
+  edition). The reference textbook for the material in
+  this chapter.
+- @hernan2020causal, *Causal Inference: What If*. The
+  open-access textbook that develops target-trial
+  emulation in depth.
+- @hernan2016using, 'Using big data to emulate a
+  target trial when a randomized trial is not
+  available'. The methods paper that defines the
+  target-trial framework.
+- @vanderweele2017sensitivity, 'Sensitivity analysis
+  in observational research: introducing the E-value'.
+  The reference for E-value sensitivity analysis.

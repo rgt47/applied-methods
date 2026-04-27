@@ -4,103 +4,523 @@
 
 By the end of this chapter you should be able to:
 
-- (TODO)
-- (TODO)
-- (TODO)
-- (TODO)
+- Articulate the potential-outcomes framework and use
+  counterfactual notation to define the average treatment
+  effect (ATE), the average treatment effect on the
+  treated (ATT), and the conditional average treatment
+  effect (CATE).
+- Draw a directed acyclic graph (DAG) for a research
+  question and identify the minimal sufficient adjustment
+  set using the backdoor criterion.
+- State the three core identifying assumptions
+  (exchangeability, positivity, consistency) and
+  recognise where each is violated in applied work.
+- Distinguish association from causation in language and
+  in symbols, and recognise common conflations.
 
 ## Orientation
 
-(TODO: short prose framing — what the chapter is, why it
-matters, how it relates to the sibling volumes.)
+Causal inference is the discipline of making
+counterfactual claims from observed data: 'if this
+patient had been assigned the treatment, their outcome
+would have been different.' The discipline has a precise
+mathematical foundation (Rubin's potential-outcomes
+framework, Pearl's structural causal models) and a small
+set of identifying assumptions that determine when
+counterfactual claims are estimable from data.
+
+This chapter establishes the foundations: the
+potential-outcomes notation, the average treatment
+effects of interest, the DAG vocabulary, the backdoor
+criterion, and the three core assumptions. Chapter 4
+turns the foundations into estimation procedures
+(propensity scores, IPW, g-methods).
+
+The chapter is shorter than its companion (Ch 4) because
+the conceptual investment is the binding constraint. A
+reader who internalises the potential-outcomes
+notation and the backdoor criterion can read modern
+causal-inference literature; a reader who has not will
+struggle with the next chapter.
 
 ## The statistician's contribution {#sec-causal-foundations-human}
 
-(TODO: front-loaded section articulating the judgements at
-the centre of this chapter that no LLM can make on the
-reader's behalf.)
+Three judgements are not delegable.
 
-**(Judgement 1.)** TODO.
+**(Judgement 1.) Distinguish causal from associational
+language.** The English-language word 'effect' is
+ambiguous; the technical word is not. A statement like
+'smoking is associated with lung cancer' is
+associational; 'smoking causes lung cancer' is causal.
+The first is a fact about a population's joint
+distribution; the second is a counterfactual claim that
+requires identifying assumptions. The biostatistician
+keeps the language precise: associational claims for
+descriptions, causal claims only when the assumptions
+are stated and defensible.
 
-**(Judgement 2.)** TODO.
+**(Judgement 2.) The DAG is a domain claim.** A
+directed acyclic graph encoding the causal relationships
+in your problem is a substantive scientific claim, not
+a statistical artefact. Drawing the DAG forces you to
+articulate which variables affect which others; the
+arrows are the claim. The biostatistician engages
+domain experts to verify the DAG. A DAG with the
+arrows wrong produces an analysis that is precisely
+incorrect; the precision is no help.
 
-**(Judgement 3.)** TODO.
+**(Judgement 3.) Identifying assumptions are
+substantive, not statistical.** The
+no-unmeasured-confounding assumption (exchangeability)
+is not testable from data alone; it is a claim about
+what is in the world, defended by the design and the
+scientific argument. The biostatistician's role is to
+make the assumption explicit, defend it where
+defensible, and quantify the consequences of violation
+where it is not.
 
-These judgements are what distinguish an analysis that
-survives review from one that does not.
+These judgements are what distinguish a causal analysis
+from a regression model that happens to use causal
+vocabulary.
 
-## (TODO: first content section)
+## The potential-outcomes framework
 
-(TODO)
+Notation [@rubin1974estimating; @neyman1923applications]:
+
+- $A$: the treatment indicator (0 = no treatment,
+  1 = treated; or generally, the value taken by an
+  intervention).
+- $Y$: the observed outcome.
+- $Y(a)$: the potential outcome under treatment level
+  $a$. A patient has potential outcomes $Y(0)$ and
+  $Y(1)$; the observed outcome is $Y = Y(A)$ —
+  whichever potential outcome corresponds to the
+  treatment actually received.
+- $X$: a vector of pre-treatment covariates.
+
+The fundamental problem of causal inference is that
+each individual has potential outcomes $Y(0)$ and
+$Y(1)$, but only one is observed for any given person.
+The other is the **counterfactual** outcome — what
+would have happened if the treatment assignment had
+been different.
+
+Causal effects are contrasts of potential outcomes.
+The **individual treatment effect**:
+$$
+\tau_i = Y_i(1) - Y_i(0)
+$$
+is fundamentally unobservable for any one individual.
+The **average treatment effect** (ATE):
+$$
+\text{ATE} = E[Y(1) - Y(0)]
+$$
+is identifiable from observed data under appropriate
+assumptions.
+
+Two related estimands matter:
+
+The **average treatment effect on the treated** (ATT):
+$$
+\text{ATT} = E[Y(1) - Y(0) \mid A = 1]
+$$
+the average effect among those actually treated.
+
+The **conditional average treatment effect** (CATE):
+$$
+\text{CATE}(x) = E[Y(1) - Y(0) \mid X = x]
+$$
+the average effect at a specific covariate value.
+
+ATE, ATT, and CATE are different things and often have
+different values. Pick the one that matches the
+decision: ATE for a population-level policy ('should
+we offer the treatment universally'), ATT for a
+question about the actually-treated population
+('among those who got the treatment, what was the
+average effect'), CATE for personalised medicine
+('what is the effect for this kind of patient').
 
 ::: {.callout-note icon=false collapse=true}
-## Check your understanding: TODO
+## Check your understanding: ATE vs. ATT
 
-**Question.** TODO.
+**Question.** A new diabetes drug is mostly prescribed
+to patients with poor glycaemic control on existing
+therapy. The ATT (effect among those treated) is large
+and positive. The ATE (average effect across all
+diabetic patients) is smaller. Which is the relevant
+quantity for the decision 'should the drug be added to
+guideline-recommended treatment for all diabetic
+patients'?
 
 ::: {.content-visible when-format='html'}
 <details><summary>Answer</summary>
 :::
 
-TODO.
+The ATE is the relevant quantity. The ATT applies only
+to the historical pattern of treatment (poorly-controlled
+patients); guideline change would treat patients across
+the whole spectrum, including better-controlled ones who
+were not represented in the ATT. The ATE captures the
+expected average effect under universal treatment.
+Reporting only the ATT for a guideline-change question
+overstates the expected benefit.
 
 ::: {.content-visible when-format='html'}
 </details>
 :::
 :::
 
-## (TODO: subsequent content sections)
+## The three core assumptions
 
-(TODO)
+Three identifying assumptions allow ATE to be computed
+from observed data.
 
-## Worked example: TODO
+**(A1) Exchangeability** (no unmeasured confounding):
+$$
+Y(a) \perp\!\!\!\perp A \mid X \quad \text{for all } a.
+$$
+Conditional on $X$, the potential outcomes are
+independent of treatment assignment. Equivalently:
+treatment assignment is as good as random within
+strata of $X$.
 
-(TODO: a concrete worked example, ideally biomedical, that
-exercises the chapter's tools end to end.)
+This is the load-bearing assumption. In an RCT,
+randomisation makes it true by design. In observational
+studies, it is a substantive claim about the world; it
+fails when there is a confounder $U$ that affects both
+$A$ and $Y$ that is not in $X$.
+
+**(A2) Positivity:**
+$$
+0 < \Pr(A = a \mid X) < 1 \quad \text{for all } a, x.
+$$
+Every covariate combination has some probability of
+receiving each treatment level. If certain combinations
+are deterministically untreated (or deterministically
+treated), the data carry no information about the
+counterfactual at that combination.
+
+Positivity violation is real: in observational drug
+data, certain patient subgroups are essentially never
+prescribed certain drugs (contraindications, age cutoffs,
+specialist referral patterns). The analyst must check
+the propensity-score distribution and either restrict
+the analysis or impose strong modelling assumptions to
+extrapolate.
+
+**(A3) Consistency:**
+$$
+A = a \implies Y = Y(a).
+$$
+The observed outcome under a particular treatment is
+the same as the potential outcome under that treatment.
+This sounds tautological but encodes a substantive
+claim: there is a single, well-defined version of each
+treatment, and the treatment received is the treatment
+of interest.
+
+Consistency fails when the treatment is heterogeneous
+('SGLT2 inhibitors' might mean dapagliflozin or
+empagliflozin, with different effects) or when the
+analyst defines treatment in a way that does not match
+the observed exposure. The fix is precision in the
+treatment definition.
+
+**Identification under A1-A3:** When all three hold,
+the ATE is identified from data:
+$$
+\text{ATE} = E[E[Y \mid A=1, X] - E[Y \mid A=0, X]].
+$$
+The outer expectation is over the distribution of $X$;
+the inner is the difference in conditional outcome means
+between treatment groups.
+
+This identification formula is the basis for
+g-computation (Ch 4); other estimators are equivalent
+under A1-A3 but use different computational routes.
+
+## Directed acyclic graphs
+
+A DAG is a graphical representation of causal
+relationships:
+
+- **Nodes** are variables.
+- **Directed edges** ($A \to B$) mean $A$ is a direct
+  cause of $B$.
+- **Acyclic** means no variable causes itself through
+  any path.
+
+DAGs are useful because they make causal assumptions
+explicit and allow algorithmic reasoning about
+identification.
+
+A simple example: smoking ($S$) affects both coffee
+consumption ($C$) and lung cancer ($Y$). Coffee does
+not cause lung cancer. The DAG:
+
+```
+    S
+   / \
+  v   v
+  C   Y
+```
+
+The association between $C$ and $Y$ is non-zero (they
+share a common cause) even though $C$ does not cause
+$Y$. Adjusting for $S$ removes the spurious
+association.
+
+Three structural roles a variable can play on a path
+between $A$ and $Y$:
+
+**Confounder** ($A \leftarrow Z \to Y$): $Z$ is a
+common cause of both. Adjustment for $Z$ removes the
+non-causal association.
+
+**Mediator** ($A \to M \to Y$): $M$ is on the causal
+path from $A$ to $Y$. Adjustment for $M$ blocks part
+of the causal effect; this is desired in mediation
+analysis (Ch 5) but not in the basic ATE.
+
+**Collider** ($A \to C \leftarrow Y$): $C$ is a common
+effect. Adjustment for a collider creates spurious
+association (selection bias). Do not adjust for
+colliders.
+
+The **backdoor criterion** [@pearl1995causal]: $X$ is a
+sufficient adjustment set for the causal effect of $A$
+on $Y$ if (a) $X$ blocks all backdoor paths from $A$
+to $Y$ and (b) $X$ contains no descendants of $A$.
+
+A backdoor path is any path from $A$ to $Y$ that begins
+with an arrow into $A$. Confounders sit on backdoor
+paths and need to be adjusted for; mediators do not
+sit on backdoor paths and must not be adjusted for.
+
+The DAG and the backdoor criterion together produce a
+recipe for identification: draw the DAG, identify the
+backdoor paths, find an adjustment set that blocks all
+of them. The set is the variables to put in the model.
+
+The `dagitty` R package implements the algorithm; for
+a given DAG and exposure-outcome pair it returns the
+minimal sufficient adjustment sets:
+
+```r
+library(dagitty)
+g <- dagitty('dag {
+  smoking -> coffee
+  smoking -> lung_cancer
+  coffee -> lung_cancer [adjusted = "no"]
+}')
+adjustmentSets(g, exposure = "coffee",
+               outcome = "lung_cancer")
+#> { smoking }
+```
+
+The output: to identify the (zero) effect of coffee on
+lung cancer, adjust for smoking.
+
+## When the assumptions fail
+
+Each assumption fails in characteristic ways and
+demands a characteristic response.
+
+**Exchangeability fails (unmeasured confounding).**
+The standard responses:
+
+1. **Sensitivity analysis.** Quantify how strong an
+   unmeasured confounder would have to be to overturn
+   the conclusion. The E-value [@vanderweele2017sensitivity]
+   is the standard summary; it answers 'how strong does
+   the unmeasured confounding need to be to explain
+   the observed association.'
+2. **Negative controls.** A negative-control exposure
+   (one expected to have no effect on the outcome) and
+   a negative-control outcome (one expected not to be
+   affected by the exposure) check for residual
+   confounding. Non-zero estimates on negative controls
+   suggest residual confounding that affects the
+   primary analysis too.
+3. **Instrumental variables.** Find a variable that
+   affects exposure but only affects the outcome
+   through exposure. Identifies a different estimand
+   (the effect among 'compliers') under different
+   assumptions; covered in Ch 4.
+4. **Design-based identification.** Regression
+   discontinuity, difference-in-differences, synthetic
+   control. Each exploits a feature of the
+   intervention's roll-out for identification.
+
+**Positivity fails.** The standard responses:
+
+1. **Restrict the population** to the region of
+   covariate support that has positive probability of
+   each treatment.
+2. **Trim the propensity score** to remove
+   observations near 0 or 1.
+3. **Use a doubly robust estimator** that is more
+   robust to extreme weights (Ch 4).
+
+**Consistency fails (treatment heterogeneity).** The
+standard response: redefine the treatment more
+precisely. 'SGLT2 use' is too coarse; 'dapagliflozin
+10mg/day for at least 30 days starting within 30 days
+of HFrEF diagnosis' is the kind of precision
+consistency requires.
+
+## Worked example: drawing a DAG
+
+A research question: does parental income affect
+adolescent academic performance, controlling for the
+right confounders?
+
+Available variables: parental income, adolescent
+academic performance, parental education, neighbourhood
+socio-economic status, school quality, parental
+involvement, adolescent IQ.
+
+Drawing the DAG:
+
+```
+parental_education
+      |
+      v
+parental_income ---> adolescent_performance
+      ^                     ^
+      |                     |
+neighbourhood_ses --------> school_quality
+                              ^
+                              |
+                          parental_involvement (mediator)
+```
+
+(In an actual paper, draw the graph; here the text
+suggests it.)
+
+Backdoor analysis: backdoor paths from parental income
+to adolescent performance go through parental
+education and neighbourhood SES. The minimal adjustment
+set is `{parental_education, neighbourhood_ses}`.
+
+Variables NOT to adjust for:
+
+- Parental involvement (mediator on the income →
+  involvement → performance path; adjusting blocks
+  part of the causal effect of income).
+- Adolescent IQ (downstream of the exposure if we
+  believe income affects cognitive development).
+
+The DAG forces these distinctions. Without it, an
+analyst might 'adjust for everything' (including
+mediators) and report a biased estimate.
 
 ## Collaborating with an LLM on causal-inference foundations
 
-(TODO: introduction paragraph naming the LLM-collaboration
-patterns specific to this chapter.)
+Three patterns.
 
-**Prompt 1: TODO.** TODO.
+**Prompt 1: 'Draw the DAG for this research question.'**
+Provide the variables and the substantive claims about
+which causes which.
 
-*What to watch for.* TODO.
+*What to watch for.* The LLM produces a plausible DAG
+but defaults to the most common pattern in similar
+research; it may miss domain-specific edges. Push for
+explicit confirmation of each edge ('does X cause Y?
+why?') and engage your domain expert.
 
-*Verification.* TODO.
+*Verification.* Show the DAG to a domain expert. Edges
+that the LLM proposed but the expert rejects are
+substantive claims to remove. Edges the expert adds are
+substantive claims to add.
 
-**Prompt 2: TODO.** TODO.
+**Prompt 2: 'Find the minimal adjustment set for this
+DAG.'** Provide the DAG (in dagitty syntax or a
+description).
 
-*What to watch for.* TODO.
+*What to watch for.* The LLM can apply the backdoor
+criterion correctly on simple DAGs and gets confused on
+DAGs with many nodes. Verify by running `dagitty` on
+the same DAG.
 
-*Verification.* TODO.
+*Verification.* `dagitty::adjustmentSets()` is the
+ground truth.
 
-**Prompt 3: TODO.** TODO.
+**Prompt 3: 'List the assumptions required for this
+analysis.'** Provide the analysis description.
 
-*What to watch for.* TODO.
+*What to watch for.* The LLM lists exchangeability,
+positivity, consistency, but tends to be generic about
+which specific confounders threaten exchangeability.
+Push for the specific case.
 
-*Verification.* TODO.
+*Verification.* The LLM's list is a starting point;
+your knowledge of the data informs which assumptions
+are most at risk.
 
-The meta-pattern: TODO.
+The meta-pattern: LLMs are good for the syntactic
+mechanics of causal inference (drawing DAGs, listing
+assumptions) and bad at the substantive ones (which
+edges go in the DAG, which assumptions are likely to
+hold). Use them for drafts; the substance is yours.
 
 ## Principle in use
 
-Three habits define defensible work in this area:
+Three habits define defensible causal-inference work.
 
-1. **TODO.**
-2. **TODO.**
-3. **TODO.**
+1. **Draw the DAG before fitting the model.** The DAG
+   is the causal claim; the model is the procedure. A
+   model fitted without a DAG is not a causal
+   analysis, regardless of what the report says.
+2. **State the three assumptions explicitly.** Every
+   causal report names exchangeability, positivity,
+   and consistency, and discusses how each is
+   defended.
+3. **Run a sensitivity analysis.** Every causal
+   estimate has an E-value or equivalent; the
+   discussion includes what unmeasured confounding
+   would do.
 
 ## Exercises
 
-1. TODO.
-2. TODO.
-3. TODO.
-4. TODO.
-5. TODO.
+1. For a research question of your choice, write the
+   ATE, ATT, and CATE in potential-outcomes notation.
+   Identify which is the most decision-relevant for the
+   intended audience.
+
+2. Draw the DAG for a research question in your area.
+   Identify the backdoor paths and the minimal
+   sufficient adjustment set. Use `dagitty` to check
+   your answer.
+
+3. For one of the three core assumptions, identify a
+   specific way it could fail in a hypothetical
+   observational study and propose a sensitivity
+   analysis to address it.
+
+4. Compute the E-value for a published RR of 2.0. What
+   does this E-value tell you about the strength of
+   unmeasured confounding required to overturn the
+   conclusion?
+
+5. Write a one-paragraph protocol section that states
+   the estimand (using potential-outcomes notation),
+   the identifying assumptions, the design that
+   identifies the estimand, and the sensitivity
+   analyses.
 
 ## Further reading
 
-- TODO (canonical reference).
-- TODO (modern applied reference).
-- TODO (software-documentation pointer).
+- @hernan2020causal, *Causal Inference: What If*. The
+  reference textbook for the framework introduced in
+  this chapter.
+- @pearl2009causality, *Causality: Models, Reasoning,
+  and Inference*. The reference for the structural
+  causal model and graphical reasoning.
+- @rubin1974estimating, 'Estimating causal effects of
+  treatments in randomized and nonrandomized studies'.
+  The foundational paper for potential outcomes.
+- The `dagitty` R package and online tool
+  (<https://www.dagitty.net/>) for drawing and
+  analysing DAGs.

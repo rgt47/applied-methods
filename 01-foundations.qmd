@@ -4,103 +4,486 @@
 
 By the end of this chapter you should be able to:
 
-- (TODO)
-- (TODO)
-- (TODO)
-- (TODO)
+- Articulate the estimand-estimator-estimate chain and
+  apply it to a real research question.
+- Distinguish a target population from a sampled
+  population, and recognise the inferential consequences
+  of the gap.
+- Categorise a study by its design (RCT, cohort,
+  case-control, cross-sectional) and identify the
+  characteristic biases each design is vulnerable to.
+- Recognise when a research question demands a causal,
+  associational, or descriptive answer, and choose the
+  estimand to match.
 
 ## Orientation
 
-(TODO: short prose framing — what the chapter is, why it
-matters, how it relates to the sibling volumes.)
+Most applied biostatistical work fails not because the
+analyst chose the wrong test but because the question was
+under-specified before the test was chosen. The estimand-
+estimator-estimate framework, articulated formally in
+ICH E9 R1 and now standard across regulatory
+biostatistics, forces the question into focus before any
+software runs. This chapter establishes that framework
+and the study-design taxonomy that the rest of the book
+builds on.
+
+The chapter is foundational in the strict sense: the
+remaining 11 chapters all assume the reader can answer
+'what is the estimand here?' before opening R. Causal
+inference (Chs 3-4), longitudinal analysis (Ch 6),
+clinical trials (Chs 8-9), missing data (Ch 10), and
+meta-analysis (Ch 11) each become well-defined only once
+the estimand is named.
+
+The framing here inherits the public-health emphasis of
+the volume. The clinical-trial estimand framework, the
+epidemiologic study-design taxonomy, and the basic
+descriptive-vs-causal-vs-predictive question
+classification are equally important for designing a
+trial, planning a cohort study, or reading a paper.
 
 ## The statistician's contribution {#sec-foundations-human}
 
-(TODO: front-loaded section articulating the judgements at
-the centre of this chapter that no LLM can make on the
-reader's behalf.)
+Three judgements at the centre of foundational work
+cannot be delegated.
 
-**(Judgement 1.)** TODO.
+**(Judgement 1.) The question precedes the estimand.** A
+research question stated as 'does treatment X affect
+outcome Y' is under-specified until the population, the
+intervention, the comparator, the timeframe, and the
+handling of intercurrent events are pinned down. The
+biostatistician's first contribution is to refuse the
+under-specified question and produce the specified
+version. 'Does sodium-glucose co-transporter inhibitor
+treatment, started within 30 days of MI in adults aged
+40-80 with EF below 40%, reduce the 90-day risk of
+cardiovascular death compared to standard care, treating
+treatment discontinuation as part of the assigned
+strategy' is the question. The bare 'does X affect Y' is
+a draft.
 
-**(Judgement 2.)** TODO.
+**(Judgement 2.) The estimand precedes the model.** Two
+analyses of the same data with different estimands
+produce different numbers, and both are right answers to
+their own question. ITT vs. per-protocol analyses
+estimate different things; conditional vs. marginal
+effects estimate different things; the average treatment
+effect on the treated vs. the average treatment effect
+in the whole population estimate different things. The
+biostatistician picks the estimand by reasoning about
+what the report will inform, what action a reader could
+take after seeing the number, and writes the estimand
+into the analysis plan before fitting any model.
 
-**(Judgement 3.)** TODO.
+**(Judgement 3.) The study design and the question must
+match.** A randomised controlled trial answers a causal
+question (effect of assignment); a cohort study answers
+a question about association in the population followed
+(useful for surveillance, often a poor surrogate for the
+causal question); a case-control study answers a
+question about the odds of exposure given outcome
+(rarely the question of substantive interest, often
+forced by feasibility). The biostatistician identifies
+the mismatch between the available design and the
+intended question and either redesigns or limits the
+claim accordingly.
 
-These judgements are what distinguish an analysis that
-survives review from one that does not.
+These judgements distinguish work that informs decisions
+from work that produces plausible numbers in response to
+under-specified questions.
 
-## (TODO: first content section)
+## The estimand-estimator-estimate chain
 
-(TODO)
+The framework, as ICH E9 R1 [@ich2019e9r1] formalises it
+for clinical trials and as the broader literature
+[@hernan2020causal; @lash2021modern] generalises for
+observational research:
+
+**Estimand.** The thing you want to know. Five
+attributes pin it down:
+
+1. **Population.** Who. The target population, defined
+   by inclusion and exclusion criteria.
+2. **Intervention.** What treatment, exposure, or
+   condition is the subject of inference.
+3. **Comparator.** What you are comparing the
+   intervention against (often a reference treatment,
+   placebo, or 'no intervention').
+4. **Outcome.** What is measured, on whom, and when.
+5. **Population-level summary.** How outcomes are
+   summarised across the population: a difference of
+   means, a risk ratio, a hazard ratio, an odds ratio.
+6. **Intercurrent events.** What happens when patients
+   discontinue, switch, or die before the outcome
+   assessment, and how the analysis treats those events.
+
+ICH E9 R1 specifies five strategies for handling
+intercurrent events:
+
+- **Treatment policy.** Treat the intercurrent event as
+  part of the assigned treatment strategy. ITT is a
+  treatment-policy estimand.
+- **Composite.** Treat the intercurrent event as part
+  of the outcome (e.g., 'death or treatment failure').
+- **Hypothetical.** Estimate what would have happened
+  in a counterfactual world without the intercurrent
+  event.
+- **Principal stratum.** Estimate the effect in the
+  subgroup defined by the (counterfactual) absence of
+  the intercurrent event.
+- **While-on-treatment.** Estimate the effect during
+  the on-treatment period only.
+
+Each strategy is a different estimand, with a different
+estimator and different assumptions. Two analyses of the
+same trial that use different strategies are answering
+different questions.
+
+**Estimator.** The procedure for producing a number from
+data. A simple difference of means, a stratified
+difference of means, a Cox proportional hazards model, a
+propensity-score-weighted ATE estimator. Choosing the
+estimator is a separate decision from choosing the
+estimand; the same estimand can be estimated by several
+different estimators with different efficiency and
+robustness properties.
+
+**Estimate.** The actual number you compute, with its
+uncertainty (standard error, confidence interval). The
+estimate is what appears in the report.
+
+The chain reads: estimand to estimator to estimate.
+Reverse order is the failure pattern: the analyst
+computes a number (estimate), justifies it post-hoc as
+the answer to whatever question it nicely answers
+(estimand), and moves on. Estimand-first work prevents
+this.
 
 ::: {.callout-note icon=false collapse=true}
-## Check your understanding: TODO
+## Check your understanding: estimand vs. estimator
 
-**Question.** TODO.
+**Question.** Two statisticians analyse the same RCT.
+One uses ITT (everyone analysed in the assigned arm),
+the other uses per-protocol (only patients who actually
+received their assigned treatment). They produce
+different numbers. Which one is correct?
 
 ::: {.content-visible when-format='html'}
 <details><summary>Answer</summary>
 :::
 
-TODO.
+Both can be correct, because they are estimating
+different estimands. ITT estimates the
+**treatment-policy** estimand: the effect of being
+assigned to a strategy, regardless of adherence. This is
+the answer to 'if I tell my patients to take this
+treatment, what happens?' Per-protocol estimates a
+quantity closer to the **hypothetical** estimand: what
+would happen if everyone adhered. This is the answer to
+'if I could perfectly enforce the treatment, what
+happens?' Both questions are interesting; both have
+valid answers; the answers differ. The mistake is to
+report one without naming which question it answers.
+The careful analyst reports both, identifies which is
+the primary estimand per the protocol, and discusses
+the discrepancy as informative about adherence.
 
 ::: {.content-visible when-format='html'}
 </details>
 :::
 :::
 
-## (TODO: subsequent content sections)
+## Target population vs. sampled population
 
-(TODO)
+The **target population** is the population to which you
+want to generalise: for example, all adults aged 40-80
+with type 2 diabetes in the United States. The
+**sampled population** is the population from which your
+data actually arose: for example, patients in three
+specific health systems in 2018-2024.
 
-## Worked example: TODO
+The gap matters. A model fit on the sampled population
+estimates the parameter in that population. Generalising
+to the target population requires:
 
-(TODO: a concrete worked example, ideally biomedical, that
-exercises the chapter's tools end to end.)
+- An argument that the sampled population resembles the
+  target on the variables that matter for the
+  question.
+- Where the resemblance fails, an explicit
+  generalisation step (post-stratification, transport
+  formulas, or sensitivity analyses).
+- Honest disclosure when generalisation is not
+  defensible.
+
+Biostatisticians frequently work on convenience samples
+(EHR data from one institution, a cohort that consented
+to research, the trial's centres). The temptation to
+generalise without justification is large; the
+discipline is to either justify or qualify.
+
+## Study-design taxonomy
+
+Each design answers a different question and is
+vulnerable to different biases.
+
+**Randomised controlled trial (RCT).** Subjects are
+randomised to intervention or comparator; outcomes are
+followed. Randomisation balances unmeasured confounders
+in expectation; the causal effect of assignment is
+identified. Vulnerable to: chance imbalance (especially
+with small samples), differential dropout,
+non-adherence, lack of blinding.
+
+**Cohort study.** Subjects are followed forward in time;
+exposure is observed (not assigned); outcomes are
+recorded. Causal interpretation requires no unmeasured
+confounding, an assumption rarely defensible without
+auxiliary identification (instrumental variables,
+sensitivity analyses, design-based arguments). Suitable
+for surveillance, predictive modelling, and causal
+analysis with strong design or rich confounder data.
+
+**Case-control study.** Subjects are sampled by outcome
+status; exposure is assessed retrospectively. Estimates
+the odds of exposure given outcome; estimable from
+data even when the outcome is rare. Causal interpretation
+is the hardest of the three designs and demands close
+attention to selection and recall biases.
+
+**Cross-sectional study.** Subjects are surveyed at one
+time point. Estimates prevalence and associations;
+causal interpretation is impossible (the temporal order
+of exposure and outcome is unknown).
+
+**Quasi-experimental designs.** Regression discontinuity,
+difference-in-differences, interrupted time series,
+synthetic control. Each exploits a feature of the
+intervention's roll-out (a sharp threshold, a phased
+introduction) to identify a causal effect under design-
+specific assumptions. The applied econometrics
+literature [@angrist2009mostly] is the natural home for
+this material.
+
+The first question after 'what is the estimand?' is
+'what design is the data from, and is the estimand
+identified by that design?' If the answer is no, either
+the estimand changes (to one identifiable from the
+design) or the analysis becomes a design-based
+argument plus sensitivity analyses.
+
+## Descriptive, associational, predictive, causal
+
+A useful categorisation of question types
+[@hernan2019cword]:
+
+**Descriptive.** What is the prevalence of diabetes in
+this cohort? What proportion of patients have hbA1c >
+8%? Descriptive questions estimate population
+quantities; the inference is generalisation from the
+sampled to the target population.
+
+**Associational.** Does hbA1c correlate with BMI in
+this cohort? Are diabetic patients more likely to be
+hypertensive? Associational questions estimate joint or
+conditional distributions; no claim about why the
+association exists is made.
+
+**Predictive.** Given a patient's age, BMI, and
+biomarker panel, what is the probability they will have
+a CV event in 5 years? Predictive questions optimise
+out-of-sample accuracy; the model need not be causal.
+
+**Causal.** If we assigned this patient to treatment X
+rather than treatment Y, would their CV-event
+probability change? Causal questions estimate
+counterfactual contrasts; the inference requires
+assumptions about confounding, exchangeability, and
+positivity.
+
+Different questions need different methods. A model that
+is excellent for prediction may be a poor causal
+estimator; a model that gives valid causal estimates may
+predict poorly. The biostatistician identifies the
+question category early and chooses methods to match.
+
+## Worked example: specifying an estimand for an observational study
+
+A clinical team has access to electronic health records
+from three hospitals (2018-2024) and wants to know
+'whether SGLT2 inhibitors are effective in real-world
+patients with heart failure'. They ask the
+biostatistician to plan the analysis.
+
+The biostatistician's first move is to refuse the
+question as stated and write the specified version.
+
+**Population.** Adults aged 18+ with a confirmed
+diagnosis of heart failure with reduced ejection
+fraction (HFrEF, EF < 40%) seen at any of the three
+hospitals in 2018-2023. Exclude patients with end-stage
+renal disease, type 1 diabetes, or pregnancy.
+
+**Intervention.** Initiation of an SGLT2 inhibitor
+within 30 days of HFrEF diagnosis.
+
+**Comparator.** No SGLT2 inhibitor initiation within 30
+days of diagnosis.
+
+**Outcome.** All-cause mortality at 12 months from
+diagnosis.
+
+**Population-level summary.** Risk ratio of mortality
+(intervention vs. comparator), with 95% CI.
+
+**Intercurrent events.** Initiation of SGLT2 in the
+comparator group after 30 days: treatment-policy
+strategy (analyse as comparator). Treatment
+discontinuation in the intervention group:
+treatment-policy strategy. Death from causes other than
+HF: contributes to the outcome.
+
+**Design.** Cohort study, observational. Causal
+interpretation requires no unmeasured confounding given
+the available baseline covariates (age, sex, EF,
+NT-proBNP, eGFR, comorbidities, baseline meds).
+Confounder-adjusted using inverse-probability weighting
+(Ch 4); sensitivity analysis via E-value (Ch 4).
+
+**Generalisation.** Estimates apply to the three-hospital
+sampled population. Generalisation to the broader US
+HFrEF population requires an additional argument
+(comparison of the sampled population's age, sex, race,
+comorbidity distribution to a national reference)
+provided in the discussion.
+
+The biostatistician's two-page protocol locks in the
+estimand before any data is queried. This protocol is
+what the analysis plan, the report, and the published
+paper will all defer to. Six months later, when a
+collaborator asks 'why did you use 30 days as the
+window?' or 'why is the comparator group not just
+non-users?', the protocol is the answer.
 
 ## Collaborating with an LLM on applied-methods foundations
 
-(TODO: introduction paragraph naming the LLM-collaboration
-patterns specific to this chapter.)
+Three patterns for using AI assistance well at the
+foundation stage.
 
-**Prompt 1: TODO.** TODO.
+**Prompt 1: 'Write the estimand for this research
+question.'** Provide a one-paragraph informal description
+of the question and the available data.
 
-*What to watch for.* TODO.
+*What to watch for.* The LLM produces a competent
+estimand statement that captures the obvious five
+attributes. It commonly under-specifies the
+intercurrent-event handling and the temporal definitions
+('within how many days?'). Ask follow-up questions about
+each attribute it answered tersely.
 
-*Verification.* TODO.
+*Verification.* Read the LLM's estimand against ICH E9
+R1 if you have it; check that all five attributes are
+specified concretely (not just named). For each
+intercurrent event, the LLM should pick a strategy
+explicitly.
 
-**Prompt 2: TODO.** TODO.
+**Prompt 2: 'What study designs would identify this
+estimand?'** Provide the estimand and the constraints
+(retrospective vs. prospective, available data, ethical
+constraints).
 
-*What to watch for.* TODO.
+*What to watch for.* The LLM generally identifies the
+correct designs but tends to undersell the assumptions
+required for observational identification. Push back:
+'what specific unmeasured confounders would invalidate
+this analysis?' is a useful follow-up.
 
-*Verification.* TODO.
+*Verification.* The LLM-suggested design is a candidate;
+your own knowledge of the data and the literature is the
+veto. The LLM has not seen your data and does not know
+which confounders are measured.
 
-**Prompt 3: TODO.** TODO.
+**Prompt 3: 'Translate this question into a
+descriptive/associational/predictive/causal
+classification.'** Provide the question.
 
-*What to watch for.* TODO.
+*What to watch for.* The LLM is reasonably good at this
+but tends to hedge ('this could be associational or
+causal depending on...'). Push for a single answer plus
+a brief justification.
 
-*Verification.* TODO.
+*Verification.* Compare the LLM's classification to
+your own. Disagreement is informative: it usually
+indicates the question itself is ambiguous and worth
+revising.
 
-The meta-pattern: TODO.
+The meta-pattern: LLMs are useful for generating drafts
+of estimands and study-design proposals, and for
+forcing you to articulate things you might have left
+implicit. They are not substitutes for the
+biostatistician's domain judgement. The right use is
+'AI drafts, statistician edits and approves'.
 
 ## Principle in use
 
-Three habits define defensible work in this area:
+Three habits define defensible foundational work.
 
-1. **TODO.**
-2. **TODO.**
-3. **TODO.**
+1. **Write the estimand before fitting the model.** The
+   estimand belongs in the analysis plan, not in the
+   results section. The analysis plan is the contract;
+   the model is the procedure that satisfies it.
+2. **Match the estimand to the design.** If the data
+   come from a cohort, do not write an estimand that
+   only an RCT can identify. The mismatch is the
+   biostatistician's responsibility to surface.
+3. **Disclose the gap between sampled and target
+   populations.** Every report should contain a
+   one-paragraph statement about who the estimates
+   apply to and why.
 
 ## Exercises
 
-1. TODO.
-2. TODO.
-3. TODO.
-4. TODO.
-5. TODO.
+1. For a research question of your choice (a study you
+   are working on, or a recent paper in your field),
+   write the estimand using all six ICH E9 R1
+   attributes. Identify the intercurrent-event
+   strategies for at least two intercurrent events.
+
+2. Take a paper from a recent issue of *NEJM* or
+   *Lancet*. Identify the estimand the paper claims to
+   have estimated. Identify the actual analysis. Are
+   they the same? Where do they diverge?
+
+3. For a published cohort study in your area, list the
+   confounders the authors adjusted for. Now list the
+   confounders they should have adjusted for given
+   biological plausibility. What is the gap, and what
+   is the likely direction of bias?
+
+4. Draft the descriptive-vs-associational-vs-causal
+   classification for ten research questions from your
+   field. Where the classification is ambiguous, write
+   one sentence specifying what would resolve the
+   ambiguity.
+
+5. For one estimand from problem 1, identify three
+   different estimators that could compute it. List the
+   assumptions each requires and the typical efficiency
+   ranking.
 
 ## Further reading
 
-- TODO (canonical reference).
-- TODO (modern applied reference).
-- TODO (software-documentation pointer).
+- @ich2019e9r1, *ICH E9(R1) Addendum on Estimands and
+  Sensitivity Analysis in Clinical Trials*. The
+  regulatory document that anchors the estimand
+  framework.
+- @hernan2020causal, *Causal Inference: What If*. The
+  open-access textbook that develops the estimand-and-
+  identifiability discipline for observational data.
+- @lash2021modern, *Modern Epidemiology* (4th edition).
+  The reference textbook for the epidemiologic study-
+  design taxonomy.
+- @hernan2019cword, 'The C-word: Scientific euphemisms
+  do not improve causal inference from observational
+  data'. The argument for naming causal questions as
+  causal.

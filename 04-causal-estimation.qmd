@@ -4,103 +4,564 @@
 
 By the end of this chapter you should be able to:
 
-- (TODO)
-- (TODO)
-- (TODO)
-- (TODO)
+- Estimate the propensity score and use it to construct
+  matched cohorts, weighted samples, and stratified
+  estimates.
+- Implement inverse-probability-of-treatment weighting
+  (IPTW) and recognise its sensitivity to extreme
+  weights.
+- Implement g-computation and double-robust estimators
+  (AIPW, TMLE) and explain why double robustness
+  matters.
+- Apply instrumental-variable estimation when an IV is
+  available, and recognise its limits.
+- Conduct sensitivity analyses (E-value, tipping-point)
+  for unmeasured confounding.
 
 ## Orientation
 
-(TODO: short prose framing — what the chapter is, why it
-matters, how it relates to the sibling volumes.)
+Chapter 3 specified what we want to estimate
+(potential-outcome contrasts) and the assumptions under
+which they are identified (exchangeability, positivity,
+consistency). This chapter covers how to compute the
+estimates. Five families of estimators dominate
+applied work: propensity-score matching, IPTW,
+g-computation, doubly-robust estimators (AIPW, TMLE),
+and instrumental variables.
+
+The choice between estimators is partly a matter of
+taste and partly a matter of which assumptions you are
+willing to defend. IPTW is sensitive to positivity
+violations; g-computation requires correctly specified
+outcome models; doubly-robust estimators are robust to
+mis-specification of one of the two but require both.
+The chapter covers each, illustrates with a worked
+example, and recommends when to use which.
 
 ## The statistician's contribution {#sec-causal-estimation-human}
 
-(TODO: front-loaded section articulating the judgements at
-the centre of this chapter that no LLM can make on the
-reader's behalf.)
+Three judgements are not delegable.
 
-**(Judgement 1.)** TODO.
+**(Judgement 1.) Pick the estimator deliberately.** The
+default is to use whatever estimator is most familiar
+(typically logistic regression with covariates, which is
+g-computation). The right choice depends on which
+mis-specifications are likeliest in your data: if the
+outcome model is hard to specify (rare events,
+non-linear treatment effects), use IPTW or doubly
+robust; if positivity is weak (some covariate strata
+have near-zero treatment probability), use g-computation
+or doubly robust; if neither works, reconsider whether
+the question is identifiable from this data.
 
-**(Judgement 2.)** TODO.
+**(Judgement 2.) The propensity score is a means, not
+an end.** The point of the propensity score is to remove
+confounding, not to predict treatment. A propensity
+model that perfectly predicts treatment is a positivity
+disaster; an over-fitted model is worse than an
+under-fitted one. The biostatistician judges propensity
+models on the balance they produce, not on AUC or
+calibration of the propensity prediction.
 
-**(Judgement 3.)** TODO.
+**(Judgement 3.) Sensitivity analysis is part of the
+result, not after it.** Every causal estimate is paired
+with a sensitivity analysis: an E-value, a tipping
+point, a negative-control check. The biostatistician
+designs the sensitivity analysis when designing the
+primary analysis, not after the primary result is in.
 
-These judgements are what distinguish an analysis that
-survives review from one that does not.
+These judgements distinguish causal estimation that
+informs decisions from regression with extra steps.
 
-## (TODO: first content section)
+## The propensity score
 
-(TODO)
+The **propensity score** is the conditional probability
+of treatment given covariates:
+$$
+e(X) = \Pr(A = 1 \mid X).
+$$
+Rosenbaum and Rubin [@rosenbaum1983central] showed that
+conditioning on $e(X)$ is sufficient to remove
+confounding under exchangeability. The propensity score
+is a one-dimensional summary of a high-dimensional
+covariate vector — easier to use for matching,
+weighting, and balance assessment.
+
+Estimation: typically a logistic regression of $A$ on
+$X$. Modern alternatives use machine-learning models
+(gradient boosting, random forests) for the propensity
+estimation step. The choice has implications for
+double-robust estimators (more later).
+
+```r
+library(MatchIt)
+
+ps_model <- glm(treatment ~ age + sex + bmi + comorb,
+                data = cohort, family = binomial)
+cohort$ps <- predict(ps_model, type = "response")
+
+summary(cohort$ps)
+#>     Min.  1st Qu.  Median   Mean  3rd Qu.    Max.
+#>   0.082    0.231   0.401  0.412   0.587    0.918
+```
+
+Check positivity: are propensity scores reasonably
+distributed in both treatment groups?
+
+```r
+ggplot(cohort, aes(x = ps, fill = factor(treatment))) +
+  geom_histogram(position = "dodge", binwidth = 0.05) +
+  labs(x = "Propensity score", fill = "Treatment")
+```
+
+If the histograms are far apart, positivity is in
+trouble. If many treated patients have ps near 1 or
+many untreated have ps near 0, those observations carry
+little information for the comparison.
+
+## Propensity-score matching
+
+Match each treated patient to one or more untreated
+patients with similar propensity scores; analyse the
+matched cohort.
+
+```r
+library(MatchIt)
+
+m <- matchit(treatment ~ age + sex + bmi + comorb,
+             data = cohort, method = "nearest",
+             ratio = 1)
+matched <- match.data(m)
+
+summary(m)
+#> [balance table]
+```
+
+Check balance: standardised mean differences should be
+under 0.10 for all confounders (a standard threshold).
+
+Then estimate on the matched cohort:
+
+```r
+fit <- lm(outcome ~ treatment, data = matched)
+summary(fit)
+```
+
+Propensity matching estimates the **ATT** by default
+(the effect among the treated). To estimate the **ATE**,
+match treated to untreated and untreated to treated
+(more complex; see `MatchIt` documentation).
+
+## Inverse-probability weighting (IPTW)
+
+Weight each observation by the inverse of the
+probability of receiving the treatment they actually
+received:
+$$
+w_i = \frac{A_i}{e(X_i)} + \frac{1 - A_i}{1 - e(X_i)}.
+$$
+Treated patients with low propensity get high weight
+(rare in the data, given high weight to compensate);
+similarly for untreated.
+
+Then fit an outcome model with the weights:
+
+```r
+cohort$w <- ifelse(cohort$treatment == 1,
+                   1/cohort$ps,
+                   1/(1-cohort$ps))
+
+library(survey)
+des <- svydesign(~1, weights = ~w, data = cohort)
+fit <- svyglm(outcome ~ treatment, design = des)
+summary(fit)
+```
+
+`svyglm` produces robust standard errors that account
+for the weighting.
+
+IPTW estimates the **ATE**. Stabilised weights (multiply
+by the marginal probability of the observed treatment)
+reduce the variance:
+$$
+w_i^{\text{stab}} = \frac{A_i \Pr(A=1)}{e(X_i)} +
+                    \frac{(1-A_i) \Pr(A=0)}{1-e(X_i)}.
+$$
+
+The major weakness: extreme weights. If a few treated
+patients have ps near 0.05, their weight is 20; their
+contribution dominates the estimate. **Trim** weights at
+some quantile (say, the 1st and 99th percentile) or
+truncate at a fixed value.
+
+## g-computation
+
+g-computation [@robins1986new] is the direct application
+of the identification formula from Chapter 3:
+
+1. Fit an outcome model $E[Y \mid A, X]$ on the data.
+2. Predict $E[Y \mid A=1, X_i]$ for every observation
+   $i$ (including untreated ones); average to get
+   $E[Y(1)]$.
+3. Predict $E[Y \mid A=0, X_i]$ for every observation;
+   average to get $E[Y(0)]$.
+4. Compute the difference (or ratio).
+
+```r
+fit <- glm(outcome ~ treatment + age + sex + bmi + comorb,
+           data = cohort, family = binomial)
+
+cohort$y1 <- predict(fit, newdata = transform(cohort,
+                                              treatment = 1),
+                    type = "response")
+cohort$y0 <- predict(fit, newdata = transform(cohort,
+                                              treatment = 0),
+                    type = "response")
+
+ate <- mean(cohort$y1) - mean(cohort$y0)
+ate
+#> [1] 0.073
+```
+
+Bootstrap for confidence intervals (the standard error
+in the regression output is for the conditional effect,
+not the marginal ATE).
+
+g-computation requires correctly specifying the outcome
+model. Mis-specification biases the result. With many
+covariates and complex interactions, this is hard.
+
+## Doubly-robust estimators
+
+Doubly-robust estimators combine a propensity model and
+an outcome model in a way that gives consistent
+estimates if either one is correctly specified
+[@bang2005doubly; @robins1994estimation]. The two main
+families:
+
+**AIPW (Augmented IPW)** combines IPTW with an outcome
+adjustment:
+$$
+\hat\tau_{\text{AIPW}} = \frac{1}{n}\sum_i \left[
+  \frac{A_i (Y_i - \hat m_1(X_i))}{\hat e(X_i)} -
+  \frac{(1-A_i)(Y_i - \hat m_0(X_i))}{1-\hat e(X_i)} +
+  \hat m_1(X_i) - \hat m_0(X_i)
+\right]
+$$
+where $\hat m_a(X) = \widehat{E[Y\mid A=a, X]}$.
+
+**TMLE (Targeted Maximum Likelihood Estimation)**
+[@vandeLaan2006targeted] is a more sophisticated
+double-robust estimator that achieves better
+finite-sample properties.
+
+Both rely on **cross-fitting** [@chernozhukov2018double]
+when machine-learning estimators are used for the
+nuisance functions; cross-fitting splits the data,
+fits the nuisance models on one half, computes the ATE
+contributions on the other, and averages. Without
+cross-fitting, ML-based double-robust estimators have
+poor coverage.
+
+In R, the `tmle` and `WeightIt` + `marginaleffects`
+packages implement these. The `lmtp` package handles
+longitudinal extensions.
+
+```r
+library(tmle)
+result <- tmle(Y = cohort$outcome,
+               A = cohort$treatment,
+               W = cohort[, c("age","sex","bmi","comorb")])
+summary(result)
+```
+
+Doubly-robust is the default recommendation for modern
+applied causal inference: it is robust to one model
+mis-specification, integrates with ML for nuisance
+estimation, and produces valid CIs under cross-fitting.
 
 ::: {.callout-note icon=false collapse=true}
-## Check your understanding: TODO
+## Check your understanding: when matching beats weighting
 
-**Question.** TODO.
+**Question.** A cohort study has 200 treated patients
+and 800 untreated. The propensity-score distribution
+shows substantial overlap, but a few treated patients
+have propensity scores near 0.05. Which estimator is the
+safer choice: IPTW or 1:1 propensity matching?
 
 ::: {.content-visible when-format='html'}
 <details><summary>Answer</summary>
 :::
 
-TODO.
+1:1 matching. The treated patients with propensity near
+0.05 would receive weights of 20 in IPTW, dominating
+the estimate and inflating the variance. Matching
+either pairs them with the small number of untreated
+patients with similar low propensity (limiting
+extrapolation) or excludes them (with explicit
+documentation). Either choice is defensible and
+transparent. IPTW also has principled trimming
+strategies but matching is more interpretable for an
+audience evaluating positivity violations directly.
+The trade is that 1:1 matching estimates the ATT (not
+the ATE), so the substantive question matters.
 
 ::: {.content-visible when-format='html'}
 </details>
 :::
 :::
 
-## (TODO: subsequent content sections)
+## Instrumental variables
 
-(TODO)
+When unmeasured confounding is present and cannot be
+addressed by adjustment, an instrumental variable (IV)
+provides a different identification route. An IV $Z$
+satisfies:
 
-## Worked example: TODO
+- $Z$ affects $A$.
+- $Z$ has no direct effect on $Y$ except through $A$
+  (the **exclusion restriction**).
+- $Z$ is unconfounded with $Y$.
 
-(TODO: a concrete worked example, ideally biomedical, that
-exercises the chapter's tools end to end.)
+Examples in clinical research: random assignment in an
+RCT (the canonical IV); physician prescribing
+preferences; geographic variation in availability.
+
+Two-stage least squares estimates the **local average
+treatment effect** (LATE) — the effect among
+'compliers', i.e., patients whose treatment status is
+affected by the instrument:
+
+```r
+library(AER)
+fit_iv <- ivreg(outcome ~ treatment + age + sex |
+                ins_pref + age + sex,
+                data = cohort)
+summary(fit_iv)
+```
+
+The first half of the formula is the structural
+equation; the second half is the first-stage equation
+(with the IV `ins_pref` instead of `treatment`).
+
+IV estimation requires strong instruments
+(`F-statistic > 10` in the first stage is a rule of
+thumb) and the exclusion restriction (rarely
+falsifiable from data). Sensitivity analysis under
+violation of exclusion is a active research area
+[@conley2012plausibly].
+
+## Sensitivity analysis: the E-value
+
+The E-value [@vanderweele2017sensitivity] quantifies
+how strong an unmeasured confounder would need to be
+to overturn an observed association. For an observed
+risk ratio $\text{RR}_{\text{obs}}$:
+$$
+\text{E-value} = \text{RR}_{\text{obs}} +
+                 \sqrt{\text{RR}_{\text{obs}}(\text{RR}_{\text{obs}} - 1)}.
+$$
+The E-value is the minimum strength of association,
+on the risk-ratio scale, that an unmeasured confounder
+would need to have with both the exposure and the
+outcome to fully explain the observed exposure-outcome
+association.
+
+For $\text{RR}_{\text{obs}} = 2.0$, E-value = 3.41.
+Interpretation: an unmeasured confounder would need
+to be associated with both exposure and outcome with
+RR of at least 3.41 to overturn the observed
+association of 2.0. Whether 3.41 is plausible
+depends on the substantive context.
+
+The `EValue` R package computes E-values for various
+estimands (RR, OR, HR, RD).
+
+```r
+library(EValue)
+evalues.RR(est = 2.0, lo = 1.6, hi = 2.5)
+#>             E-value
+#> RR    point     3.41
+#> RR    CI bound  2.59
+```
+
+Report the E-value alongside every observational
+causal estimate.
+
+## Worked example: estimating the ATE of SGLT2 on
+12-month mortality
+
+Continuing the example from Chs 1-2.
+
+```r
+library(tidyverse)
+library(MatchIt)
+library(survey)
+library(EValue)
+
+# 1. Propensity score
+ps_model <- glm(sglt2 ~ age + sex + ef + ntpro_bnp +
+                  egfr + dm + ckd + ace_arb,
+                data = hf_cohort, family = binomial)
+hf_cohort$ps <- predict(ps_model, type = "response")
+
+# Check positivity
+ggplot(hf_cohort, aes(x = ps, fill = factor(sglt2))) +
+  geom_histogram(position = "dodge", binwidth = 0.05)
+
+# 2. IPTW (stabilised)
+hf_cohort <- hf_cohort |>
+  mutate(p_a = mean(sglt2),
+         w = ifelse(sglt2 == 1,
+                    p_a / ps,
+                    (1 - p_a) / (1 - ps)),
+         # trim at 1st and 99th percentile
+         w = pmin(pmax(w, quantile(w, 0.01)),
+                  quantile(w, 0.99)))
+
+# Check balance after weighting
+# (use cobalt::bal.tab() in production)
+
+# 3. IPTW estimate
+des <- svydesign(~1, weights = ~w, data = hf_cohort)
+fit_iptw <- svyglm(mort_12mo ~ sglt2, design = des,
+                   family = binomial)
+summary(fit_iptw)
+# log-OR for sglt2: ...
+
+# 4. g-computation for cross-check
+fit_g <- glm(mort_12mo ~ sglt2 + age + sex + ef +
+               ntpro_bnp + egfr + dm + ckd + ace_arb,
+             data = hf_cohort, family = binomial)
+y1 <- mean(predict(fit_g, transform(hf_cohort, sglt2 = 1),
+                   type = "response"))
+y0 <- mean(predict(fit_g, transform(hf_cohort, sglt2 = 0),
+                   type = "response"))
+rr <- y1 / y0
+rr
+#> [1] 0.78
+
+# 5. E-value
+evalues.RR(rr)
+#>             E-value
+#> RR    point    1.87
+```
+
+The IPTW and g-computation point estimates agree
+(the same data, two estimation routes); the
+discrepancies between them — if any — flag
+mis-specification. The E-value of 1.87 means that an
+unmeasured confounder would need to be associated with
+both SGLT2 use and mortality with RR 1.87 to explain
+the 22% mortality reduction observed; whether that is
+plausible is a substantive judgement.
+
+A doubly-robust analysis (TMLE or AIPW) provides the
+recommended primary estimate; IPTW and g-computation
+provide cross-checks.
 
 ## Collaborating with an LLM on causal-inference estimation
 
-(TODO: introduction paragraph naming the LLM-collaboration
-patterns specific to this chapter.)
+Three patterns.
 
-**Prompt 1: TODO.** TODO.
+**Prompt 1: 'Implement IPTW for this dataset.'**
+Provide the data structure and the confounders.
 
-*What to watch for.* TODO.
+*What to watch for.* The LLM produces working IPTW
+code. It typically uses unstabilised weights, does not
+trim, and does not check balance. Push for the
+production version: stabilised, trimmed, with balance
+diagnostics.
 
-*Verification.* TODO.
+*Verification.* Check the output against a textbook
+formula. Plot the propensity-score distribution and
+inspect balance with `cobalt::bal.tab()`.
 
-**Prompt 2: TODO.** TODO.
+**Prompt 2: 'Walk me through whether this analysis is
+robust to unmeasured confounding.'** Provide the
+analysis and the data sources.
 
-*What to watch for.* TODO.
+*What to watch for.* The LLM gives a generic discussion
+of E-values. Push for specifics: which unmeasured
+confounders are most likely, how strong they would need
+to be to overturn the result.
 
-*Verification.* TODO.
+*Verification.* Compute the E-value yourself; it is one
+formula. The interpretive judgement (is the required
+confounding strength plausible?) is yours.
 
-**Prompt 3: TODO.** TODO.
+**Prompt 3: 'Compare the ATE and ATT for this
+analysis.'** Provide both estimates.
 
-*What to watch for.* TODO.
+*What to watch for.* The LLM correctly distinguishes
+the two and explains when each applies. It tends to
+miss the practical implication: which one matches the
+decision the report informs.
 
-*Verification.* TODO.
+*Verification.* Map the estimand to the decision
+explicitly. Different audiences need different
+estimands.
 
-The meta-pattern: TODO.
+The meta-pattern: LLMs are useful for the syntactic
+mechanics (writing the IPTW or g-computation code) and
+weak at the substantive judgement (which estimator,
+which confounders, which E-value to report). Use the
+LLM for the code; bring the substantive reasoning
+yourself.
 
 ## Principle in use
 
-Three habits define defensible work in this area:
+Three habits.
 
-1. **TODO.**
-2. **TODO.**
-3. **TODO.**
+1. **Match estimator to the assumption you can defend.**
+   IPTW requires positivity. g-computation requires
+   outcome-model specification. Doubly-robust requires
+   one of the two. Choose by what you can defend.
+2. **Cross-check estimators.** Run two estimators that
+   make different mis-specifications. Agreement is
+   evidence; disagreement flags a problem.
+3. **Report sensitivity alongside the estimate.** The
+   E-value (or equivalent) is part of the result, not
+   a paragraph at the end of the discussion.
 
 ## Exercises
 
-1. TODO.
-2. TODO.
-3. TODO.
-4. TODO.
-5. TODO.
+1. Take a public observational dataset (e.g., NHANES
+   subset) and compute the ATE using IPTW for a
+   binary treatment and a binary outcome of your
+   choice. Report the propensity-score distribution,
+   the balance table, and the trimmed estimate.
+
+2. Repeat the analysis with g-computation. Compare
+   the point estimates and confidence intervals.
+
+3. Compute the E-value for your estimate. Discuss
+   whether unmeasured confounding of the required
+   strength is plausible.
+
+4. Find a published observational study with a
+   reported risk ratio. Compute the E-value for that
+   estimate. Read the discussion for the authors'
+   handling of unmeasured confounding; would you
+   reach the same conclusion?
+
+5. Extend the SGLT2 worked example to estimate the
+   ATT (effect among initiators) using 1:1
+   propensity-score matching. Compare to the IPTW
+   estimate and explain the difference.
 
 ## Further reading
 
-- TODO (canonical reference).
-- TODO (modern applied reference).
-- TODO (software-documentation pointer).
+- @hernan2020causal, *Causal Inference: What If*. The
+  open-access textbook covering all the estimators in
+  this chapter.
+- @rosenbaum1983central, 'The central role of the
+  propensity score in observational studies for
+  causal effects'. The foundational paper for
+  propensity-score methods.
+- @vanderweele2017sensitivity, 'Sensitivity analysis
+  in observational research: introducing the
+  E-value'. The reference for the E-value.
+- The `MatchIt`, `WeightIt`, `tmle`, and `marginaleffects`
+  R packages are the modern toolkit; their vignettes
+  are the practical references.
