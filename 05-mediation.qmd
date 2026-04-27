@@ -4,103 +4,515 @@
 
 By the end of this chapter you should be able to:
 
-- (TODO)
-- (TODO)
-- (TODO)
-- (TODO)
+- Distinguish total, direct, and indirect effects in
+  the potential-outcomes mediation framework.
+- Apply the Baron-Kenny approach to a simple mediation
+  question and recognise its limitations.
+- Implement counterfactual mediation analysis for
+  natural direct and indirect effects (NDE/NIE) using
+  the `mediation` and `CMAverse` R packages.
+- Reason about the four identifying assumptions for
+  mediation and the conditions under which mediation
+  effects are identifiable.
+- Conduct sensitivity analysis for unmeasured
+  mediator-outcome confounding.
 
 ## Orientation
 
-(TODO: short prose framing — what the chapter is, why it
-matters, how it relates to the sibling volumes.)
+Mediation analysis decomposes a total causal effect
+into the part that flows through a specified mechanism
+(the indirect effect) and the part that does not (the
+direct effect). 'Does treatment X reduce mortality
+because it lowers blood pressure, or for some other
+reason?' is a mediation question. The answer requires
+both causal-inference machinery (Chs 3-4) and
+specific identifying assumptions about the
+mediator-outcome relationship.
+
+The chapter develops three threads. **The framework**:
+total, direct, indirect effects in potential-outcomes
+notation, with the modern counterfactual definition.
+**The methods**: Baron-Kenny as a useful starting
+point, modern counterfactual mediation as the
+production tool. **The assumptions**: four
+identifying conditions that must be defended for
+mediation to be valid.
+
+The framing inherits the causal-inference discipline
+from Chapter 3. Mediation is a special case of causal
+inference where the analyst wants to decompose the
+effect; it inherits all the assumptions of basic
+causal inference plus additional ones about the
+mediator.
 
 ## The statistician's contribution {#sec-mediation-human}
 
-(TODO: front-loaded section articulating the judgements at
-the centre of this chapter that no LLM can make on the
-reader's behalf.)
+Three judgements are not delegable.
 
-**(Judgement 1.)** TODO.
+**(Judgement 1.) Mediation requires more assumptions,
+not fewer.** A causal estimate of the total effect
+requires no unmeasured exposure-outcome confounding
+(Ch 3). A causal estimate of the indirect effect
+through a mediator additionally requires no unmeasured
+mediator-outcome confounding, no exposure-mediator-
+outcome confounding interaction, and (for some
+estimators) no mediator-outcome interaction in the
+target population. Each new assumption is a
+substantive claim. The biostatistician does not run
+mediation analysis on data where the basic causal
+analysis is shaky.
 
-**(Judgement 2.)** TODO.
+**(Judgement 2.) Pick the right effect for the
+question.** Total effect, controlled direct effect,
+natural direct effect, natural indirect effect — each
+is a different counterfactual contrast and answers a
+different question. The total effect is sometimes
+right; the natural direct/indirect decomposition is
+right when the question is about mechanism; the
+controlled direct effect is right when the question
+is about an intervention that fixes the mediator.
 
-**(Judgement 3.)** TODO.
+**(Judgement 3.) Sensitivity analysis is mandatory.**
+The unmeasured mediator-outcome confounding assumption
+is rarely defensible without quantification. Modern
+mediation packages (`CMAverse`, `mediation`) provide
+sensitivity analyses; report them.
 
-These judgements are what distinguish an analysis that
-survives review from one that does not.
+These judgements distinguish a mediation analysis that
+informs mechanistic claims from regression with a
+mediator term added.
 
-## (TODO: first content section)
+## The framework
 
-(TODO)
+Notation:
+
+- $A$: exposure or treatment.
+- $M$: mediator (a post-exposure, pre-outcome variable
+  thought to lie on the causal path from $A$ to $Y$).
+- $Y$: outcome.
+- $X$: pre-exposure confounders.
+- $Y(a, m)$: potential outcome under exposure $a$ and
+  mediator value $m$.
+
+The basic decomposition:
+
+**Total effect (TE)**:
+$$
+\text{TE} = E[Y(1) - Y(0)]
+$$
+the effect of exposure on outcome regardless of
+mechanism.
+
+**Controlled direct effect (CDE)** at mediator level
+$m$:
+$$
+\text{CDE}(m) = E[Y(1, m) - Y(0, m)]
+$$
+the effect of exposure when the mediator is held fixed
+at $m$. Useful when the question is about an
+intervention that controls the mediator.
+
+**Natural direct effect (NDE)**:
+$$
+\text{NDE} = E[Y(1, M(0)) - Y(0, M(0))]
+$$
+the effect of exposure on outcome when the mediator is
+fixed at the level it would have taken under the
+control condition. The 'direct' effect that bypasses
+the mediator.
+
+**Natural indirect effect (NIE)**:
+$$
+\text{NIE} = E[Y(1, M(1)) - Y(1, M(0))]
+$$
+the effect on outcome of changing the mediator from
+its value under control to its value under exposure,
+holding exposure fixed at 1. The 'indirect' effect
+through the mediator.
+
+The decomposition: TE = NDE + NIE. (Note that the
+intuition 'TE = direct + indirect' holds for natural
+effects but not for controlled direct effects, where
+the decomposition is more complex.)
+
+The 'natural' framing matches the question 'how much
+of the total effect goes through this mechanism' more
+naturally than the 'controlled' framing matches it.
+The trade-off: natural effects require an additional
+identifying assumption that controlled effects do not.
+
+## Identifying assumptions
+
+Four assumptions for identification of natural
+mediation effects [@vanderweele2015explanation]:
+
+1. **No unmeasured exposure-outcome confounding** given
+   $X$.
+2. **No unmeasured mediator-outcome confounding** given
+   $X$ (and the exposure).
+3. **No unmeasured exposure-mediator confounding**
+   given $X$.
+4. **No exposure-induced mediator-outcome confounding**
+   (sometimes called the 'cross-world' assumption) —
+   technically, no mediator-outcome confounder that is
+   itself caused by the exposure.
+
+Assumptions 1-3 are extensions of the basic
+exchangeability assumption from Ch 3. Assumption 4 is
+specific to natural-effect identification and is the
+hardest to defend; it cannot be guaranteed by design
+in observational data and rarely in trial data
+either. The controlled direct effect requires only
+1-3.
+
+## Baron-Kenny
+
+The classic approach [@baron1986moderator]: regress
+$Y$ on $A$ to get the total effect $c$; regress $M$
+on $A$ to get the $A \to M$ path $a$; regress $Y$ on
+$A$ and $M$ to get the $M \to Y$ path $b$ and the
+direct effect $c'$. Indirect effect = $a \cdot b$;
+total = direct + indirect = $c' + a \cdot b = c$
+(under linear models with no interaction).
+
+```r
+fit_y_a   <- lm(y ~ a + x, data = d)         # total
+fit_m_a   <- lm(m ~ a + x, data = d)         # path a
+fit_y_am  <- lm(y ~ a + m + x, data = d)     # paths c', b
+
+c  <- coef(fit_y_a)["a"]
+a_path <- coef(fit_m_a)["a"]
+b_path <- coef(fit_y_am)["m"]
+c_prime <- coef(fit_y_am)["a"]
+
+c                          # total
+c_prime                    # direct
+a_path * b_path            # indirect
+c_prime + a_path * b_path  # should = c
+```
+
+Baron-Kenny works when:
+
+- All variables are continuous.
+- The models are linear with no interactions (in
+  particular, no $A \times M$ interaction in the
+  outcome model).
+- All four mediation assumptions hold.
+
+It breaks (or biases) when:
+
+- The outcome is binary (logistic regression's
+  coefficients do not decompose simply).
+- The exposure and mediator interact in their effect
+  on the outcome.
+- Exposure-induced mediator-outcome confounders are
+  present.
+
+For modern applied mediation, Baron-Kenny is a useful
+first-pass diagnostic but not the right tool for
+publication.
+
+## Counterfactual mediation analysis
+
+The modern approach uses potential outcomes directly
+to define and estimate NDE and NIE. The `mediation` R
+package [@imai2010general] and the `CMAverse` package
+[@shi2021cmaverse] implement this.
+
+```r
+library(mediation)
+
+# the mediator model
+fit_m <- lm(m ~ a + x, data = d)
+
+# the outcome model (allowing A:M interaction)
+fit_y <- lm(y ~ a * m + x, data = d)
+
+# mediation analysis
+med_result <- mediate(fit_m, fit_y,
+                      treat = "a", mediator = "m",
+                      sims = 1000)
+summary(med_result)
+#> Causal Mediation Analysis
+#>
+#> Quasi-Bayesian Confidence Intervals
+#>
+#>                Estimate  95% CI Lower  95% CI Upper p-value
+#> ACME (control)    0.043        0.018        0.072  <2e-16
+#> ACME (treated)    0.049        0.022        0.080  <2e-16
+#> ADE (control)     0.082        0.035        0.131  <2e-16
+#> ADE (treated)     0.088        0.039        0.140  <2e-16
+#> Total Effect      0.131        0.083        0.182  <2e-16
+#> Prop. Mediated   0.339        0.193        0.521  <2e-16
+```
+
+The output:
+
+- ACME (Average Causal Mediation Effect) is the natural
+  indirect effect.
+- ADE (Average Direct Effect) is the natural direct
+  effect.
+- Total effect is the sum.
+- Proportion mediated is the ratio of NIE to TE.
+
+The 'control' and 'treated' versions reflect the
+$A \times M$ interaction; if the interaction is small,
+they agree.
+
+For binary outcomes or non-linear models, `CMAverse`
+provides more flexibility:
+
+```r
+library(CMAverse)
+
+result <- cmest(data = d, model = "rb",
+                outcome = "y", exposure = "a",
+                mediator = "m",
+                basec = c("x1", "x2"),
+                yreg = "logistic",
+                mreg = list("linear"),
+                EMint = TRUE,
+                astar = 0, a = 1, mval = list(0))
+summary(result)
+```
+
+`CMAverse` supports linear, logistic, Poisson,
+multinomial, ordinal, time-to-event, and survival
+outcomes; multiple mediators (sequential and joint);
+and effect modification. The `EMint = TRUE` includes
+the exposure-mediator interaction.
 
 ::: {.callout-note icon=false collapse=true}
-## Check your understanding: TODO
+## Check your understanding: when proportion mediated misleads
 
-**Question.** TODO.
+**Question.** A mediation analysis reports:
+TE = 0.05, NIE = 0.03, NDE = 0.02, proportion mediated
+= 60%. The total effect is small but a large fraction
+goes through the mediator. Is the 60% figure
+informative?
 
 ::: {.content-visible when-format='html'}
 <details><summary>Answer</summary>
 :::
 
-TODO.
+It is mathematically correct but pragmatically
+misleading. Proportion mediated is the ratio of two
+estimated quantities; both are noisy. When TE is small,
+proportion mediated is unstable: a small change in TE
+or NIE produces a large swing in the ratio. The
+useful reporting is NIE and NDE in their natural
+units (with CIs), not the ratio. Reserve proportion
+mediated for cases where TE is well-estimated and
+substantial. Several published mediation analyses have
+reported proportion mediated of 80% or 100% when TE
+is near zero, producing misleading conclusions.
 
 ::: {.content-visible when-format='html'}
 </details>
 :::
 :::
 
-## (TODO: subsequent content sections)
+## Sensitivity analysis
 
-(TODO)
+The mediator-outcome no-confounding assumption is
+typically the weakest. Sensitivity analysis quantifies
+how strong unmeasured mediator-outcome confounding
+would need to be to overturn the conclusion.
 
-## Worked example: TODO
+The `mediation` package's sensitivity:
 
-(TODO: a concrete worked example, ideally biomedical, that
-exercises the chapter's tools end to end.)
+```r
+sens <- medsens(med_result, sims = 500)
+summary(sens)
+plot(sens)
+```
+
+The output: at what level of mediator-outcome
+confounding (parameterised by $\rho$, the correlation
+between residuals in the mediator and outcome models)
+would the NIE drop to zero. A small $\rho$ means the
+result is sensitive to even mild unmeasured confounding;
+a large $\rho$ means substantial confounding would be
+required.
+
+`CMAverse` provides analogous sensitivity analyses for
+its broader range of models.
+
+## Multiple and sequential mediators
+
+Real questions often involve multiple potential
+mediators. Treatment X reduces CV mortality; the
+mechanism could be through blood pressure, lipids,
+glucose, or weight. Several extensions handle this:
+
+**Joint mediation** treats the mediators as a vector;
+the joint NIE captures the indirect effect through
+the whole vector. Useful when the mediators are
+correlated and one-at-a-time analyses double-count.
+
+**Sequential mediation** specifies a temporal order
+among the mediators (e.g., treatment → BP → lipids
+→ outcome) and decomposes the indirect effect into
+the contribution of each.
+
+Both are implemented in `CMAverse` and the `gformula`
+package. The complexity rises quickly; the assumptions
+multiply. Reserve multiple-mediator analyses for
+questions where the substantive interest justifies the
+methodological burden.
+
+## Worked example: does SGLT2 reduce mortality through
+blood pressure?
+
+Continuing the SGLT2 example. The substantive
+question: of the observed 22% mortality reduction
+under SGLT2 vs. no SGLT2, how much goes through the
+known mechanism of lowered blood pressure?
+
+```r
+library(mediation)
+
+# mediator model
+fit_m <- lm(sbp_3mo ~ sglt2 + age + sex + ef +
+              egfr + baseline_sbp,
+            data = hf_cohort)
+
+# outcome model
+fit_y <- glm(mort_12mo ~ sglt2 * sbp_3mo + age + sex +
+               ef + egfr + baseline_sbp,
+             data = hf_cohort, family = binomial)
+
+# mediation
+med <- mediate(fit_m, fit_y,
+               treat = "sglt2", mediator = "sbp_3mo",
+               sims = 1000)
+summary(med)
+```
+
+Suppose the output shows NIE = -0.04 (SGLT2 reduces
+mortality by 4 percentage points through SBP),
+NDE = -0.18 (SGLT2 reduces mortality by 18 percentage
+points not through SBP), TE = -0.22, proportion
+mediated = 18%.
+
+Interpretation: blood-pressure reduction explains a
+small fraction of the SGLT2 mortality benefit; most
+of the benefit is through other mechanisms (likely
+osmotic diuresis and direct cardiac effects). This is
+the kind of substantive insight mediation analysis is
+designed to produce.
+
+The sensitivity analysis (running `medsens(med)`) tells
+you how much unmeasured confounding of SBP-mortality
+would be required to attenuate the NIE to zero.
 
 ## Collaborating with an LLM on mediation analysis
 
-(TODO: introduction paragraph naming the LLM-collaboration
-patterns specific to this chapter.)
+Three patterns.
 
-**Prompt 1: TODO.** TODO.
+**Prompt 1: 'Write the mediation model for this
+question.'** Provide the exposure, mediator, outcome,
+and confounders.
 
-*What to watch for.* TODO.
+*What to watch for.* The LLM produces working code
+using `mediation` or `CMAverse`. It frequently omits
+the `EMint = TRUE` (exposure-mediator interaction),
+which produces biased natural effects when the
+interaction is real. Push back: 'should we include
+exposure-mediator interaction?'
 
-*Verification.* TODO.
+*Verification.* Read the resulting code; confirm the
+interaction is included if appropriate. Run a
+sensitivity analysis.
 
-**Prompt 2: TODO.** TODO.
+**Prompt 2: 'Interpret this mediation output for a
+non-statistical audience.'** Provide the output.
 
-*What to watch for.* TODO.
+*What to watch for.* The LLM produces clean prose for
+the NIE/NDE distinction. It tends to over-emphasise
+proportion mediated. Push for a sentence on the
+decomposition in absolute units rather than the
+ratio.
 
-*Verification.* TODO.
+*Verification.* The interpretation should match the
+estimands. NIE in absolute units is the most
+interpretable quantity for most audiences.
 
-**Prompt 3: TODO.** TODO.
+**Prompt 3: 'What are the assumptions for this
+mediation analysis to be valid?'** Provide the
+analysis.
 
-*What to watch for.* TODO.
+*What to watch for.* The LLM lists the four
+assumptions. It is generally vague about the
+cross-world assumption. Push for specifics: 'what
+exposure-induced mediator-outcome confounders are
+plausible?'
 
-*Verification.* TODO.
+*Verification.* Compare the LLM's list to the
+@vanderweele2015explanation reference. The
+substantive judgement (which assumptions are plausible)
+is yours.
 
-The meta-pattern: TODO.
+The meta-pattern: LLMs are good at the syntactic
+mechanics (the right R function, the standard
+output) and weak at the substantive judgements (which
+mediation effect to estimate, which assumptions are
+plausible). Use them for code, bring substantive
+reasoning yourself.
 
 ## Principle in use
 
-Three habits define defensible work in this area:
+Three habits.
 
-1. **TODO.**
-2. **TODO.**
-3. **TODO.**
+1. **Run a basic causal analysis first.** If the
+   total-effect causal analysis is shaky, the
+   mediation analysis cannot rescue it. Mediation
+   inherits all the assumptions of basic causal
+   inference plus more.
+2. **Include the exposure-mediator interaction.**
+   Without it, NDE and NIE may be biased. Include it
+   by default; remove it only after testing.
+3. **Report sensitivity analysis for mediator-outcome
+   confounding.** The assumption is rarely
+   defensible without quantification.
 
 ## Exercises
 
-1. TODO.
-2. TODO.
-3. TODO.
-4. TODO.
-5. TODO.
+1. For a research question of your choice with a
+   plausible mediator, write the mediation framework:
+   exposure, mediator, outcome, confounders for each
+   relationship, the four mediation assumptions.
+
+2. Implement Baron-Kenny on simulated data with no
+   exposure-mediator interaction. Verify
+   $c = c' + ab$ holds.
+
+3. Repeat exercise 2 with an exposure-mediator
+   interaction. Note where Baron-Kenny breaks and
+   compare to the counterfactual analysis from
+   `mediation`.
+
+4. Run a sensitivity analysis for unmeasured
+   mediator-outcome confounding on a published
+   mediation result. Comment on whether the level of
+   confounding required to overturn the result is
+   plausible.
+
+5. Read a published mediation analysis. Identify the
+   four mediation assumptions and the authors'
+   defence (or absence of defence) of each. Propose
+   improvements.
 
 ## Further reading
 
-- TODO (canonical reference).
-- TODO (modern applied reference).
-- TODO (software-documentation pointer).
+- @vanderweele2015explanation, *Explanation in Causal
+  Inference*. The reference textbook for modern
+  mediation analysis.
+- @imai2010general, 'A general approach to causal
+  mediation analysis'. The methods paper for the
+  `mediation` package.
+- @shi2021cmaverse, 'CMAverse: a suite of functions
+  for reproducible causal mediation analyses'. The
+  current applied tool.
+- The `mediation` and `CMAverse` package
+  documentation are the practical references.
