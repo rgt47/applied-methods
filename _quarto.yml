@@ -5,7 +5,7 @@ project:
 book:
   title: 'Applied Statistical Methods for Public Health'
   subtitle: 'A graduate textbook'
-  author: 'Ronald "Ryy" G. Thomas'
+  author: 'The rgtlab Curriculum Project'
   date: today
   date-format: 'YYYY-MM-DD'
 

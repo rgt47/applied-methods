@@ -1,7 +1,7 @@
 # Welcome {.unnumbered}
 
 This is the online version of **Applied Statistical
-Methods for Public Health** by Ronald 'Ryy' G. Thomas, a
+Methods for Public Health** by The rgtlab Curriculum Project, a
 graduate textbook.
 
 The book covers the applied methodological core of an
