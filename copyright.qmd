@@ -1,6 +1,6 @@
 # Copyright {.unnumbered}
 
-*Applied Statistical Methods for Public Health* by Ronald
+*Applied Statistical Methods for Health Sciences Research* by Ronald
 'Ryy' G. Thomas is licensed under a
 [Creative Commons Attribution-NonCommercial-NoDerivatives
 4.0 International

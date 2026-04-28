@@ -1,16 +1,16 @@
-# Advanced Statistical Computing in the Age of AI {.unnumbered}
+# Applied Statistical Methods for Health Sciences Research {.unnumbered}
 
 ::: {.content-visible when-format='pdf'}
 \thispagestyle{empty}
 \vspace*{4cm}
 \begin{center}
-{\Huge\bfseries Advanced Statistical Computing in the Age of AI\par}
+{\Huge\bfseries Applied Statistical Methods for Health Sciences Research\par}
 \vspace{1cm}
-{\Large\itshape A graduate textbook in biostatistics\par}
+{\Large\itshape A graduate textbook\par}
 \end{center}
 \newpage
 :::
 
 ::: {.content-visible when-format='html'}
-*A graduate textbook in biostatistics.*
+*A graduate textbook.*
 :::

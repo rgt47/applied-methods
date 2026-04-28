@@ -3,7 +3,7 @@ project:
   output-dir: _book
 
 book:
-  title: 'Applied Statistical Methods for Public Health'
+  title: 'Applied Statistical Methods for Health Sciences Research'
   subtitle: 'A graduate textbook'
   author: 'The rgtlab Curriculum Project'
   date: today
