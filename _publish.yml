@@ -1,0 +1,4 @@
+- source: project
+  netlify:
+    - id: 44e43dcc-d58b-437d-a940-24a1b7fb648b
+      url: https://subtle-maamoul-ea9225.netlify.app
