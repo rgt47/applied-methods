@@ -1,6 +1,5 @@
 # Welcome {.unnumbered .unlisted}
 
-::: {.content-visible when-format='html'}
 
 This is the online version of **Applied Statistical
 Methods for Health Sciences Research** by The rgtlab
@@ -44,4 +43,3 @@ Code samples are licensed under
 [Creative Commons CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/),
 i.e. public domain.
 
-:::
