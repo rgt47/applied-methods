@@ -8,13 +8,13 @@ By the end of this chapter you should be able to:
   matched cohorts, weighted samples, and stratified
   estimates.
 - Implement inverse-probability-of-treatment weighting
-  (IPTW) and recognise its sensitivity to extreme
+  (IPTW) and recognize its sensitivity to extreme
   weights.
 - Implement g-computation and double-robust estimators
   (AIPW, TMLE) and explain why double robustness
   matters.
 - Apply instrumental-variable estimation when an IV is
-  available, and recognise its limits.
+  available, and recognize its limits.
 - Conduct sensitivity analyses (E-value, tipping-point)
   for unmeasured confounding.
 
@@ -40,9 +40,9 @@ example, and recommends when to use which.
 
 ## The statistician's contribution {#sec-causal-estimation-human}
 
-Three judgements are not delegable.
+Three judgments are not delegable.
 
-**(Judgement 1.) Pick the estimator deliberately.** The
+**(Judgment 1.) Pick the estimator deliberately.** The
 default is to use whatever estimator is most familiar
 (typically logistic regression with covariates, which is
 g-computation). The right choice depends on which
@@ -54,7 +54,7 @@ have near-zero treatment probability), use g-computation
 or doubly robust; if neither works, reconsider whether
 the question is identifiable from this data.
 
-**(Judgement 2.) The propensity score is a means, not
+**(Judgment 2.) The propensity score is a means, not
 an end.** The point of the propensity score is to remove
 confounding, not to predict treatment. A propensity
 model that perfectly predicts treatment is a positivity
@@ -63,14 +63,14 @@ under-fitted one. The biostatistician judges propensity
 models on the balance they produce, not on AUC or
 calibration of the propensity prediction.
 
-**(Judgement 3.) Sensitivity analysis is part of the
+**(Judgment 3.) Sensitivity analysis is part of the
 result, not after it.** Every causal estimate is paired
 with a sensitivity analysis: an E-value, a tipping
 point, a negative-control check. The biostatistician
 designs the sensitivity analysis when designing the
 primary analysis, not after the primary result is in.
 
-These judgements distinguish causal estimation that
+These judgments distinguish causal estimation that
 informs decisions from regression with extra steps.
 
 ## The propensity score
@@ -84,7 +84,7 @@ Rosenbaum and Rubin [@rosenbaum1983central] showed that
 conditioning on $e(X)$ is sufficient to remove
 confounding under exchangeability. The propensity score
 is a one-dimensional summary of a high-dimensional
-covariate vector — easier to use for matching,
+covariate vector, easier to use for matching,
 weighting, and balance assessment.
 
 Estimation: typically a logistic regression of $A$ on
@@ -122,7 +122,7 @@ little information for the comparison.
 ## Propensity-score matching
 
 Match each treated patient to one or more untreated
-patients with similar propensity scores; analyse the
+patients with similar propensity scores; analyze the
 matched cohort.
 
 ```r
@@ -137,7 +137,7 @@ summary(m)
 #> [balance table]
 ```
 
-Check balance: standardised mean differences should be
+Check balance: standardized mean differences should be
 under 0.10 for all confounders (a standard threshold).
 
 Then estimate on the matched cohort:
@@ -180,7 +180,7 @@ summary(fit)
 `svyglm` produces robust standard errors that account
 for the weighting.
 
-IPTW estimates the **ATE**. Stabilised weights (multiply
+IPTW estimates the **ATE**. Stabilized weights (multiply
 by the marginal probability of the observed treatment)
 reduce the variance:
 $$
@@ -323,7 +323,7 @@ RCT (the canonical IV); physician prescribing
 preferences; geographic variation in availability.
 
 Two-stage least squares estimates the **local average
-treatment effect** (LATE) — the effect among
+treatment effect** (LATE), the effect among
 'compliers', i.e., patients whose treatment status is
 affected by the instrument:
 
@@ -444,12 +444,12 @@ evalues.RR(rr)
 
 The IPTW and g-computation point estimates agree
 (the same data, two estimation routes); the
-discrepancies between them — if any — flag
+discrepancies between them, if any, flag
 mis-specification. The E-value of 1.87 means that an
 unmeasured confounder would need to be associated with
 both SGLT2 use and mortality with RR 1.87 to explain
 the 22% mortality reduction observed; whether that is
-plausible is a substantive judgement.
+plausible is a substantive judgment.
 
 A doubly-robust analysis (TMLE or AIPW) provides the
 recommended primary estimate; IPTW and g-computation
@@ -463,9 +463,9 @@ Three patterns.
 Provide the data structure and the confounders.
 
 *What to watch for.* The LLM produces working IPTW
-code. It typically uses unstabilised weights, does not
+code. It typically uses unstabilized weights, does not
 trim, and does not check balance. Push for the
-production version: stabilised, trimmed, with balance
+production version: stabilized, trimmed, with balance
 diagnostics.
 
 *Verification.* Check the output against a textbook
@@ -482,7 +482,7 @@ confounders are most likely, how strong they would need
 to be to overturn the result.
 
 *Verification.* Compute the E-value yourself; it is one
-formula. The interpretive judgement (is the required
+formula. The interpretive judgment (is the required
 confounding strength plausible?) is yours.
 
 **Prompt 3: 'Compare the ATE and ATT for this
@@ -499,7 +499,7 @@ estimands.
 
 The meta-pattern: LLMs are useful for the syntactic
 mechanics (writing the IPTW or g-computation code) and
-weak at the substantive judgement (which estimator,
+weak at the substantive judgment (which estimator,
 which confounders, which E-value to report). Use the
 LLM for the code; bring the substantive reasoning
 yourself.

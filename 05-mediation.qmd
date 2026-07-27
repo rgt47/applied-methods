@@ -7,7 +7,7 @@ By the end of this chapter you should be able to:
 - Distinguish total, direct, and indirect effects in
   the potential-outcomes mediation framework.
 - Apply the Baron-Kenny approach to a simple mediation
-  question and recognise its limitations.
+  question and recognize its limitations.
 - Implement counterfactual mediation analysis for
   natural direct and indirect effects (NDE/NIE) using
   the `mediation` and `CMAverse` R packages.
@@ -47,9 +47,9 @@ mediator.
 
 ## The statistician's contribution {#sec-mediation-human}
 
-Three judgements are not delegable.
+Three judgments are not delegable.
 
-**(Judgement 1.) Mediation requires more assumptions,
+**(Judgment 1.) Mediation requires more assumptions,
 not fewer.** A causal estimate of the total effect
 requires no unmeasured exposure-outcome confounding
 (Ch 3). A causal estimate of the indirect effect
@@ -62,9 +62,9 @@ substantive claim. The biostatistician does not run
 mediation analysis on data where the basic causal
 analysis is shaky.
 
-**(Judgement 2.) Pick the right effect for the
+**(Judgment 2.) Pick the right effect for the
 question.** Total effect, controlled direct effect,
-natural direct effect, natural indirect effect — each
+natural direct effect, natural indirect effect, each
 is a different counterfactual contrast and answers a
 different question. The total effect is sometimes
 right; the natural direct/indirect decomposition is
@@ -72,13 +72,13 @@ right when the question is about mechanism; the
 controlled direct effect is right when the question
 is about an intervention that fixes the mediator.
 
-**(Judgement 3.) Sensitivity analysis is mandatory.**
+**(Judgment 3.) Sensitivity analysis is mandatory.**
 The unmeasured mediator-outcome confounding assumption
 is rarely defensible without quantification. Modern
 mediation packages (`CMAverse`, `mediation`) provide
 sensitivity analyses; report them.
 
-These judgements distinguish a mediation analysis that
+These judgments distinguish a mediation analysis that
 informs mechanistic claims from regression with a
 mediator term added.
 
@@ -153,7 +153,7 @@ mediation effects [@vanderweele2015explanation]:
 3. **No unmeasured exposure-mediator confounding**
    given $X$.
 4. **No exposure-induced mediator-outcome confounding**
-   (sometimes called the 'cross-world' assumption) —
+   (sometimes called the 'cross-world' assumption), 
    technically, no mediator-outcome confounder that is
    itself caused by the exposure.
 
@@ -424,7 +424,7 @@ sensitivity analysis.
 non-statistical audience.'** Provide the output.
 
 *What to watch for.* The LLM produces clean prose for
-the NIE/NDE distinction. It tends to over-emphasise
+the NIE/NDE distinction. It tends to over-emphasize
 proportion mediated. Push for a sentence on the
 decomposition in absolute units rather than the
 ratio.
@@ -445,12 +445,12 @@ plausible?'
 
 *Verification.* Compare the LLM's list to the
 @vanderweele2015explanation reference. The
-substantive judgement (which assumptions are plausible)
+substantive judgment (which assumptions are plausible)
 is yours.
 
 The meta-pattern: LLMs are good at the syntactic
 mechanics (the right R function, the standard
-output) and weak at the substantive judgements (which
+output) and weak at the substantive judgments (which
 mediation effect to estimate, which assumptions are
 plausible). Use them for code, bring substantive
 reasoning yourself.
@@ -495,7 +495,7 @@ Three habits.
 
 5. Read a published mediation analysis. Identify the
    four mediation assumptions and the authors'
-   defence (or absence of defence) of each. Propose
+   defense (or absence of defense) of each. Propose
    improvements.
 
 ## Further reading

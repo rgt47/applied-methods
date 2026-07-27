@@ -7,12 +7,12 @@ By the end of this chapter you should be able to:
 - Articulate the estimand-estimator-estimate chain and
   apply it to a real research question.
 - Distinguish a target population from a sampled
-  population, and recognise the inferential consequences
+  population, and recognize the inferential consequences
   of the gap.
-- Categorise a study by its design (RCT, cohort,
+- Categorize a study by its design (RCT, cohort,
   case-control, cross-sectional) and identify the
   characteristic biases each design is vulnerable to.
-- Recognise when a research question demands a causal,
+- Recognize when a research question demands a causal,
   associational, or descriptive answer, and choose the
   estimand to match.
 
@@ -45,10 +45,10 @@ trial, planning a cohort study, or reading a paper.
 
 ## The statistician's contribution {#sec-foundations-human}
 
-Three judgements at the centre of foundational work
+Three judgments at the center of foundational work
 cannot be delegated.
 
-**(Judgement 1.) The question precedes the estimand.** A
+**(Judgment 1.) The question precedes the estimand.** A
 research question stated as 'does treatment X affect
 outcome Y' is under-specified until the population, the
 intervention, the comparator, the timeframe, and the
@@ -63,7 +63,7 @@ treatment discontinuation as part of the assigned
 strategy' is the question. The bare 'does X affect Y' is
 a draft.
 
-**(Judgement 2.) The estimand precedes the model.** Two
+**(Judgment 2.) The estimand precedes the model.** Two
 analyses of the same data with different estimands
 produce different numbers, and both are right answers to
 their own question. ITT vs. per-protocol analyses
@@ -76,8 +76,8 @@ what the report will inform, what action a reader could
 take after seeing the number, and writes the estimand
 into the analysis plan before fitting any model.
 
-**(Judgement 3.) The study design and the question must
-match.** A randomised controlled trial answers a causal
+**(Judgment 3.) The study design and the question must
+match.** A randomized controlled trial answers a causal
 question (effect of assignment); a cohort study answers
 a question about association in the population followed
 (useful for surveillance, often a poor surrogate for the
@@ -89,15 +89,15 @@ the mismatch between the available design and the
 intended question and either redesigns or limits the
 claim accordingly.
 
-These judgements distinguish work that informs decisions
+These judgments distinguish work that informs decisions
 from work that produces plausible numbers in response to
 under-specified questions.
 
 ## The estimand-estimator-estimate chain
 
-The framework, as ICH E9 R1 [@ich2019e9r1] formalises it
+The framework, as ICH E9 R1 [@ich2019e9r1] formalizes it
 for clinical trials and as the broader literature
-[@hernan2020causal; @lash2021modern] generalises for
+[@hernan2020causal; @lash2021modern] generalizes for
 observational research:
 
 **Estimand.** The thing you want to know. Five
@@ -112,7 +112,7 @@ attributes pin it down:
    placebo, or 'no intervention').
 4. **Outcome.** What is measured, on whom, and when.
 5. **Population-level summary.** How outcomes are
-   summarised across the population: a difference of
+   summarized across the population: a difference of
    means, a risk ratio, a hazard ratio, an odds ratio.
 6. **Intercurrent events.** What happens when patients
    discontinue, switch, or die before the outcome
@@ -163,8 +163,8 @@ this.
 ::: {.callout-note icon=false collapse=true}
 ## Check your understanding: estimand vs. estimator
 
-**Question.** Two statisticians analyse the same RCT.
-One uses ITT (everyone analysed in the assigned arm),
+**Question.** Two statisticians analyze the same RCT.
+One uses ITT (everyone analyzed in the assigned arm),
 the other uses per-protocol (only patients who actually
 received their assigned treatment). They produce
 different numbers. Which one is correct?
@@ -192,29 +192,29 @@ the discrepancy as informative about adherence.
 ## Target population vs. sampled population
 
 The **target population** is the population to which you
-want to generalise: for example, all adults aged 40-80
+want to generalize: for example, all adults aged 40-80
 with type 2 diabetes in the United States. The
 **sampled population** is the population from which your
 data actually arose: for example, patients in three
 specific health systems in 2018-2024.
 
 The gap matters. A model fit on the sampled population
-estimates the parameter in that population. Generalising
+estimates the parameter in that population. Generalizing
 to the target population requires:
 
 - An argument that the sampled population resembles the
   target on the variables that matter for the
   question.
 - Where the resemblance fails, an explicit
-  generalisation step (post-stratification, transport
+  generalization step (post-stratification, transport
   formulas, or sensitivity analyses).
-- Honest disclosure when generalisation is not
+- Honest disclosure when generalization is not
   defensible.
 
 Biostatisticians frequently work on convenience samples
 (EHR data from one institution, a cohort that consented
-to research, the trial's centres). The temptation to
-generalise without justification is large; the
+to research, the trial's centers). The temptation to
+generalize without justification is large; the
 discipline is to either justify or qualify.
 
 ## Study-design taxonomy
@@ -222,9 +222,9 @@ discipline is to either justify or qualify.
 Each design answers a different question and is
 vulnerable to different biases.
 
-**Randomised controlled trial (RCT).** Subjects are
-randomised to intervention or comparator; outcomes are
-followed. Randomisation balances unmeasured confounders
+**Randomized controlled trial (RCT).** Subjects are
+randomized to intervention or comparator; outcomes are
+followed. Randomization balances unmeasured confounders
 in expectation; the causal effect of assignment is
 identified. Vulnerable to: chance imbalance (especially
 with small samples), differential dropout,
@@ -236,7 +236,7 @@ recorded. Causal interpretation requires no unmeasured
 confounding, an assumption rarely defensible without
 auxiliary identification (instrumental variables,
 sensitivity analyses, design-based arguments). Suitable
-for surveillance, predictive modelling, and causal
+for surveillance, predictive modeling, and causal
 analysis with strong design or rich confounder data.
 
 **Case-control study.** Subjects are sampled by outcome
@@ -269,13 +269,13 @@ argument plus sensitivity analyses.
 
 ## Descriptive, associational, predictive, causal
 
-A useful categorisation of question types
+A useful categorization of question types
 [@hernan2019cword]:
 
 **Descriptive.** What is the prevalence of diabetes in
 this cohort? What proportion of patients have hbA1c >
 8%? Descriptive questions estimate population
-quantities; the inference is generalisation from the
+quantities; the inference is generalization from the
 sampled to the target population.
 
 **Associational.** Does hbA1c correlate with BMI in
@@ -286,7 +286,7 @@ association exists is made.
 
 **Predictive.** Given a patient's age, BMI, and
 biomarker panel, what is the probability they will have
-a CV event in 5 years? Predictive questions optimise
+a CV event in 5 years? Predictive questions optimize
 out-of-sample accuracy; the model need not be causal.
 
 **Causal.** If we assigned this patient to treatment X
@@ -333,7 +333,7 @@ diagnosis.
 
 **Intercurrent events.** Initiation of SGLT2 in the
 comparator group after 30 days: treatment-policy
-strategy (analyse as comparator). Treatment
+strategy (analyze as comparator). Treatment
 discontinuation in the intervention group:
 treatment-policy strategy. Death from causes other than
 HF: contributes to the outcome.
@@ -345,8 +345,8 @@ NT-proBNP, eGFR, comorbidities, baseline meds).
 Confounder-adjusted using inverse-probability weighting
 (Ch 4); sensitivity analysis via E-value (Ch 4).
 
-**Generalisation.** Estimates apply to the three-hospital
-sampled population. Generalisation to the broader US
+**Generalization.** Estimates apply to the three-hospital
+sampled population. Generalization to the broader US
 HFrEF population requires an additional argument
 (comparison of the sampled population's age, sex, race,
 comorbidity distribution to a national reference)
@@ -416,7 +416,7 @@ The meta-pattern: LLMs are useful for generating drafts
 of estimands and study-design proposals, and for
 forcing you to articulate things you might have left
 implicit. They are not substitutes for the
-biostatistician's domain judgement. The right use is
+biostatistician's domain judgment. The right use is
 'AI drafts, statistician edits and approves'.
 
 ## Principle in use

@@ -5,7 +5,7 @@
 By the end of this chapter you should be able to:
 
 - Distinguish MCAR, MAR, and MNAR mechanisms and
-  recognise each in applied contexts.
+  recognize each in applied contexts.
 - Apply Rubin's framework: multiple imputation,
   Rubin's rules for combining estimates and
   variances.
@@ -28,7 +28,7 @@ publications: Rubin's framework rigorously,
 multiple imputation done well, sensitivity analyses
 for MNAR.
 
-The chapter is organised in three threads. **Theory**:
+The chapter is organized in three threads. **Theory**:
 MCAR / MAR / MNAR, Rubin's rules. **Practice**:
 multiple imputation with `mice`. **Sensitivity**:
 pattern-mixture, selection models, tipping point.
@@ -43,9 +43,9 @@ apply.
 
 ## The statistician's contribution {#sec-missing-data-human}
 
-Three judgements are not delegable.
+Three judgments are not delegable.
 
-**(Judgement 1.) The mechanism is an assumption, not a
+**(Judgment 1.) The mechanism is an assumption, not a
 fact.** MAR vs. MNAR cannot be distinguished from the
 observed data alone. Whatever assumption you make is a
 substantive claim defended by the design and the
@@ -53,7 +53,7 @@ context. The biostatistician makes the claim
 explicit, defends it, and conducts sensitivity
 analyses to quantify the consequences of violation.
 
-**(Judgement 2.) Imputation is modelling.** Multiple
+**(Judgment 2.) Imputation is modeling.** Multiple
 imputation fits a model for the missing values; that
 model has assumptions about the joint distribution of
 the variables. Bad imputation introduces bias more
@@ -61,7 +61,7 @@ cleanly than complete-case analysis would. The tools
 make imputation easy; making it correct is the
 biostatistician's responsibility.
 
-**(Judgement 3.) Sensitivity analysis is mandatory.**
+**(Judgment 3.) Sensitivity analysis is mandatory.**
 The MAR assumption underlying most modern missing-
 data methods (multiple imputation, MMRM) cannot be
 verified from data. Reporting the primary analysis
@@ -69,7 +69,7 @@ without quantifying what MNAR would do is incomplete.
 Tipping-point analyses or pattern-mixture models are
 part of the analysis, not optional.
 
-These judgements distinguish defensible
+These judgments distinguish defensible
 missing-data handling from procedural acceptance of
 software defaults.
 
@@ -107,7 +107,7 @@ Standard methods are biased; sensitivity analyses are
 required.
 
 The mechanism is not testable from observed data
-alone. The defence of MAR is a substantive argument:
+alone. The defense of MAR is a substantive argument:
 the variables that drive missingness are observed and
 included in the imputation model.
 
@@ -117,7 +117,7 @@ The procedure [@rubin1987multiple]:
 
 1. Generate $M$ imputed datasets, each with the
    missing values filled in.
-2. Analyse each dataset with the planned model.
+2. Analyze each dataset with the planned model.
 3. Combine the $M$ analyses with Rubin's rules:
    pooled point estimate is the average; pooled
    variance is the within-imputation variance plus
@@ -176,7 +176,7 @@ The `mice` defaults are reasonable starting points:
 
 - Continuous: predictive mean matching (`pmm`).
   Imputed values are drawn from observed values
-  with similar predicted mean — preserves
+  with similar predicted mean, preserves
   distributional shape.
 - Binary: logistic regression (`logreg`).
 - Nominal categorical: multinomial logit (`polyreg`).
@@ -258,7 +258,7 @@ specifies how.
 The standard implementation: **delta-adjustment**
 imputation. Impute under MAR, then add (or multiply
 by) a delta to the imputed values to reflect the
-hypothesised MNAR shift.
+hypothesized MNAR shift.
 
 ```r
 imp_mar <- mice(data, m = 50, seed = 42)
@@ -282,12 +282,12 @@ across a range and report the result for each.
 
 ## Selection models
 
-A selection model factorises:
+A selection model factorizes:
 $$
 f(Y, R) = f(Y) f(R \mid Y).
 $$
 The analyst specifies the missingness model
-$f(R \mid Y)$ — typically a logit or probit
+$f(R \mid Y)$, typically a logit or probit
 regression of the missingness indicator on the
 unobserved outcome.
 
@@ -340,7 +340,7 @@ missing week-24 SBP. The investigator wants to:
 3. Run a pattern-mixture sensitivity for MNAR
    ('jump-to-reference': missing patients in the
    treatment arm are imputed as if they were in the
-   control arm — a worst-case for the treatment).
+   control arm, a worst-case for the treatment).
 4. Run a tipping-point analysis.
 
 ```r
@@ -377,7 +377,7 @@ fit_jr <- with(trial_jr, lm(week24_sbp ~ treatment +
                             baseline_sbp))
 pool_jr <- pool(fit_jr)
 # treatment effect under JR: -8.7 mmHg, 95% CI -11.5, -5.9
-# Still significantly below zero — robust to JR
+# Still significantly below zero, robust to JR
 
 # 4. Tipping-point
 delta_grid <- seq(-2, 0, by = 0.1)  # SD units
@@ -473,7 +473,7 @@ for sensitivity.
 
 The meta-pattern: LLMs are good for the syntactic
 mechanics of `mice` and similar tools and weak at
-the substantive judgement of how to defend MAR vs.
+the substantive judgment of how to defend MAR vs.
 MNAR. Use them for code; bring the substantive
 reasoning yourself.
 

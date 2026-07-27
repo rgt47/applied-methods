@@ -2,15 +2,15 @@
 
 This volume covers the applied methodological core of an
 MS-level biostatistics curriculum: the methods that every
-practising biostatistician encounters and that every MS
-programme requires, but that the four sister volumes
+practicing biostatistician encounters and that every MS
+program requires, but that the four sister volumes
 either treat at foundation level or omit deliberately.
 
 The book is the response to a curriculum-gap analysis
-across 24 graduate biostatistics programmes in the US and
+across 24 graduate biostatistics programs in the US and
 Europe (documented in `docs/curriculum-gap-analysis.md`).
 The analysis identified six topics that appear as core
-or required-elective material in 10 or more programmes
+or required-elective material in 10 or more programs
 but are absent from the existing four-volume sequence:
 longitudinal and correlated data at applied depth,
 survival analysis at applied depth, causal inference for
@@ -21,7 +21,7 @@ meta-analysis, and advanced categorical-data methods.
 
 ## What this book covers
 
-The 12 chapters are organised in five parts:
+The 12 chapters are organized in five parts:
 
 1. **Foundations.** Estimands and the
    estimand-estimator-estimate chain; epidemiologic
@@ -35,7 +35,7 @@ The 12 chapters are organised in five parts:
    events).
 4. **Clinical trials.** Design (ICH E9 R1 estimands,
    adaptive, pragmatic); analysis and reporting.
-5. **Specialised methods.** Missing data at depth;
+5. **Specialized methods.** Missing data at depth;
    meta-analysis and evidence synthesis; advanced
    categorical (ordinal, multinomial, log-linear).
 
@@ -57,19 +57,19 @@ volumes or in dedicated specialty texts:
 - Generative AI as a workflow component (see *Applied
   Generative AI for Public Health and Biostatistics*).
 
-Specialty topics that appear in fewer programmes but
+Specialty topics that appear in fewer programs but
 each warrant book-length treatment elsewhere:
 statistical genetics (see Foulkes; Laird and Lange),
 spatial statistics (Moraga; Banerjee/Carlin/Gelfand),
 time series for public health (Shumway and Stoffer),
-infectious-disease modelling (Vynnycky and White),
+infectious-disease modeling (Vynnycky and White),
 health economics (Briggs/Sculpher/Claxton), categorical
 data theory (Agresti).
 
 ## How this book relates to its siblings
 
 Read the boot camp and the practicum first, then the
-introductory SCAI for the modelling foundations. Then
+introductory SCAI for the modeling foundations. Then
 read this volume; the methods here build on the GLM /
 mixed-model / survival foundations from SCAI but extend
 them in the directions an applied biostatistician
@@ -86,12 +86,12 @@ statistician's contribution, content sections (with
 collapsible Check-your-understanding callouts), Worked
 example, Collaborating with an LLM, Principle in use,
 Exercises, Further reading. The template puts human
-judgement and verification at the centre of every
+judgment and verification at the center of every
 chapter, rather than treating them as afterthoughts.
 
-## Acknowledgements
+## Acknowledgments
 
 The chapter list reflects the curriculum-gap analysis
-across 24 programmes. The methodological literature
+across 24 programs. The methodological literature
 underwriting each chapter is rich; canonical references
 appear in each chapter's Further reading.

@@ -11,7 +11,7 @@ By the end of this chapter you should be able to:
   cross-sectional designs for a given research question,
   and articulate the tradeoffs.
 - Distinguish confounding, effect modification, selection
-  bias, and information bias, and recognise each in
+  bias, and information bias, and recognize each in
   applied work.
 - Apply the modern target-trial-emulation framework to a
   proposed observational analysis.
@@ -19,16 +19,16 @@ By the end of this chapter you should be able to:
 ## Orientation
 
 Chapter 1 established estimands and study designs at
-the framework level. This chapter operationalises them:
+the framework level. This chapter operationalizes them:
 how to compute the standard measures, how to choose
-designs, how to recognise the biases that threaten each
+designs, how to recognize the biases that threaten each
 design's validity. The material is the entry point to
 applied epidemiology and the conceptual scaffolding for
 the causal-inference chapters that follow.
 
-The chapter is organised around three threads.
+The chapter is organized around three threads.
 **Measures**: prevalence, incidence, and the rate / risk
-/ odds ratios that summarise associations and effects.
+/ odds ratios that summarize associations and effects.
 **Designs**: cohort, case-control, cross-sectional, with
 explicit attention to when each is the right choice.
 **Biases**: confounding, selection, information, with
@@ -38,17 +38,17 @@ Modern epidemiology has converged on **target-trial
 emulation** [@hernan2016using] as the discipline for
 observational causal inference. The target-trial
 framework asks the analyst to specify the hypothetical
-randomised trial that would answer the question, and
+randomized trial that would answer the question, and
 then to design the observational analysis to emulate
 that trial as closely as possible. The chapter ends by
 walking through this framework on a concrete example.
 
 ## The statistician's contribution {#sec-epi-design-human}
 
-Three judgements at the centre of epidemiologic design
+Three judgments at the center of epidemiologic design
 are not delegable.
 
-**(Judgement 1.) Choose the measure that matches the
+**(Judgment 1.) Choose the measure that matches the
 decision.** A risk ratio of 1.5 sounds different from a
 risk difference of 0.05, but they may describe the same
 data. The right measure is the one that informs the
@@ -59,7 +59,7 @@ decisions where the baseline risk matters. The
 biostatistician chooses the measure deliberately and
 presents the alternative when the decision benefits.
 
-**(Judgement 2.) The design constrains the inference.**
+**(Judgment 2.) The design constrains the inference.**
 A case-control study cannot estimate prevalence; a
 cross-sectional study cannot establish temporal order;
 an unmatched cohort is vulnerable to confounding by
@@ -69,7 +69,7 @@ report's claims accordingly. Reviewers will identify
 the limit if the analyst does not; better to disclose
 than to defend.
 
-**(Judgement 3.) Bias is not a hypothesis test.** The
+**(Judgment 3.) Bias is not a hypothesis test.** The
 question is not 'is there confounding' (the answer is
 almost always yes) but 'how large is the bias relative
 to the effect, and in which direction'. The
@@ -80,7 +80,7 @@ discipline applies as much to RCTs (where confounding
 is in expectation zero but in any specific trial may
 be present) as to observational studies.
 
-These judgements distinguish epidemiologic work that
+These judgments distinguish epidemiologic work that
 informs decisions from work that produces numbers in
 search of a question.
 
@@ -127,7 +127,7 @@ distinguish them carefully.
 
 ## Risk, rate, and odds ratios
 
-Three ratios summarise associations between an exposure
+Three ratios summarize associations between an exposure
 and an outcome.
 
 **Risk ratio (RR)**: ratio of cumulative incidence
@@ -268,7 +268,7 @@ association. The classic test: smoking confounds the
 coffee-lung-cancer association because smokers drink
 more coffee and smokers get lung cancer at higher
 rates. Adjustment, restriction, matching, or design
-(randomisation) addresses confounding. The
+(randomization) addresses confounding. The
 identification assumption is no unmeasured confounding
 given the adjustment set; sensitivity analysis
 quantifies what unmeasured confounding would need to
@@ -311,7 +311,7 @@ informs the right response.
 The discipline that has emerged for observational
 causal inference [@hernan2016using; @hernan2020causal]:
 
-1. **Specify the target trial.** What randomised trial
+1. **Specify the target trial.** What randomized trial
    would answer the question if it could be run?
    Specify eligibility, treatment strategies,
    assignment, follow-up, outcome, intercurrent
@@ -344,8 +344,8 @@ HFrEF, EHR data from three hospitals) is a textbook
 target-trial application.
 
 **Step 1. Specify the target trial.** A hypothetical
-RCT enrols adult HFrEF patients within 30 days of
-diagnosis, randomises to SGLT2 vs. no SGLT2 (treatment
+RCT enrolls adult HFrEF patients within 30 days of
+diagnosis, randomizes to SGLT2 vs. no SGLT2 (treatment
 policy: any subsequent treatment changes are followed
 under the assigned arm), follows for 12 months, and
 records all-cause mortality.
@@ -425,7 +425,7 @@ selection mechanisms, specific measurement-error
 patterns informed by the data source.
 
 *Verification.* The LLM's threats are a starting list;
-your knowledge of the data source is what specialises
+your knowledge of the data source is what specializes
 them. Add threats the LLM missed; remove ones that do
 not apply.
 
@@ -445,7 +445,7 @@ The meta-pattern: LLMs are useful for drafting
 target-trial protocols and for listing the threats to
 validity in standard form. They cannot evaluate
 whether your specific data emulates the target trial
-well; that judgement is yours.
+well; that judgment is yours.
 
 ## Principle in use
 

@@ -9,7 +9,7 @@ By the end of this chapter you should be able to:
   primary analysis that matches the trial's primary
   estimand.
 - Apply standard adjustment strategies (stratified
-  analysis, ANCOVA, MMRM) and recognise when each is
+  analysis, ANCOVA, MMRM) and recognize when each is
   appropriate.
 - Implement multiplicity control for multiple
   endpoints, multiple comparisons, and interim
@@ -25,13 +25,13 @@ By the end of this chapter you should be able to:
 ## Orientation
 
 Chapter 8 covered the design decisions made before
-enrolment. This chapter covers the analysis decisions
+enrollment. This chapter covers the analysis decisions
 made after database lock, and the reporting
 conventions the trial must satisfy. The boundary is
-not perfectly clean — the SAP is finalised before
-unblinding — but the methodological focus is.
+not perfectly clean, the SAP is finalized before
+unblinding, but the methodological focus is.
 
-The chapter is organised in three threads. **Analysis
+The chapter is organized in three threads. **Analysis
 populations**: ITT, mITT, PP, AT, and the connection
 to the primary estimand. **Adjustment and
 multiplicity**: stratified analysis, ANCOVA, MMRM,
@@ -43,9 +43,9 @@ expectations as of 2026.
 
 ## The statistician's contribution {#sec-trial-analysis-human}
 
-Three judgements are not delegable.
+Three judgments are not delegable.
 
-**(Judgement 1.) The primary analysis matches the
+**(Judgment 1.) The primary analysis matches the
 primary estimand.** The protocol specifies the primary
 estimand; the SAP specifies the primary analysis. The
 analysis must estimate the estimand. ITT for
@@ -54,7 +54,7 @@ adherence-conditional estimands. The biostatistician
 identifies any discrepancy between primary estimand and
 primary analysis before unblinding and corrects it.
 
-**(Judgement 2.) Pre-specification is a discipline,
+**(Judgment 2.) Pre-specification is a discipline,
 not a formality.** Every analysis decision in the SAP
 constrains the analysis team. Decisions made after
 unblinding (or after seeing the data) introduce
@@ -63,7 +63,7 @@ hypothesis the analyst preferred. The biostatistician
 maintains the SAP as a contract: deviations are
 documented and justified, not silent.
 
-**(Judgement 3.) Sensitivity analyses are part of the
+**(Judgment 3.) Sensitivity analyses are part of the
 result.** The primary analysis estimates the primary
 estimand under the primary assumptions. Sensitivity
 analyses estimate the same estimand under perturbed
@@ -73,7 +73,7 @@ covariates). The biostatistician designs the
 sensitivity analyses with the primary, not after the
 primary result is in.
 
-These judgements are what distinguish a defensible
+These judgments are what distinguish a defensible
 trial report from one that produces a number with
 inadequate context.
 
@@ -81,8 +81,8 @@ inadequate context.
 
 Four standard populations:
 
-**Intention-to-treat (ITT)**: every randomised patient
-analysed in the arm to which they were assigned,
+**Intention-to-treat (ITT)**: every randomized patient
+analyzed in the arm to which they were assigned,
 regardless of treatment received. Estimates the
 treatment-policy estimand. The most conservative
 choice for superiority trials (deviations from the
@@ -102,7 +102,7 @@ adherence and no major protocol deviations.
 Estimates closer to the hypothetical estimand.
 Sometimes the primary in non-inferiority trials.
 
-**As-treated (AT)**: patients analysed in the arm of
+**As-treated (AT)**: patients analyzed in the arm of
 the treatment they actually received. Useful for
 safety analyses; rarely appropriate as the primary
 efficacy population.
@@ -113,7 +113,7 @@ population precisely.
 
 ## Adjustment strategies
 
-**Stratified analysis** when randomisation was
+**Stratified analysis** when randomization was
 stratified. The stratification variables enter the
 analysis as fixed effects (or as a stratified test
 statistic for non-parametric methods). Failing to
@@ -178,11 +178,11 @@ controlled. Four contexts:
 
 **Multiple primary endpoints.** Two or more endpoints
 that must each be statistically significant for the
-trial to succeed (the **co-primary** structure) — no
+trial to succeed (the **co-primary** structure), no
 multiplicity adjustment needed for the conjunction
 because the joint type I error is already controlled.
 Or one endpoint that 'wins' if any is significant
-(the **multiple-primary** structure) — multiplicity
+(the **multiple-primary** structure), multiplicity
 adjustment required.
 
 **Multiple secondary endpoints.** Hierarchical testing
@@ -225,8 +225,8 @@ The CONSORT 2010 guidelines [@schulz2010consort] are
 the reference for trial reporting. The most-cited
 elements:
 
-**The CONSORT flow diagram**: shows enrolment,
-randomisation, allocation, follow-up, and analysis
+**The CONSORT flow diagram**: shows enrollment,
+randomization, allocation, follow-up, and analysis
 counts at each stage. Required by most journals.
 
 The `consort` R package generates the diagram
@@ -238,10 +238,10 @@ g <- consort_plot(...)
 ```
 
 **Table 1** (baseline characteristics by treatment
-arm) demonstrates the success of randomisation. It is
+arm) demonstrates the success of randomization. It is
 a description, not a hypothesis test; the convention
 is to NOT report p-values for differences in baseline
-variables in randomised trials [@knol2012randomization].
+variables in randomized trials [@knol2012randomization].
 The `tableone` and `gtsummary` packages produce
 publication-ready tables.
 
@@ -360,9 +360,9 @@ chapter and the SCAI-advanced volume's MCMC and
 Modern Bayesian chapters provide the computing
 foundation.
 
-## Worked example: analysing a Phase III diabetes trial
+## Worked example: analyzing a Phase III diabetes trial
 
-A trial has randomised 800 patients (400 per arm) to
+A trial has randomized 800 patients (400 per arm) to
 treatment X or placebo for 24 weeks. Primary endpoint:
 change in HbA1c from baseline to week 24.
 
@@ -471,7 +471,7 @@ pre-specified analysis exactly. Any deviation is a
 deviation from the SAP and must be documented.
 
 **Prompt 3: 'Generate the CONSORT flow diagram for
-this trial.'** Provide the screening, randomisation,
+this trial.'** Provide the screening, randomization,
 follow-up, and analysis counts.
 
 *What to watch for.* The LLM produces working code
@@ -484,10 +484,10 @@ that must be resolved before publication.
 
 The meta-pattern: LLMs are good for the syntactic
 mechanics (writing the MMRM call, drafting the SAP)
-and weak at the substantive judgement (whether the
+and weak at the substantive judgment (whether the
 analysis matches the estimand, whether the
 sensitivity is appropriate). Use them for code and
-drafts; bring substantive judgement yourself.
+drafts; bring substantive judgment yourself.
 
 ## Principle in use
 
@@ -538,7 +538,7 @@ Three habits.
   framework as it applies to trial analysis.
 - @schulz2010consort, 'CONSORT 2010 statement:
   updated guidelines for reporting parallel group
-  randomised trials'. The reporting reference.
+  randomized trials'. The reporting reference.
 - @piantadosi2017clinical, *Clinical Trials: A
   Methodologic Perspective*. The reference textbook.
 - @ema2021guideline, EMA Guideline on Multiplicity

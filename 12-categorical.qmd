@@ -5,7 +5,7 @@
 By the end of this chapter you should be able to:
 
 - Fit ordinal regression with the proportional-odds
-  model and recognise when the proportional-odds
+  model and recognize when the proportional-odds
   assumption is violated.
 - Fit multinomial regression for nominal categorical
   outcomes and interpret the relative-risk-ratio
@@ -34,7 +34,7 @@ material is useful across clinical research,
 epidemiology, and outcomes research; this chapter
 makes it production-ready.
 
-The chapter is organised in four threads. **Beyond
+The chapter is organized in four threads. **Beyond
 binary**: ordinal and multinomial regression.
 **Multi-way tables**: log-linear models, exact
 methods. **Agreement**: kappa, ICC. **Diagnostic
@@ -43,9 +43,9 @@ ROC.
 
 ## The statistician's contribution {#sec-categorical-human}
 
-Three judgements are not delegable.
+Three judgments are not delegable.
 
-**(Judgement 1.) Match the model to the outcome's
+**(Judgment 1.) Match the model to the outcome's
 structure.** A binary outcome is logistic. An ordinal
 outcome (low / medium / high) loses information when
 treated as binary or as numeric; ordinal regression
@@ -55,22 +55,22 @@ the right tool. The biostatistician identifies the
 outcome's structure and chooses the model
 accordingly.
 
-**(Judgement 2.) Test the proportional-odds
+**(Judgment 2.) Test the proportional-odds
 assumption.** Ordinal regression assumes the
 covariate's effect is the same across all
 splits of the ordinal variable. The assumption is
 testable; the partial-proportional-odds and
-generalised-ordinal alternatives address violations.
+generalized-ordinal alternatives address violations.
 Skipping the test can produce misleading inference.
 
-**(Judgement 3.) Sparse tables demand exact
+**(Judgment 3.) Sparse tables demand exact
 methods.** A 2x2 table with any expected count under
 5 is the textbook case for Fisher's exact. The
 chi-squared p-value is unreliable. Modern computing
 makes exact methods cheap; use them when the
 asymptotic approximation is suspect.
 
-These judgements distinguish a categorical-data
+These judgments distinguish a categorical-data
 analysis that respects the data's structure from one
 that loses information or trusts unreliable p-values.
 
@@ -84,7 +84,7 @@ $$
    \alpha_k + X^T \beta, \quad k = 1, \ldots, K-1.
 $$
 The $\alpha_k$ are category-specific intercepts; the
-$\beta$ is the same across categories — that is the
+$\beta$ is the same across categories, that is the
 proportional-odds (PO) assumption. The interpretation
 of $\beta_j$: a one-unit change in $X_j$ multiplies
 the cumulative odds (of being in category $\le k$ vs.
@@ -120,7 +120,7 @@ responses:
 - **Partial proportional odds**: relax PO for the
   violating covariates. Implemented in
   `VGAM::vglm()`.
-- **Generalised ordinal regression** (alternative
+- **Generalized ordinal regression** (alternative
   parameterisations): allow effects to differ across
   splits.
 
@@ -193,7 +193,7 @@ The model fits a structure (in this case, two-way
 interactions but no three-way), and the test is
 whether the data are consistent with that structure.
 
-Log-linear models generalise the chi-squared test of
+Log-linear models generalize the chi-squared test of
 independence to more than two variables. For most
 applied work, the simpler logistic-regression
 formulation (with one variable as outcome) is more
@@ -316,7 +316,7 @@ plot(roc_obj)
 auc(roc_obj)
 ```
 
-Choose a threshold based on the application: maximise
+Choose a threshold based on the application: maximize
 the Youden index (sensitivity + specificity - 1),
 constrain by required sensitivity, or weight by the
 costs of false positives and false negatives.
@@ -427,18 +427,18 @@ auc(roc_new)
 # 3. DeLong vs. existing test
 roc_old <- roc(truth, study$old_test_score)
 roc.test(roc_new, roc_old)
-# z = 4.2, p < 0.001 — the new test is significantly better
+# z = 4.2, p < 0.001, the new test is significantly better
 
 # 4. Calibration as risk score
 val.prob(study$new_test_predicted_prob, truth, pl = TRUE)
-# slope 0.95, intercept 0.02 — well calibrated
+# slope 0.95, intercept 0.02, well calibrated
 
 # 5. Inter-rater reliability
 inter_rater <- study |>
   filter(both_raters == 1) |>
   select(rater1_score, rater2_score)
 icc(inter_rater)
-# ICC = 0.89 — substantial agreement
+# ICC = 0.89, substantial agreement
 ```
 
 The reported analysis: 'The new test had AUC 0.91
@@ -470,7 +470,7 @@ and multinomial; compare.
 test.'** Provide the ROC curve data and the clinical
 context.
 
-*What to watch for.* The LLM defaults to maximising
+*What to watch for.* The LLM defaults to maximizing
 Youden index. The right threshold depends on the
 costs of false positives vs. false negatives in the
 specific clinical context. Push for the substantive
@@ -478,7 +478,7 @@ trade-off.
 
 *Verification.* The threshold is a clinical decision
 informed by the costs. The LLM provides the analytical
-machinery; the substantive judgement is yours.
+machinery; the substantive judgment is yours.
 
 **Prompt 3: 'Compute kappa for this rater agreement.'**
 Provide the ratings.
@@ -493,10 +493,10 @@ field's convention is.
 
 The meta-pattern: LLMs are good at the syntactic
 mechanics (writing the model call) and weak at the
-substantive judgement (which model fits the
+substantive judgment (which model fits the
 question, which threshold matches the clinical
 trade-off). Use them for code; bring substantive
-judgement yourself.
+judgment yourself.
 
 ## Principle in use
 

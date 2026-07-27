@@ -8,10 +8,10 @@ By the end of this chapter you should be able to:
   models (LMM, GLMM) and choose between them based on
   the question and the structure of the correlation.
 - Fit linear mixed models with `lme4::lmer()` and
-  generalised linear mixed models with `lme4::glmer()`
+  generalized linear mixed models with `lme4::glmer()`
   or `glmmTMB::glmmTMB()`, and interpret fixed and
   random effects.
-- Implement generalised estimating equations (GEE)
+- Implement generalized estimating equations (GEE)
   with `geepack::geeglm()` and select an appropriate
   working correlation structure.
 - Diagnose convergence failures and singular fits in
@@ -28,11 +28,11 @@ time more similar than observations far apart. Ignoring
 the correlation produces invalid standard errors and
 sometimes biased point estimates. The introductory
 volume covered linear mixed models as a model class;
-this chapter develops them at applied depth — model-
+this chapter develops them at applied depth, model-
 building, diagnostics, when to use marginal vs.
 conditional, and the interaction with missing data.
 
-The chapter is organised around the central choice:
+The chapter is organized around the central choice:
 marginal vs. conditional models. Marginal models (GEE)
 target population-average effects. Conditional models
 (LMM, GLMM) target subject-specific effects with
@@ -42,9 +42,9 @@ answer to the question.
 
 ## The statistician's contribution {#sec-longitudinal-human}
 
-Three judgements are not delegable.
+Three judgments are not delegable.
 
-**(Judgement 1.) Marginal vs. conditional matches the
+**(Judgment 1.) Marginal vs. conditional matches the
 question.** A 'population-average effect' is the
 average effect across all patients in the population.
 A 'subject-specific effect' is the effect for a typical
@@ -54,7 +54,7 @@ linear models the two coincide; for non-linear models
 biostatistician picks the framework based on the
 question and reports the choice transparently.
 
-**(Judgement 2.) The random-effects structure is a
+**(Judgment 2.) The random-effects structure is a
 substantive claim.** Adding random slopes vs.
 intercepts, or specifying which variables get random
 effects, encodes assumptions about which sources of
@@ -64,7 +64,7 @@ informs which structure is right. The
 biostatistician justifies the random-effects structure
 in the methods, not by goodness-of-fit alone.
 
-**(Judgement 3.) Missing data interacts with
+**(Judgment 3.) Missing data interacts with
 correlation.** Mixed models handle missing data under
 the missing-at-random (MAR) assumption when the model
 is correctly specified for the longitudinal trajectory
@@ -112,8 +112,8 @@ When does each apply?
   subject-specific effects ('does the treatment lower
   THIS patient's BP').
 - The random-effects structure is a substantive part
-  of the model (e.g., centre-level random effects
-  capturing centre-specific variation).
+  of the model (e.g., center-level random effects
+  capturing center-specific variation).
 - Missing data is MAR rather than MCAR.
 
 **Marginal models** when:
@@ -200,12 +200,12 @@ Other patterns:
 - `(0 + visit | id)`: random slope only, no random
   intercept (rarely the right choice).
 - `(1 | id) + (1 | center)`: nested random effects
-  (patients nested in centres).
+  (patients nested in centers).
 - `(1 | center/id)`: same as above with shorthand.
 - `(1 | center) + (1 | id)`: crossed random effects.
 
 The random-effects structure should match the data's
-hierarchy. Patient-within-centre is nested; treatment-
+hierarchy. Patient-within-center is nested; treatment-
 within-patient (where treatments cycle through patients
 in a crossover) is crossed.
 
@@ -213,7 +213,7 @@ in a crossover) is crossed.
 
 `lmer` sometimes warns about singular fits ('boundary
 (singular) fit: see ?isSingular'). This means a
-variance component is estimated at zero — the model
+variance component is estimated at zero, the model
 believes there is no patient-level variation. Causes:
 
 - Small data with few patients per cluster.
@@ -225,7 +225,7 @@ Responses:
 
 - Simplify the random-effects structure (drop a
   random slope, keep the intercept).
-- Use `glmmTMB` (more robust optimiser) or
+- Use `glmmTMB` (more robust optimizer) or
   `brms` (Bayesian, no convergence pathologies of
   the same kind).
 - Accept the singular fit and report it.
@@ -233,7 +233,7 @@ Responses:
 The `lme4` package's troubleshooting vignette
 (`?lme4::convergence`) is the practical reference.
 
-## Generalised linear mixed models
+## Generalized linear mixed models
 
 For non-Gaussian outcomes, use `glmer` or `glmmTMB`:
 
@@ -250,7 +250,7 @@ summary(fit_glmm)
 The interpretation of fixed effects in a logistic GLMM
 is **conditional on the random effect**. The fixed-
 effect coefficient on treatment is the log-odds change
-for a patient with their centre's typical random
+for a patient with their center's typical random
 effect. The marginal (population-average) odds ratio
 differs.
 
@@ -306,7 +306,7 @@ effects, GEE is the wrong tool.
 ::: {.callout-note icon=false collapse=true}
 ## Check your understanding: when GEE is the right tool
 
-**Question.** A multi-centre study has 30 centres and
+**Question.** A multi-center study has 30 centers and
 2,000 patients. The outcome is binary; the question is
 'on average across the population, what is the OR for
 treatment vs. control'. Should the analysis use GEE
@@ -316,13 +316,13 @@ or GLMM?
 
 GEE is the cleaner choice. The question asks about the
 population-average effect (marginal OR), which GEE
-estimates directly. A GLMM with random centre intercept
-estimates a conditional-on-centre OR; converting that
+estimates directly. A GLMM with random center intercept
+estimates a conditional-on-center OR; converting that
 to a marginal OR is doable but adds complexity. The
-GEE's robust SEs handle the within-centre correlation
+GEE's robust SEs handle the within-center correlation
 without requiring a correctly specified correlation
 structure. Reserve the GLMM for when the question is
-genuinely about subject-specific (or centre-specific)
+genuinely about subject-specific (or center-specific)
 effects, or when the missing-data mechanism makes GEE
 biased.
 
@@ -398,7 +398,7 @@ is real.
 
 ## Worked example: a 12-month BP trajectory analysis
 
-A trial randomised 200 hypertensive patients to
+A trial randomized 200 hypertensive patients to
 treatment X or control; SBP measured at baseline,
 3, 6, 9, 12 months. Some patients missed visits.
 
@@ -494,7 +494,7 @@ specification.
 
 *What to watch for.* The LLM commonly suggests
 simplifying the random-effects structure or switching
-to `bobyqa` optimiser. These often work but
+to `bobyqa` optimizer. These often work but
 sometimes mask a substantive issue (the random slope
 genuinely is zero, suggesting the trajectory does not
 vary by patient).
@@ -505,7 +505,7 @@ behaved, the problem may have been over-specification.
 
 The meta-pattern: LLMs are good for the syntactic
 mechanics (writing the formula, suggesting standard
-diagnostics) and weak at substantive judgement (which
+diagnostics) and weak at substantive judgment (which
 random effects belong, which framework matches the
 question). Use them for code, bring substantive
 reasoning yourself.
@@ -562,6 +562,6 @@ Three habits.
   (2nd edition). The classical treatment.
 - @rizopoulos2012joint, *Joint Models for
   Longitudinal and Time-to-Event Data*. The reference
-  for joint modelling.
+  for joint modeling.
 - The `lme4`, `glmmTMB`, `geepack`, and `JM`
   package vignettes are the practical references.

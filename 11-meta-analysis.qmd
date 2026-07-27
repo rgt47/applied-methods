@@ -9,7 +9,7 @@ By the end of this chapter you should be able to:
 - Compute pooled effect estimates and their standard
   errors using the inverse-variance method, with
   appropriate handling of heterogeneity.
-- Quantify and visualise heterogeneity ($\tau^2$,
+- Quantify and visualize heterogeneity ($\tau^2$,
   $I^2$, $H^2$) and interpret each.
 - Conduct a meta-regression to investigate sources of
   heterogeneity.
@@ -30,7 +30,7 @@ effects, heterogeneity quantification), the reporting
 standards (PRISMA), and the modern extensions (network
 meta-analysis, individual-patient-data meta-analysis).
 
-The chapter is organised in three threads.
+The chapter is organized in three threads.
 **Foundations**: pooling estimators, heterogeneity,
 forest plots. **Modern methods**: meta-regression,
 network meta-analysis, individual-patient-data (IPD)
@@ -39,20 +39,20 @@ publication bias.
 
 ## The statistician's contribution {#sec-meta-analysis-human}
 
-Three judgements are not delegable.
+Three judgments are not delegable.
 
-**(Judgement 1.) Pool only what should be pooled.** A
+**(Judgment 1.) Pool only what should be pooled.** A
 meta-analysis assumes the included studies estimate a
 common parameter (or, in random effects, parameters
 drawn from a common distribution). When studies are
-clinically too different — different populations,
-interventions, comparators, outcomes — the pooled
+clinically too different (different populations,
+interventions, comparators, outcomes), the pooled
 estimate is not interpretable as 'the' effect. The
 biostatistician decides what is poolable; the
 inclusion criteria and the heterogeneity assessment
 are the formal record of the decision.
 
-**(Judgement 2.) Heterogeneity is a feature, not a
+**(Judgment 2.) Heterogeneity is a feature, not a
 nuisance.** $I^2 = 75\%$ does not invalidate the meta-
 analysis; it tells you the studies' results vary
 beyond chance and that variation is informative.
@@ -62,7 +62,7 @@ meta-regression and subgroup analyses; the pooled
 estimate is reported alongside the heterogeneity
 description, not in lieu of it.
 
-**(Judgement 3.) Publication bias is real.** Studies
+**(Judgment 3.) Publication bias is real.** Studies
 with statistically significant results are more
 likely to be published than studies without; this
 biases meta-analyses toward effect-positive
@@ -72,7 +72,7 @@ qualifies the conclusion accordingly. A clean funnel
 plot does not prove the absence of bias; an
 asymmetric one is suggestive.
 
-These judgements distinguish a defensible synthesis
+These judgments distinguish a defensible synthesis
 from a number that combines studies without
 considering whether they should be combined.
 
@@ -262,7 +262,7 @@ pairs of treatments. Treatments can also be ranked
 NMA assumes **transitivity**: the studies comparing
 different treatments are similar enough that indirect
 comparisons are valid. The biostatistician evaluates
-this assumption — it is a substantive judgement based
+this assumption. It is a substantive judgment based
 on the included studies' populations and contexts.
 
 ## Individual-patient-data meta-analysis
@@ -270,14 +270,14 @@ on the included studies' populations and contexts.
 When the original patient-level data from each study
 is available, IPD meta-analysis provides:
 
-- Standardised analysis (the same model in every
+- Standardized analysis (the same model in every
   study).
 - Patient-level subgroup analysis (without ecological
   bias).
 - Better handling of non-linear relationships and
   interactions.
 
-The cost: data sharing, standardisation, IRB approvals
+The cost: data sharing, standardization, IRB approvals
 across multiple studies. IPD MA is the gold standard
 for important questions but is operationally heavy.
 
@@ -374,7 +374,7 @@ report. Highlights:
 The `PRISMAstatement` and `prisma2020` R packages
 generate the flow diagram. Review-quality assessment
 typically uses Cochrane RoB 2 (RCTs) or ROBINS-I
-(non-randomised studies).
+(non-randomized studies).
 
 ## GRADE
 
@@ -502,9 +502,9 @@ number of studies.
 The meta-pattern: LLMs are good for the syntactic
 mechanics of meta-analysis (writing the `metagen`
 call, drafting the methods) and weak at the
-substantive judgement (whether the studies are
+substantive judgment (whether the studies are
 poolable, whether heterogeneity is concerning).
-Use them for code, bring substantive judgement
+Use them for code, bring substantive judgment
 yourself.
 
 ## Principle in use

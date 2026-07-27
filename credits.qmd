@@ -2,12 +2,12 @@
 
 The chapter list was constructed by surveying 12
 publicly-available syllabi from major US biostatistics
-programmes (documented in `docs/syllabi-survey.md`) and
+programs (documented in `docs/syllabi-survey.md`) and
 adopting the topics that appeared in three or more of them.
 
 Cover artwork generated procedurally by the Python script
-at `images/build-cover.py`. Watercolour palette: deep
+at `images/build-cover.py`. Watercolor palette: deep
 slate through silver-blue to warm gold and pale cream,
-anchored on a brand slate blue-grey `#4a5a6c`. Typography:
+anchored on a brand slate blue-gray `#4a5a6c`. Typography:
 Avenir family (Apple system font); body text in Source
 Serif 4.

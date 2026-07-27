@@ -19,8 +19,8 @@ structure:
    and how it relates to adjacent chapters and to the sister
    volumes.
 3. **The statistician's contribution.** A front-loaded
-   section in which we articulate the judgements at the
-   centre of the chapter that no large language model can
+   section in which we articulate the judgments at the
+   center of the chapter that no large language model can
    make on the reader's behalf.
 4. **Content sections.** The chapter's substantive
    material, broken into sections with descriptive
@@ -47,7 +47,7 @@ with those volumes may read this one in the same rhythm.
 
 The visual cues used throughout the book are described on the
 [Conventions](conventions.qmd) page. Code blocks default
-to R; Python and Stan snippets are labelled. LLM prompts
+to R; Python and Stan snippets are labeled. LLM prompts
 are shown in fenced blocks, with the prompt text and the
 accompanying verification commentary.
 
@@ -57,11 +57,11 @@ The book repository at <https://github.com/rgt47/applied-methods>
 contains the following:
 
 - `docs/curriculum-gap-analysis.md`, the survey across
-  24 graduate programmes that identified the topical gaps
+  24 graduate programs that identified the topical gaps
   this volume fills.
 - `references.bib`, the working bibliography.
 
 The audit trail is intentional. Subsequent revisions of
-the volume shall be informed by tracking how MS-programme
+the volume shall be informed by tracking how MS-program
 curricula evolve, and the survey document serves as the
 benchmark against which we measure that change.

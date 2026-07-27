@@ -18,17 +18,17 @@ the methods axis.
 The book sits in a five-volume graduate sequence:
 
 - [*R for Biostatistics: A One-Week Boot Camp*](https://r-bootcamp.rgtlab.org)
-  — pre-program preparation.
+, pre-program preparation.
 - [*Biostatistics Practicum*](https://rgtlab.org/practicum)
-  — workflow infrastructure.
+, workflow infrastructure.
 - [*Statistical Computing in the Age of AI*](https://scai.rgtlab.org)
-  — introductory methods and computing.
+, introductory methods and computing.
 - [*Advanced Statistical Computing in the Age of AI*](https://scai-advanced.rgtlab.org)
-  — advanced numerical and Bayesian computation.
+, advanced numerical and Bayesian computation.
 - [*Applied Generative AI for Health Sciences Research*](https://applied-genai.rgtlab.org)
-  — generative AI as the orthogonal axis.
+, generative AI as the orthogonal axis.
 - *Applied Statistical Methods for Health Sciences
-  Research* (this volume) — the applied-methods axis.
+  Research* (this volume), the applied-methods axis.
 
 See the [Preface](preface.qmd) for motivation and the
 [Conventions](conventions.qmd) page for visual cues.

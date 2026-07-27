@@ -14,9 +14,9 @@ By the end of this chapter you should be able to:
   set using the backdoor criterion.
 - State the three core identifying assumptions
   (exchangeability, positivity, consistency) and
-  recognise where each is violated in applied work.
+  recognize where each is violated in applied work.
 - Distinguish association from causation in language and
-  in symbols, and recognise common conflations.
+  in symbols, and recognize common conflations.
 
 ## Orientation
 
@@ -45,9 +45,9 @@ struggle with the next chapter.
 
 ## The statistician's contribution {#sec-causal-foundations-human}
 
-Three judgements are not delegable.
+Three judgments are not delegable.
 
-**(Judgement 1.) Distinguish causal from associational
+**(Judgment 1.) Distinguish causal from associational
 language.** The English-language word 'effect' is
 ambiguous; the technical word is not. A statement like
 'smoking is associated with lung cancer' is
@@ -59,17 +59,17 @@ keeps the language precise: associational claims for
 descriptions, causal claims only when the assumptions
 are stated and defensible.
 
-**(Judgement 2.) The DAG is a domain claim.** A
+**(Judgment 2.) The DAG is a domain claim.** A
 directed acyclic graph encoding the causal relationships
 in your problem is a substantive scientific claim, not
-a statistical artefact. Drawing the DAG forces you to
+a statistical artifact. Drawing the DAG forces you to
 articulate which variables affect which others; the
 arrows are the claim. The biostatistician engages
 domain experts to verify the DAG. A DAG with the
 arrows wrong produces an analysis that is precisely
 incorrect; the precision is no help.
 
-**(Judgement 3.) Identifying assumptions are
+**(Judgment 3.) Identifying assumptions are
 substantive, not statistical.** The
 no-unmeasured-confounding assumption (exchangeability)
 is not testable from data alone; it is a claim about
@@ -79,7 +79,7 @@ make the assumption explicit, defend it where
 defensible, and quantify the consequences of violation
 where it is not.
 
-These judgements are what distinguish a causal analysis
+These judgments are what distinguish a causal analysis
 from a regression model that happens to use causal
 vocabulary.
 
@@ -93,7 +93,7 @@ Notation [@rubin1974estimating; @neyman1923applications]:
 - $Y$: the observed outcome.
 - $Y(a)$: the potential outcome under treatment level
   $a$. A patient has potential outcomes $Y(0)$ and
-  $Y(1)$; the observed outcome is $Y = Y(A)$ —
+  $Y(1)$; the observed outcome is $Y = Y(A)$, 
   whichever potential outcome corresponds to the
   treatment actually received.
 - $X$: a vector of pre-treatment covariates.
@@ -101,7 +101,7 @@ Notation [@rubin1974estimating; @neyman1923applications]:
 The fundamental problem of causal inference is that
 each individual has potential outcomes $Y(0)$ and
 $Y(1)$, but only one is observed for any given person.
-The other is the **counterfactual** outcome — what
+The other is the **counterfactual** outcome, what
 would have happened if the treatment assignment had
 been different.
 
@@ -138,7 +138,7 @@ decision: ATE for a population-level policy ('should
 we offer the treatment universally'), ATT for a
 question about the actually-treated population
 ('among those who got the treatment, what was the
-average effect'), CATE for personalised medicine
+average effect'), CATE for personalized medicine
 ('what is the effect for this kind of patient').
 
 ::: {.callout-note icon=false collapse=true}
@@ -181,7 +181,7 @@ treatment assignment is as good as random within
 strata of $X$.
 
 This is the load-bearing assumption. In an RCT,
-randomisation makes it true by design. In observational
+randomization makes it true by design. In observational
 studies, it is a substantive claim about the world; it
 fails when there is a confounder $U$ that affects both
 $A$ and $Y$ that is not in $X$.
@@ -201,7 +201,7 @@ data, certain patient subgroups are essentially never
 prescribed certain drugs (contraindications, age cutoffs,
 specialist referral patterns). The analyst must check
 the propensity-score distribution and either restrict
-the analysis or impose strong modelling assumptions to
+the analysis or impose strong modeling assumptions to
 extrapolate.
 
 **(A3) Consistency:**
@@ -372,7 +372,7 @@ adolescent academic performance, controlling for the
 right confounders?
 
 Available variables: parental income, adolescent
-academic performance, parental education, neighbourhood
+academic performance, parental education, neighborhood
 socio-economic status, school quality, parental
 involvement, adolescent IQ.
 
@@ -396,7 +396,7 @@ suggests it.)
 
 Backdoor analysis: backdoor paths from parental income
 to adolescent performance go through parental
-education and neighbourhood SES. The minimal adjustment
+education and neighborhood SES. The minimal adjustment
 set is `{parental_education, neighbourhood_ses}`.
 
 Variables NOT to adjust for:
@@ -518,4 +518,4 @@ Three habits define defensible causal-inference work.
   The foundational paper for potential outcomes.
 - The `dagitty` R package and online tool
   (<https://www.dagitty.net/>) for drawing and
-  analysing DAGs.
+  analyzing DAGs.

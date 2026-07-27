@@ -14,10 +14,10 @@ By the end of this chapter you should be able to:
   competing risks are present, and choose between them
   by question.
 - Compute and interpret restricted mean survival time
-  (RMST) and recognise when it is the right summary.
+  (RMST) and recognize when it is the right summary.
 - Handle time-varying covariates with the (start,
   stop, event) data structure.
-- Recognise and report immortal-time bias and
+- Recognize and report immortal-time bias and
   conditioning-on-the-future errors.
 
 ## Orientation
@@ -33,7 +33,7 @@ covered survival as a model class; this chapter
 develops the applied depth required for clinical
 research and regulatory submissions.
 
-The chapter is organised in three threads.
+The chapter is organized in three threads.
 **Foundations**: censoring, survival functions,
 hazards, Kaplan-Meier. **Cox PH and beyond**: the
 workhorse model, proportional-hazards diagnostics,
@@ -43,20 +43,20 @@ models when PH fails.
 
 ## The statistician's contribution {#sec-survival-human}
 
-Three judgements are not delegable.
+Three judgments are not delegable.
 
-**(Judgement 1.) The hazard ratio is not always the
+**(Judgment 1.) The hazard ratio is not always the
 right summary.** A Cox HR of 0.7 is reported routinely;
 the substantive interpretation ('30% reduction in
 hazard') is widely misread as 'survival is 30% better'.
 When proportional hazards fails, the HR is a weighted
-average over follow-up time and may not summarise the
+average over follow-up time and may not summarize the
 effect at any specific time point. The biostatistician
 chooses the summary (HR, RMST, milestone survival,
 absolute risk difference) by what the audience needs
 to act on, not by software default.
 
-**(Judgement 2.) Competing risks change the question.**
+**(Judgment 2.) Competing risks change the question.**
 A patient who dies of competing causes cannot
 subsequently experience the event of interest (e.g.,
 disease recurrence). Treating death as 'censoring' in
@@ -65,13 +65,13 @@ The biostatistician identifies competing risks and
 chooses cause-specific or subdistribution methods to
 match the question.
 
-**(Judgement 3.) Time-varying covariates are common
+**(Judgment 3.) Time-varying covariates are common
 sources of bias.** The 'patient took drug X for at
 least 6 months' as a baseline covariate is immortal-
 time bias: patients who survived 6 months had to
 survive 6 months, so the comparison group is
 artificially impoverished. The biostatistician
-recognises immortal-time bias and reformulates the
+recognizes immortal-time bias and reformulates the
 analysis using the (start, stop, event) structure
 or target-trial emulation.
 
@@ -134,7 +134,7 @@ $$
 where $\lambda_0(t)$ is the (unspecified) baseline
 hazard. The coefficients $\beta$ are log-hazard ratios.
 
-Estimation via partial likelihood — no specification
+Estimation via partial likelihood, no specification
 of $\lambda_0(t)$ required. This is what makes Cox the
 workhorse: minimal parametric assumptions, just
 proportional hazards.
@@ -211,7 +211,7 @@ risk set after time zero).
 
 **Question.** A trial Cox model includes 'stage'
 (I, II, III, IV) as a covariate. The PH test on
-'stage' is significant — the hazard ratios across
+'stage' is significant, the hazard ratios across
 stages are not constant over time. Should you
 include stage as a covariate, as a stratum, or
 both?
@@ -225,7 +225,7 @@ mis-specifies the baseline hazard). Stratifying lets
 each stage have its own baseline hazard, and the
 treatment effect is estimated within strata. The
 trade is that you lose the ability to estimate the
-'effect of stage' from the model — but you would
+'effect of stage' from the model, but you would
 not have wanted that estimate anyway under non-
 proportional hazards (it is not a single number). Use
 stage's effect on survival from a separate
@@ -244,7 +244,7 @@ The naive Cox analysis treats competing risks as
 censoring, which assumes patients censored due to
 death from non-cancer causes have the same future
 risk of cancer death as those who continue at risk
-— biologically false. Two correct approaches:
+, biologically false. Two correct approaches:
 
 **Cause-specific hazards** estimate the hazard of
 each cause separately:
@@ -294,9 +294,9 @@ summary(fit_fg)
 
 The choice between cause-specific and Fine-Gray
 depends on the question. Aetiology questions (what
-affects the rate of this cause) favour cause-specific.
+affects the rate of this cause) favor cause-specific.
 Prediction and risk-stratification questions (what is
-the cumulative incidence) favour Fine-Gray. Modern
+the cumulative incidence) favor Fine-Gray. Modern
 applied work often reports both [@austin2017competing].
 
 The `tidycmprsk` package provides a tidy interface to
@@ -316,7 +316,7 @@ $[0, t^*]$. Has units of time (e.g., months).
 
 The RMST difference between treatment and control is
 the difference in expected survival time over the
-window — interpretable directly as 'patients on
+window, interpretable directly as 'patients on
 treatment lived an average of X months longer over Y
 months of follow-up'.
 
@@ -338,7 +338,7 @@ print(rmst_result)
 The interpretation: over 24 months, patients on
 treatment lived an average of 2.3 months longer than
 control (95% CI 0.7-3.9 months). Compare to the HR
-of 0.7 — the RMST difference grounds the effect in
+of 0.7, the RMST difference grounds the effect in
 absolute time, which is what clinicians and patients
 can act on.
 
@@ -389,7 +389,7 @@ Other survival-specific traps:
 - **Conditioning on the future**: defining a
   baseline covariate using information observed
   after time zero. E.g., 'patients who eventually
-  reach disease milestone X' — by conditioning on
+  reach disease milestone X', by conditioning on
   reaching the milestone, you condition on a
   function of the outcome.
 - **Differential follow-up**: when treatment groups
@@ -398,7 +398,7 @@ Other survival-specific traps:
   and bias may result.
 
 These are deep traps; the careful biostatistician
-recognises them before fitting the model.
+recognizes them before fitting the model.
 
 ## Worked example: a survival analysis with all the pieces
 
@@ -431,7 +431,7 @@ summary(fit_cox)
 
 # 3. Check PH assumption
 cox.zph(fit_cox)
-# Suppose the test on 'stage' is significant —
+# Suppose the test on 'stage' is significant, 
 # stratify
 fit_cox2 <- coxph(Surv(time, event) ~ treatment + age +
                     sex + ecog + strata(stage),
@@ -463,7 +463,7 @@ The reported analysis includes:
 The methods section names each: 'we report the Cox
 hazard ratio, with stratification on stage to address
 non-proportional hazards. The treatment effect is also
-summarised as a 24-month RMST difference and as
+summarized as a 24-month RMST difference and as
 cumulative incidence functions to address competing
 risks from non-cancer death.'
 
@@ -493,8 +493,8 @@ without anchoring to the substantive question. Push
 for the link between question and method.
 
 *Verification.* Map the choice back to the question.
-Aetiology favours cause-specific; risk prediction
-favours Fine-Gray.
+Aetiology favors cause-specific; risk prediction
+favors Fine-Gray.
 
 **Prompt 3: 'Is this analysis vulnerable to
 immortal-time bias?'** Provide the analysis description.
@@ -512,7 +512,7 @@ If yes, you have the bias.
 
 The meta-pattern: LLMs are good at the syntactic
 mechanics (writing the Cox formula, suggesting
-diagnostics) and weak at the substantive judgement
+diagnostics) and weak at the substantive judgment
 (whether PH holds in your data, which framework
 matches the question, whether immortal time is
 present). Use them for code; bring the substantive
