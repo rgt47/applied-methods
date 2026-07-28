@@ -55,7 +55,7 @@ book:
         - 08-trial-design.qmd
         - 09-trial-analysis.qmd
 
-    - part: 'Specialised Methods'
+    - part: 'Specialized Methods'
       chapters:
         - 10-missing-data.qmd
         - 11-meta-analysis.qmd
