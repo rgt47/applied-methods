@@ -253,6 +253,19 @@ trial |>
   add_overall()
 ```
 
+::: {.callout-tip}
+## rgtlab tools: zztable1 and zzobj2fig
+
+Two rgtlab packages address the same publication step. `zztable1`
+(<https://github.com/rgt47/zztable1>) builds the summary table and
+detects the output format automatically, emitting LaTeX under a
+PDF render and HTML under the web format from one call. `zzobj2fig`
+(<https://github.com/rgt47/zzobj2fig>) turns the fitted model
+objects that follow into journal-styled LaTeX tables and cropped
+PDF figures. Both are alternatives to `gtsummary` when the target
+is a particular journal's table style.
+:::
+
 **Primary analysis presentation**: the point estimate,
 its 95% CI, the p-value (where applicable), the
 analysis method, the population, the

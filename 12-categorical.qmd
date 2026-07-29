@@ -220,6 +220,18 @@ computes the exact p-value. For larger tables, the
 exact computation is slow but feasible with
 `fisher.test(..., simulate.p.value = TRUE)`.
 
+::: {.callout-tip}
+## rgtlab tool: zzfisher
+
+Base `fisher.test` falls back to simulation for tables larger
+than 2x2, as the note above indicates. The `zzfisher` package
+(part of the rgtlab software suite,
+<https://github.com/rgt47/zzfisher>) provides several algorithmic
+implementations of Fisher's exact test for r x 2 tables, so the
+exact p-value stays computable, rather than simulated, on the
+sparse contingency tables that arise in stratified analyses.
+:::
+
 **Conditional logistic regression** for matched
 case-control studies (where matching is on a variable
 that would be a confounder):

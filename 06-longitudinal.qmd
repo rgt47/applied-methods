@@ -402,6 +402,18 @@ A trial randomized 200 hypertensive patients to
 treatment X or control; SBP measured at baseline,
 3, 6, 9, 12 months. Some patients missed visits.
 
+::: {.callout-tip}
+## rgtlab tool: zzlongplot
+
+Before modeling, the trajectories are worth plotting: individual
+profiles across the five visits with the treatment-arm means
+overlaid. The `zzlongplot` package (part of the rgtlab software
+suite, <https://github.com/rgt47/zzlongplot>) is built for exactly
+this, with support for the clinical-trial conventions (arm
+stratification, mean profiles with error bars) that a hand-written
+ggplot must otherwise reproduce each time.
+:::
+
 ```r
 library(tidyverse)
 library(lme4)
