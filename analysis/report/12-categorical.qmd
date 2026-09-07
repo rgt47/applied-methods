@@ -25,21 +25,21 @@ By the end of this chapter you should be able to:
 
 ## Orientation
 
-The introductory volume's GLM chapter covered
-logistic regression for binary outcomes. This chapter
-extends to the broader categorical-data toolkit:
-ordinal, multinomial, log-linear, exact methods,
-agreement, and diagnostic-test evaluation. The
-material is useful across clinical research,
-epidemiology, and outcomes research; this chapter
-makes it production-ready.
+The introductory volume's GLM chapter covered logistic
+regression for binary outcomes. This chapter extends the
+discussion to the broader categorical-data toolkit:
+ordinal, multinomial, and log-linear models, exact
+methods, agreement measures, and diagnostic-test
+evaluation. The material is useful across clinical
+research, epidemiology, and outcomes research, and this
+chapter is meant to make it production-ready.
 
-The chapter is organized in four threads. **Beyond
-binary**: ordinal and multinomial regression.
-**Multi-way tables**: log-linear models, exact
-methods. **Agreement**: kappa, ICC. **Diagnostic
-tests**: sensitivity, specificity, predictive values,
-ROC.
+The chapter is organized in four threads. The first is
+**beyond binary**: ordinal and multinomial regression. The
+second is **multi-way tables**: log-linear models and
+exact methods. The third is **agreement**: kappa and ICC.
+The fourth is **diagnostic tests**: sensitivity,
+specificity, predictive values, and ROC analysis.
 
 ## The statistician's contribution {#sec-categorical-human}
 

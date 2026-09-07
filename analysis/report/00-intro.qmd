@@ -61,7 +61,8 @@ contains the following:
   this volume fills.
 - `references.bib`, the working bibliography.
 
-The audit trail is intentional. Subsequent revisions of
-the volume shall be informed by tracking how MS-program
-curricula evolve, and the survey document serves as the
-benchmark against which we measure that change.
+The audit trail is intentional. We shall track how
+MS-program curricula evolve and use that record to inform
+subsequent revisions of the volume. The survey document
+serves as the benchmark against which we measure that
+change.

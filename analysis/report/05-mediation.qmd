@@ -19,31 +19,31 @@ By the end of this chapter you should be able to:
 
 ## Orientation
 
-Mediation analysis decomposes a total causal effect
-into the part that flows through a specified mechanism
-(the indirect effect) and the part that does not (the
-direct effect). 'Does treatment X reduce mortality
-because it lowers blood pressure, or for some other
-reason?' is a mediation question. The answer requires
-both causal-inference machinery (Chs 3-4) and
+Mediation analysis decomposes a total causal effect into
+the part that flows through a specified mechanism, the
+indirect effect, and the part that does not, the direct
+effect. 'Does treatment X reduce mortality because it
+lowers blood pressure, or for some other reason?' is a
+mediation question. The answer requires both the
+causal-inference machinery of Chapters 3 and 4 and
 specific identifying assumptions about the
 mediator-outcome relationship.
 
-The chapter develops three threads. **The framework**:
-total, direct, indirect effects in potential-outcomes
-notation, with the modern counterfactual definition.
-**The methods**: Baron-Kenny as a useful starting
-point, modern counterfactual mediation as the
-production tool. **The assumptions**: four
-identifying conditions that must be defended for
-mediation to be valid.
+The chapter develops three threads. The first is **the
+framework**: total, direct, and indirect effects in
+potential-outcomes notation, together with the modern
+counterfactual definition. The second is **the methods**:
+Baron-Kenny as a useful starting point, and modern
+counterfactual mediation as the production tool. The
+third is **the assumptions**: four identifying conditions
+that must be defended before mediation results can be
+trusted.
 
-The framing inherits the causal-inference discipline
-from Chapter 3. Mediation is a special case of causal
-inference where the analyst wants to decompose the
-effect; it inherits all the assumptions of basic
-causal inference plus additional ones about the
-mediator.
+The framing inherits the causal-inference discipline of
+Chapter 3. Mediation is a special case of causal inference
+in which the analyst wants to decompose the effect. It
+inherits all the assumptions of basic causal inference,
+plus additional ones about the mediator.
 
 ## The statistician's contribution {#sec-mediation-human}
 

@@ -21,26 +21,28 @@ By the end of this chapter you should be able to:
 ## Orientation
 
 Causal inference is the discipline of making
-counterfactual claims from observed data: 'if this
+counterfactual claims from observed data. 'If this
 patient had been assigned the treatment, their outcome
-would have been different.' The discipline has a precise
-mathematical foundation (Rubin's potential-outcomes
-framework, Pearl's structural causal models) and a small
-set of identifying assumptions that determine when
-counterfactual claims are estimable from data.
+would have been different' is the characteristic form of
+such a claim. The discipline rests on a precise
+mathematical foundation, Rubin's potential-outcomes
+framework and Pearl's structural causal models, together
+with a small set of identifying assumptions that
+determine when counterfactual claims are estimable from
+data.
 
 This chapter establishes the foundations: the
 potential-outcomes notation, the average treatment
 effects of interest, the DAG vocabulary, the backdoor
-criterion, and the three core assumptions. Chapter 4
-turns the foundations into estimation procedures
+criterion, and the three core assumptions. Chapter 4 then
+turns these foundations into estimation procedures
 (propensity scores, IPW, g-methods).
 
-The chapter is shorter than its companion (Ch 4) because
-the conceptual investment is the binding constraint. A
-reader who internalises the potential-outcomes
-notation and the backdoor criterion can read modern
-causal-inference literature; a reader who has not will
+The chapter is shorter than its companion (Ch 4), because
+the conceptual investment here is the binding constraint.
+A reader who internalizes the potential-outcomes notation
+and the backdoor criterion can read the modern
+causal-inference literature. A reader who has not will
 struggle with the next chapter.
 
 ## The statistician's contribution {#sec-causal-foundations-human}

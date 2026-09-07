@@ -18,30 +18,32 @@ By the end of this chapter you should be able to:
 
 ## Orientation
 
-Chapter 1 established estimands and study designs at
-the framework level. This chapter operationalizes them:
-how to compute the standard measures, how to choose
-designs, how to recognize the biases that threaten each
-design's validity. The material is the entry point to
-applied epidemiology and the conceptual scaffolding for
-the causal-inference chapters that follow.
+Chapter 1 established estimands and study designs at the
+framework level. This chapter puts them into operation.
+We take up how to compute the standard measures, how to
+choose among designs, and how to recognize the biases
+that threaten each design's validity. The material is the
+entry point to applied epidemiology, and it supplies the
+conceptual scaffolding for the causal-inference chapters
+that follow.
 
-The chapter is organized around three threads.
-**Measures**: prevalence, incidence, and the rate / risk
-/ odds ratios that summarize associations and effects.
-**Designs**: cohort, case-control, cross-sectional, with
-explicit attention to when each is the right choice.
-**Biases**: confounding, selection, information, with
+The chapter is organized around three threads. The first
+is **measures**: prevalence, incidence, and the rate,
+risk, and odds ratios that summarize associations and
+effects. The second is **designs**: cohort, case-control,
+and cross-sectional, with explicit attention to when each
+is the right choice. The third is **biases**: confounding,
+selection, and information bias, illustrated with
 examples drawn from public-health practice.
 
 Modern epidemiology has converged on **target-trial
-emulation** [@hernan2016using] as the discipline for
-observational causal inference. The target-trial
+emulation** [@hernan2016using] as the governing discipline
+for observational causal inference. The target-trial
 framework asks the analyst to specify the hypothetical
-randomized trial that would answer the question, and
-then to design the observational analysis to emulate
+randomized trial that would answer the question, and then
+to design the observational analysis so that it emulates
 that trial as closely as possible. The chapter ends by
-walking through this framework on a concrete example.
+working through this framework on a concrete example.
 
 ## The statistician's contribution {#sec-epi-design-human}
 
@@ -53,7 +55,7 @@ decision.** A risk ratio of 1.5 sounds different from a
 risk difference of 0.05, but they may describe the same
 data. The right measure is the one that informs the
 decision under consideration: relative measures for
-mechanism and aetiology questions; absolute measures
+mechanism and etiology questions; absolute measures
 (risk differences, NNT) for clinical and policy
 decisions where the baseline risk matters. The
 biostatistician chooses the measure deliberately and
@@ -452,7 +454,7 @@ well; that judgment is yours.
 Three habits define defensible epidemiologic work.
 
 1. **Match the measure to the decision.** Relative
-   measures for aetiology; absolute measures for
+   measures for etiology; absolute measures for
    policy and clinical decisions. Report both when the
    audience benefits.
 2. **Apply the target-trial framework.** Every

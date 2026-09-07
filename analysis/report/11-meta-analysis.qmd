@@ -21,21 +21,21 @@ By the end of this chapter you should be able to:
 
 ## Orientation
 
-Meta-analysis is the quantitative synthesis of
-evidence from multiple studies. The literature is
-rich; this chapter focuses on what an applied
-biostatistician needs to conduct one or evaluate one:
-the core methods (inverse-variance pooling, random
-effects, heterogeneity quantification), the reporting
-standards (PRISMA), and the modern extensions (network
+Meta-analysis is the quantitative synthesis of evidence
+from multiple studies. The literature here is rich, and
+this chapter focuses on what an applied biostatistician
+needs in order to conduct one or evaluate one: the core
+methods (inverse-variance pooling, random effects,
+heterogeneity quantification), the reporting standards
+(PRISMA), and the modern extensions (network
 meta-analysis, individual-patient-data meta-analysis).
 
-The chapter is organized in three threads.
-**Foundations**: pooling estimators, heterogeneity,
-forest plots. **Modern methods**: meta-regression,
-network meta-analysis, individual-patient-data (IPD)
-meta-analysis. **Reporting**: PRISMA, GRADE,
-publication bias.
+The chapter is organized in three threads. The first is
+**foundations**: pooling estimators, heterogeneity, and
+forest plots. The second is **modern methods**:
+meta-regression, network meta-analysis, and
+individual-patient-data (IPD) meta-analysis. The third is
+**reporting**: PRISMA, GRADE, and publication bias.
 
 ## The statistician's contribution {#sec-meta-analysis-human}
 

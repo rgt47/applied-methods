@@ -22,24 +22,23 @@ By the end of this chapter you should be able to:
 
 The practicum volume's missing-data chapter (Ch 17)
 covered the basics: diagnose the pattern, choose a
-strategy, document. This chapter develops the
-methodology at the depth required for trials and
-publications: Rubin's framework rigorously,
-multiple imputation done well, sensitivity analyses
-for MNAR.
+strategy, document. This chapter develops the methodology
+at the depth required for trials and publications. We
+take up Rubin's framework rigorously, multiple imputation
+done well, and sensitivity analyses for MNAR data.
 
-The chapter is organized in three threads. **Theory**:
-MCAR / MAR / MNAR, Rubin's rules. **Practice**:
-multiple imputation with `mice`. **Sensitivity**:
-pattern-mixture, selection models, tipping point.
+The chapter is organized in three threads. The first is
+**theory**: MCAR, MAR, and MNAR mechanisms, and Rubin's
+rules. The second is **practice**: multiple imputation
+with `mice`. The third is **sensitivity**: pattern-mixture
+models, selection models, and tipping-point analyses.
 
-The framing inherits the careful-causal-inference
-discipline from Chapters 3-4. Missing-data analysis is
-a special case of causal inference where the
-'treatment' is observation status, and the
-counterfactual is what the value would have been if
-observed. Many of the same identifying assumptions
-apply.
+The framing inherits the careful causal-inference
+discipline of Chapters 3 and 4. Missing-data analysis is
+a special case of causal inference in which the
+'treatment' is observation status, and the counterfactual
+is what the value would have been had it been observed.
+Many of the same identifying assumptions apply here.
 
 ## The statistician's contribution {#sec-missing-data-human}
 

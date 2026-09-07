@@ -21,28 +21,28 @@ By the end of this chapter you should be able to:
 
 ## Orientation
 
-Clinical trial design is where the biostatistician
-makes some of the most consequential decisions in the
-project: the primary endpoint, the sample size, the
-randomization procedure, the stopping rules, the
-estimand. Each decision constrains the trial's ability
-to answer its question; collectively they determine
-whether the trial succeeds or produces ambiguous data.
+Clinical trial design is where the biostatistician makes
+some of the most consequential decisions in the project:
+the primary endpoint, the sample size, the randomization
+procedure, the stopping rules, and the estimand. Each
+decision constrains the trial's ability to answer its
+question. Collectively, they determine whether the trial
+succeeds or produces ambiguous data.
 
-This chapter covers design; Chapter 9 covers analysis
-and reporting. The split mirrors the temporal flow of
-trial work: design happens before any patient is
-enrolled and is documented in the protocol; analysis
-happens after enrollment is complete and is documented
-in the SAP. Design decisions cannot be undone after
-the trial starts.
+This chapter covers design; Chapter 9 covers analysis and
+reporting. The split mirrors the temporal flow of trial
+work. Design happens before any patient is enrolled and
+is documented in the protocol, while analysis happens
+after enrollment is complete and is documented in the
+SAP. We note that design decisions cannot be undone once
+the trial has started.
 
-The chapter is organized in three threads. **Design
-fundamentals**: phases, randomization, blinding, sample
-size. **The estimand framework** (continuing from
-Ch 1): how to specify what the trial estimates.
-**Modern designs**: adaptive, group-sequential,
-pragmatic, platform.
+The chapter is organized in three threads. The first is
+**design fundamentals**: phases, randomization, blinding,
+and sample size. The second is **the estimand framework**,
+continuing from Chapter 1: how to specify what the trial
+estimates. The third is **modern designs**: adaptive,
+group-sequential, pragmatic, and platform trials.
 
 ## The statistician's contribution {#sec-trial-design-human}
 

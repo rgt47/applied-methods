@@ -22,24 +22,25 @@ By the end of this chapter you should be able to:
 
 ## Orientation
 
-Survival analysis (more accurately, time-to-event
-analysis) is the methods area where biostatistics
-diverges most sharply from general statistics. Time-to-
-event data has censoring, the proportional-hazards
-assumption is testable, competing risks are common,
-and the most-reported summary (the hazard ratio) has
-known interpretive pitfalls. The introductory volume
-covered survival as a model class; this chapter
-develops the applied depth required for clinical
-research and regulatory submissions.
+Survival analysis, or more accurately time-to-event
+analysis, is the area where biostatistics diverges most
+sharply from general statistics. Time-to-event data
+carries censoring, the proportional-hazards assumption is
+testable, competing risks are common, and the
+most-reported summary, the hazard ratio, has known
+interpretive pitfalls. The introductory volume covered
+survival analysis as a model class. This chapter develops
+the applied depth required for clinical research and
+regulatory submissions.
 
-The chapter is organized in three threads.
-**Foundations**: censoring, survival functions,
-hazards, Kaplan-Meier. **Cox PH and beyond**: the
-workhorse model, proportional-hazards diagnostics,
-extensions for time-varying covariates and competing
-risks. **Modern alternatives**: RMST, parametric
-models when PH fails.
+The chapter is organized in three threads. The first is
+**foundations**: censoring, survival functions, hazards,
+and Kaplan-Meier estimation. The second is **Cox PH and
+beyond**: the workhorse model, proportional-hazards
+diagnostics, and extensions for time-varying covariates
+and competing risks. The third is **modern alternatives**:
+RMST and parametric models for when the PH assumption
+fails.
 
 ## The statistician's contribution {#sec-survival-human}
 
@@ -293,7 +294,7 @@ summary(fit_fg)
 ```
 
 The choice between cause-specific and Fine-Gray
-depends on the question. Aetiology questions (what
+depends on the question. Etiology questions (what
 affects the rate of this cause) favor cause-specific.
 Prediction and risk-stratification questions (what is
 the cumulative incidence) favor Fine-Gray. Modern
@@ -493,7 +494,7 @@ without anchoring to the substantive question. Push
 for the link between question and method.
 
 *Verification.* Map the choice back to the question.
-Aetiology favors cause-specific; risk prediction
+Etiology favors cause-specific; risk prediction
 favors Fine-Gray.
 
 **Prompt 3: 'Is this analysis vulnerable to

@@ -19,19 +19,19 @@ By the end of this chapter you should be able to:
 ## Orientation
 
 Most applied biostatistical work fails not because the
-analyst chose the wrong test but because the question was
-under-specified before the test was chosen. The estimand-
-estimator-estimate framework, articulated formally in
-ICH E9 R1 and now standard across regulatory
-biostatistics, forces the question into focus before any
-software runs. This chapter establishes that framework
-and the study-design taxonomy that the rest of the book
-builds on.
+analyst chose the wrong test, but because the question
+was under-specified before any test was chosen. The
+estimand-estimator-estimate framework forces the question
+into focus before any software runs. ICH E9 R1 gives the
+framework formal statement, and it is now standard across
+regulatory biostatistics. This chapter establishes the
+framework and the study-design taxonomy on which the rest
+of the book builds.
 
-The chapter is foundational in the strict sense: the
-remaining 11 chapters all assume the reader can answer
-'what is the estimand here?' before opening R. Causal
-inference (Chs 3-4), longitudinal analysis (Ch 6),
+The chapter is foundational in a strict sense. The
+remaining 11 chapters all assume that the reader can
+answer 'what is the estimand here?' before opening R.
+Causal inference (Chs 3-4), longitudinal analysis (Ch 6),
 clinical trials (Chs 8-9), missing data (Ch 10), and
 meta-analysis (Ch 11) each become well-defined only once
 the estimand is named.
@@ -39,9 +39,10 @@ the estimand is named.
 The framing here inherits the public-health emphasis of
 the volume. The clinical-trial estimand framework, the
 epidemiologic study-design taxonomy, and the basic
-descriptive-vs-causal-vs-predictive question
+descriptive-versus-causal-versus-predictive
 classification are equally important for designing a
-trial, planning a cohort study, or reading a paper.
+trial, planning a cohort study, or reading a published
+paper.
 
 ## The statistician's contribution {#sec-foundations-human}
 
@@ -50,48 +51,48 @@ cannot be delegated.
 
 **(Judgment 1.) The question precedes the estimand.** A
 research question stated as 'does treatment X affect
-outcome Y' is under-specified until the population, the
+outcome Y' is under-specified. The population, the
 intervention, the comparator, the timeframe, and the
-handling of intercurrent events are pinned down. The
-biostatistician's first contribution is to refuse the
-under-specified question and produce the specified
-version. 'Does sodium-glucose co-transporter inhibitor
-treatment, started within 30 days of MI in adults aged
-40-80 with EF below 40%, reduce the 90-day risk of
-cardiovascular death compared to standard care, treating
-treatment discontinuation as part of the assigned
-strategy' is the question. The bare 'does X affect Y' is
-a draft.
+handling of intercurrent events all need to be pinned
+down first. The biostatistician's first contribution is
+to refuse the under-specified question and produce the
+specified version. 'Does sodium-glucose co-transporter
+inhibitor treatment, started within 30 days of MI in
+adults aged 40-80 with EF below 40%, reduce the 90-day
+risk of cardiovascular death compared to standard care,
+treating treatment discontinuation as part of the
+assigned strategy' is the question. The bare 'does X
+affect Y' is only a draft.
 
 **(Judgment 2.) The estimand precedes the model.** Two
 analyses of the same data with different estimands
-produce different numbers, and both are right answers to
-their own question. ITT vs. per-protocol analyses
-estimate different things; conditional vs. marginal
-effects estimate different things; the average treatment
-effect on the treated vs. the average treatment effect
-in the whole population estimate different things. The
+produce different numbers, and both can be right answers
+to their own question. ITT and per-protocol analyses
+estimate different things. Conditional and marginal
+effects estimate different things. The average treatment
+effect on the treated and the average treatment effect in
+the whole population estimate different things again. The
 biostatistician picks the estimand by reasoning about
-what the report will inform, what action a reader could
-take after seeing the number, and writes the estimand
-into the analysis plan before fitting any model.
+what the report will inform and what action a reader
+could take after seeing the number, and writes that
+estimand into the analysis plan before fitting any model.
 
 **(Judgment 3.) The study design and the question must
 match.** A randomized controlled trial answers a causal
-question (effect of assignment); a cohort study answers
-a question about association in the population followed
-(useful for surveillance, often a poor surrogate for the
-causal question); a case-control study answers a
-question about the odds of exposure given outcome
-(rarely the question of substantive interest, often
-forced by feasibility). The biostatistician identifies
-the mismatch between the available design and the
-intended question and either redesigns or limits the
-claim accordingly.
+question, the effect of assignment. A cohort study
+answers a question about association in the population
+followed; this is useful for surveillance, but it is
+often a poor surrogate for the causal question. A
+case-control study answers a question about the odds of
+exposure given outcome, which is rarely the question of
+substantive interest and is often forced by feasibility.
+The biostatistician identifies the mismatch between the
+available design and the intended question, and either
+redesigns the study or limits the claim accordingly.
 
-These judgments distinguish work that informs decisions
-from work that produces plausible numbers in response to
-under-specified questions.
+These three judgments distinguish work that informs
+decisions from work that merely produces plausible
+numbers in response to under-specified questions.
 
 ## The estimand-estimator-estimate chain
 
@@ -154,11 +155,11 @@ uncertainty (standard error, confidence interval). The
 estimate is what appears in the report.
 
 The chain reads: estimand to estimator to estimate.
-Reverse order is the failure pattern: the analyst
-computes a number (estimate), justifies it post-hoc as
-the answer to whatever question it nicely answers
-(estimand), and moves on. Estimand-first work prevents
-this.
+Reverse order is the failure pattern. The analyst
+computes a number, the estimate, and justifies it
+post-hoc as the answer to whatever question it happens to
+answer nicely, the estimand, then moves on. Estimand-first
+work prevents this.
 
 ::: {.callout-note icon=false collapse=true}
 ## Check your understanding: estimand vs. estimator
@@ -173,19 +174,19 @@ different numbers. Which one is correct?
 
 Both can be correct, because they are estimating
 different estimands. ITT estimates the
-**treatment-policy** estimand: the effect of being
-assigned to a strategy, regardless of adherence. This is
+**treatment-policy** estimand, the effect of being
+assigned to a strategy regardless of adherence. This is
 the answer to 'if I tell my patients to take this
 treatment, what happens?' Per-protocol estimates a
-quantity closer to the **hypothetical** estimand: what
+quantity closer to the **hypothetical** estimand, what
 would happen if everyone adhered. This is the answer to
 'if I could perfectly enforce the treatment, what
-happens?' Both questions are interesting; both have
-valid answers; the answers differ. The mistake is to
-report one without naming which question it answers.
-The careful analyst reports both, identifies which is
-the primary estimand per the protocol, and discusses
-the discrepancy as informative about adherence.
+happens?' Both questions are of interest and both have
+valid answers, but the answers differ. The mistake is to
+report one without naming which question it answers. The
+careful analyst reports both, identifies which is the
+primary estimand per the protocol, and discusses the
+discrepancy as informative about adherence.
 
 :::
 
@@ -353,12 +354,12 @@ comorbidity distribution to a national reference)
 provided in the discussion.
 
 The biostatistician's two-page protocol locks in the
-estimand before any data is queried. This protocol is
-what the analysis plan, the report, and the published
-paper will all defer to. Six months later, when a
-collaborator asks 'why did you use 30 days as the
-window?' or 'why is the comparator group not just
-non-users?', the protocol is the answer.
+estimand before any data is queried. The analysis plan,
+the report, and the published paper all defer to this
+protocol. Six months later, when a collaborator asks 'why
+did you use 30 days as the window?' or 'why is the
+comparator group not just non-users?', the protocol
+supplies the answer.
 
 ## Collaborating with an LLM on applied-methods foundations
 
@@ -412,12 +413,13 @@ your own. Disagreement is informative: it usually
 indicates the question itself is ambiguous and worth
 revising.
 
-The meta-pattern: LLMs are useful for generating drafts
-of estimands and study-design proposals, and for
-forcing you to articulate things you might have left
-implicit. They are not substitutes for the
+In sum, LLMs are useful for generating drafts of
+estimands and study-design proposals, and for forcing you
+to articulate things you might otherwise have left
+implicit. They are not, however, substitutes for the
 biostatistician's domain judgment. The right use is
-'AI drafts, statistician edits and approves'.
+straightforward: AI drafts, and the statistician edits
+and approves.
 
 ## Principle in use
 

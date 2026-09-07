@@ -23,20 +23,21 @@ By the end of this chapter you should be able to:
 Chapter 3 specified what we want to estimate
 (potential-outcome contrasts) and the assumptions under
 which they are identified (exchangeability, positivity,
-consistency). This chapter covers how to compute the
-estimates. Five families of estimators dominate
-applied work: propensity-score matching, IPTW,
-g-computation, doubly-robust estimators (AIPW, TMLE),
-and instrumental variables.
+consistency). This chapter takes up how to compute the
+estimates. Five families of estimators dominate applied
+work: propensity-score matching, IPTW, g-computation,
+doubly-robust estimators (AIPW, TMLE), and instrumental
+variables.
 
-The choice between estimators is partly a matter of
-taste and partly a matter of which assumptions you are
+The choice among estimators is partly a matter of taste
+and partly a matter of which assumptions the analyst is
 willing to defend. IPTW is sensitive to positivity
-violations; g-computation requires correctly specified
-outcome models; doubly-robust estimators are robust to
-mis-specification of one of the two but require both.
-The chapter covers each, illustrates with a worked
-example, and recommends when to use which.
+violations. G-computation requires correctly specified
+outcome models. Doubly-robust estimators tolerate
+mis-specification of one of the two models, but they
+require both to be fit. The chapter covers each family in
+turn, illustrates it with a worked example, and offers a
+recommendation on when to use which.
 
 ## The statistician's contribution {#sec-causal-estimation-human}
 

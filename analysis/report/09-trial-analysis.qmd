@@ -26,20 +26,21 @@ By the end of this chapter you should be able to:
 
 Chapter 8 covered the design decisions made before
 enrollment. This chapter covers the analysis decisions
-made after database lock, and the reporting
-conventions the trial must satisfy. The boundary is
-not perfectly clean, the SAP is finalized before
-unblinding, but the methodological focus is.
+made after database lock, together with the reporting
+conventions the trial must satisfy. The boundary is not
+perfectly clean, since the SAP is finalized before
+unblinding, but the methodological focus shifts
+nonetheless.
 
-The chapter is organized in three threads. **Analysis
-populations**: ITT, mITT, PP, AT, and the connection
-to the primary estimand. **Adjustment and
-multiplicity**: stratified analysis, ANCOVA, MMRM,
-multiplicity-controlled testing. **Reporting**: the
-CONSORT flow diagram, the baseline-characteristics
-table, the primary-analysis presentation, sensitivity
-analyses. The chapter closes with the regulatory
-expectations as of 2026.
+The chapter is organized in three threads. The first is
+**analysis populations**: ITT, mITT, PP, AT, and their
+connection to the primary estimand. The second is
+**adjustment and multiplicity**: stratified analysis,
+ANCOVA, MMRM, and multiplicity-controlled testing. The
+third is **reporting**: the CONSORT flow diagram, the
+baseline-characteristics table, the primary-analysis
+presentation, and sensitivity analyses. The chapter
+closes with the regulatory expectations as of 2026.
 
 ## The statistician's contribution {#sec-trial-analysis-human}
 

@@ -21,24 +21,25 @@ By the end of this chapter you should be able to:
 
 ## Orientation
 
-Most biomedical data has correlation structure: repeated
-measures on the same patient, multiple patients within
-the same hospital or cluster, observations close in
-time more similar than observations far apart. Ignoring
-the correlation produces invalid standard errors and
-sometimes biased point estimates. The introductory
-volume covered linear mixed models as a model class;
-this chapter develops them at applied depth, model-
-building, diagnostics, when to use marginal vs.
-conditional, and the interaction with missing data.
+Most biomedical data has correlation structure. Repeated
+measures arise on the same patient, multiple patients
+arise within the same hospital or cluster, and
+observations close in time tend to be more similar than
+observations far apart. Ignoring this correlation
+produces invalid standard errors and, at times, biased
+point estimates. The introductory volume covered linear
+mixed models as a model class. This chapter develops them
+at applied depth: model building, diagnostics, the choice
+between marginal and conditional formulations, and the
+interaction with missing data.
 
-The chapter is organized around the central choice:
-marginal vs. conditional models. Marginal models (GEE)
-target population-average effects. Conditional models
-(LMM, GLMM) target subject-specific effects with
-explicit random effects. The two are not
-interchangeable; choosing wrongly produces the wrong
-answer to the question.
+The chapter is organized around this central choice
+between marginal and conditional models. Marginal models
+(GEE) target population-average effects. Conditional
+models (LMM, GLMM) target subject-specific effects
+through explicit random effects. The two are not
+interchangeable, and choosing wrongly produces the wrong
+answer to the question at hand.
 
 ## The statistician's contribution {#sec-longitudinal-human}
 

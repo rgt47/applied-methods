@@ -6,12 +6,13 @@ Methods for Health Sciences Research** by The rgtlab
 Curriculum Project, a graduate textbook.
 
 The book covers the applied methodological core of an
-MS-level biostatistics curriculum: estimands and study
-design, causal inference for observational data,
-mediation, longitudinal and survival analysis at applied
-depth, clinical trial design and analysis, missing-data
+MS-level biostatistics curriculum. We begin with estimands
+and study design and proceed to causal inference for
+observational data, mediation, and longitudinal and
+survival analysis at applied depth. We then take up
+clinical trial design and analysis, missing-data
 methodology, meta-analysis, and advanced categorical-data
-methods. It is positioned between the workflow-focused
+methods. The volume sits between the workflow-focused
 *Practicum* and the computing-focused *SCAI* volumes on
 the methods axis.
 
