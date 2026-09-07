@@ -135,7 +135,7 @@ forest(ma)
 The Hartung-Knapp adjustment (HK or HKSJ) provides
 better confidence-interval coverage than the standard
 random-effects approach when the number of studies is
-small; it is the modern recommendation
+small. It is, at present, the modern recommendation
 [@inthout2014hartung].
 
 ## Heterogeneity
@@ -154,9 +154,10 @@ $$
 I^2 = \max\left(0, \frac{Q - df}{Q}\right) \times 100\%.
 $$
 Roughly: 0-25% low, 25-50% moderate, 50-75%
-substantial, 75-100% considerable. Cited frequently;
-not the most informative number, since it depends on
-the sample-size of the included studies.
+substantial, 75-100% considerable. This figure is
+cited frequently, but it is not, in our view, the most
+informative number, since it depends on the sample
+size of the included studies.
 
 **$H^2$**: ratio of total variance to within-study
 variance. $H^2 > 1.5$ is typically considered
@@ -200,8 +201,9 @@ forest(ma,
        text.predict = "Prediction interval")
 ```
 
-The forest plot is the default visual; readers
-interpret the meta-analysis from it.
+The forest plot is the default visual for this kind of
+report. Most readers will interpret the meta-analysis
+from the plot alone, before reading the text.
 
 ## Meta-regression
 
@@ -228,9 +230,10 @@ relationship between individual baseline severity
 and individual treatment effect. Individual-patient-
 data meta-analysis (below) avoids the issue.
 
-Reserve meta-regression for clearly pre-specified
-subgroups; do not use it as fishing for explanations
-of unexplained heterogeneity.
+We would reserve meta-regression for clearly
+pre-specified subgroups. It should not be used as a
+fishing expedition for explanations of unexplained
+heterogeneity.
 
 ## Network meta-analysis
 
@@ -277,9 +280,11 @@ is available, IPD meta-analysis provides:
 - Better handling of non-linear relationships and
   interactions.
 
-The cost: data sharing, standardization, IRB approvals
-across multiple studies. IPD MA is the gold standard
-for important questions but is operationally heavy.
+The cost is real: data sharing, standardization, and
+IRB approvals across multiple studies. IPD
+meta-analysis is the gold standard for important
+questions, but it is, unfortunately, operationally
+heavy.
 
 Two-stage IPD: fit the model in each study, pool the
 estimates. One-stage IPD: pool all individual data
@@ -499,13 +504,14 @@ Egger's test is supportive. Both should be reported,
 and the interpretation should be qualified by the
 number of studies.
 
-The meta-pattern: LLMs are good for the syntactic
-mechanics of meta-analysis (writing the `metagen`
-call, drafting the methods) and weak at the
-substantive judgment (whether the studies are
-poolable, whether heterogeneity is concerning).
-Use them for code, bring substantive judgment
-yourself.
+The pattern is consistent with what we have seen
+throughout this book. LLMs are good for the syntactic
+mechanics of meta-analysis, writing the `metagen` call
+or drafting the methods section. They are weak at the
+substantive judgment, that is, whether the studies are
+poolable, or whether the heterogeneity is concerning.
+We would suggest using them for code, and reserving
+the substantive judgment for yourself.
 
 ## Principle in use
 
@@ -519,10 +525,11 @@ Three habits.
    single most informative summary of how variable
    true effects are likely to be in a new setting.
 
-3. **Address publication bias explicitly.** Funnel
-   plot, Egger's (with appropriate caveats),
-   trim-and-fill as sensitivity. With few studies,
-   the report names the limit.
+3. **Address publication bias explicitly.** We would
+   report the funnel plot, Egger's test with
+   appropriate caveats, and trim-and-fill as a
+   sensitivity. With few studies, the report should
+   name the limit plainly.
 
 ## Exercises
 

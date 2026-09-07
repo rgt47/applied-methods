@@ -100,12 +100,11 @@ Notation [@rubin1974estimating; @neyman1923applications]:
   treatment actually received.
 - $X$: a vector of pre-treatment covariates.
 
-The fundamental problem of causal inference is that
-each individual has potential outcomes $Y(0)$ and
-$Y(1)$, but only one is observed for any given person.
-The other is the **counterfactual** outcome, what
-would have happened if the treatment assignment had
-been different.
+The fundamental problem of causal inference is that each
+individual has two potential outcomes, $Y(0)$ and $Y(1)$,
+but only one is observed for any given person. The other
+is the **counterfactual** outcome: what would have
+happened had the treatment assignment been different.
 
 Causal effects are contrasts of potential outcomes.
 The **individual treatment effect**:
@@ -134,14 +133,15 @@ $$
 $$
 the average effect at a specific covariate value.
 
-ATE, ATT, and CATE are different things and often have
-different values. Pick the one that matches the
-decision: ATE for a population-level policy ('should
-we offer the treatment universally'), ATT for a
-question about the actually-treated population
-('among those who got the treatment, what was the
-average effect'), CATE for personalized medicine
-('what is the effect for this kind of patient').
+ATE, ATT, and CATE are different quantities, and they
+often take different values. We would choose the one
+that matches the decision: the ATE for a
+population-level policy ('should we offer the treatment
+universally'), the ATT for a question about the
+actually-treated population ('among those who got the
+treatment, what was the average effect'), and the CATE
+for personalized medicine ('what is the effect for this
+kind of patient').
 
 ::: {.callout-note icon=false collapse=true}
 ## Check your understanding: ATE vs. ATT
@@ -184,9 +184,9 @@ strata of $X$.
 
 This is the load-bearing assumption. In an RCT,
 randomization makes it true by design. In observational
-studies, it is a substantive claim about the world; it
-fails when there is a confounder $U$ that affects both
-$A$ and $Y$ that is not in $X$.
+studies, it is a substantive claim about the world, and
+it fails when there is a confounder $U$, not in $X$, that
+affects both $A$ and $Y$.
 
 **(A2) Positivity:**
 $$
@@ -198,12 +198,13 @@ are deterministically untreated (or deterministically
 treated), the data carry no information about the
 counterfactual at that combination.
 
-Positivity violation is real: in observational drug
-data, certain patient subgroups are essentially never
-prescribed certain drugs (contraindications, age cutoffs,
-specialist referral patterns). The analyst must check
-the propensity-score distribution and either restrict
-the analysis or impose strong modeling assumptions to
+Positivity violation is a real, not merely theoretical,
+concern. In observational drug data, certain patient
+subgroups are essentially never prescribed certain drugs,
+owing to contraindications, age cutoffs, or specialist
+referral patterns. The analyst must check the
+propensity-score distribution and either restrict the
+analysis or impose strong modeling assumptions to
 extrapolate.
 
 **(A3) Consistency:**
@@ -217,12 +218,12 @@ claim: there is a single, well-defined version of each
 treatment, and the treatment received is the treatment
 of interest.
 
-Consistency fails when the treatment is heterogeneous
-('SGLT2 inhibitors' might mean dapagliflozin or
-empagliflozin, with different effects) or when the
-analyst defines treatment in a way that does not match
-the observed exposure. The fix is precision in the
-treatment definition.
+Consistency fails when the treatment is heterogeneous. For
+example, 'SGLT2 inhibitors' might mean dapagliflozin or
+empagliflozin, drugs with different effects. It also fails
+when the analyst defines treatment in a way that does not
+match the observed exposure. The fix, in either case, is
+precision in the treatment definition.
 
 **Identification under A1-A3:** When all three hold,
 the ATE is identified from data:
@@ -248,9 +249,9 @@ relationships:
 - **Acyclic** means no variable causes itself through
   any path.
 
-DAGs are useful because they make causal assumptions
-explicit and allow algorithmic reasoning about
-identification.
+DAGs are useful for two reasons: they make causal
+assumptions explicit, and they allow algorithmic
+reasoning about identification.
 
 A simple example: smoking ($S$) affects both coffee
 consumption ($C$) and lung cancer ($Y$). Coffee does
@@ -263,9 +264,9 @@ not cause lung cancer. The DAG:
   C   Y
 ```
 
-The association between $C$ and $Y$ is non-zero (they
-share a common cause) even though $C$ does not cause
-$Y$. Adjusting for $S$ removes the spurious
+The association between $C$ and $Y$ is non-zero, since
+they share a common cause, even though $C$ does not
+cause $Y$. Adjusting for $S$ removes this spurious
 association.
 
 Three structural roles a variable can play on a path
@@ -292,13 +293,13 @@ to $Y$ and (b) $X$ contains no descendants of $A$.
 
 A backdoor path is any path from $A$ to $Y$ that begins
 with an arrow into $A$. Confounders sit on backdoor
-paths and need to be adjusted for; mediators do not
-sit on backdoor paths and must not be adjusted for.
+paths and need to be adjusted for. Mediators do not sit
+on backdoor paths, and must not be adjusted for.
 
-The DAG and the backdoor criterion together produce a
-recipe for identification: draw the DAG, identify the
-backdoor paths, find an adjustment set that blocks all
-of them. The set is the variables to put in the model.
+The DAG and the backdoor criterion together give us a
+recipe for identification. We draw the DAG, identify the
+backdoor paths, and find an adjustment set that blocks
+all of them. That set is what goes into the model.
 
 The `dagitty` R package implements the algorithm; for
 a given DAG and exposure-outcome pair it returns the
@@ -316,13 +317,13 @@ adjustmentSets(g, exposure = "coffee",
 #> { smoking }
 ```
 
-The output: to identify the (zero) effect of coffee on
-lung cancer, adjust for smoking.
+The output tells us that identifying the (zero) effect
+of coffee on lung cancer requires adjusting for smoking.
 
 ## When the assumptions fail
 
-Each assumption fails in characteristic ways and
-demands a characteristic response.
+Each assumption fails in a characteristic way, and each
+failure demands its own response.
 
 **Exchangeability fails (unmeasured confounding).**
 The standard responses:
@@ -369,9 +370,9 @@ consistency requires.
 
 ## Worked example: drawing a DAG
 
-A research question: does parental income affect
-adolescent academic performance, controlling for the
-right confounders?
+Consider a research question: does parental income
+affect adolescent academic performance, once we control
+for the right confounders?
 
 Available variables: parental income, adolescent
 academic performance, parental education, neighborhood
@@ -410,12 +411,12 @@ Variables NOT to adjust for:
   believe income affects cognitive development).
 
 The DAG forces these distinctions. Without it, an
-analyst might 'adjust for everything' (including
-mediators) and report a biased estimate.
+analyst might 'adjust for everything', mediators
+included, and report a biased estimate as a result.
 
 ## Collaborating with an LLM on causal-inference foundations
 
-Three patterns.
+We describe three patterns that work.
 
 **Prompt 1: 'Draw the DAG for this research question.'**
 Provide the variables and the substantive claims about
@@ -456,11 +457,12 @@ Push for the specific case.
 your knowledge of the data informs which assumptions
 are most at risk.
 
-The meta-pattern: LLMs are good for the syntactic
-mechanics of causal inference (drawing DAGs, listing
-assumptions) and bad at the substantive ones (which
-edges go in the DAG, which assumptions are likely to
-hold). Use them for drafts; the substance is yours.
+The pattern across these three prompts is consistent.
+LLMs are good for the syntactic mechanics of causal
+inference, such as drawing DAGs and listing assumptions,
+and weaker on the substantive judgments: which edges
+belong in the DAG, and which assumptions are likely to
+hold. Use them for drafts. The substance remains yours.
 
 ## Principle in use
 

@@ -119,12 +119,12 @@ ggsurvplot(fit_km, data = trial,
            pval = TRUE)
 ```
 
-The plot includes the survival curves, 95% CIs, the
-log-rank p-value, and (essential) the
-number-at-risk table. The number-at-risk table is
-non-negotiable in published KM plots; without it the
-reader cannot evaluate the precision of the curves at
-later time points.
+The plot includes the survival curves, 95% confidence
+intervals, the log-rank p-value, and, essentially, the
+number-at-risk table. We would treat the number-at-risk
+table as non-negotiable in a published KM plot. Without
+it, the reader cannot evaluate the precision of the
+curves at later time points.
 
 ## The Cox proportional hazards model
 
@@ -135,10 +135,10 @@ $$
 where $\lambda_0(t)$ is the (unspecified) baseline
 hazard. The coefficients $\beta$ are log-hazard ratios.
 
-Estimation via partial likelihood, no specification
-of $\lambda_0(t)$ required. This is what makes Cox the
-workhorse: minimal parametric assumptions, just
-proportional hazards.
+Estimation proceeds via partial likelihood, and no
+specification of $\lambda_0(t)$ is required. This is
+what makes Cox the workhorse model: minimal parametric
+assumptions, and only proportional hazards to defend.
 
 ```r
 fit_cox <- coxph(Surv(time, event) ~ treatment + age +
@@ -168,7 +168,7 @@ plot(ph_test)
 ```
 
 A significant p-value indicates non-proportional
-hazards. Inspection of the plot shows whether the
+hazards. Inspecting the plot then tells us whether the
 violation is mild or severe.
 
 If proportional hazards fails:
@@ -203,9 +203,9 @@ fit_tvc <- coxph(Surv(start, stop, event) ~
 ```
 
 The (start, stop, event) form is also the right
-structure for clone-censor-weight analyses (Ch 4) and
-for handling left truncation (when patients enter the
-risk set after time zero).
+structure for clone-censor-weight analyses (Ch 4), and
+for handling left truncation, where patients enter the
+risk set after time zero.
 
 ::: {.callout-note icon=false collapse=true}
 ## Check your understanding: when stratified beats covariate
@@ -236,16 +236,17 @@ KM-by-stage analysis or absolute risks.
 
 ## Competing risks
 
-A competing risk is an event that prevents the event
-of interest from occurring. In oncology, death from
+A competing risk is an event that prevents the event of
+interest from occurring. In oncology, death from
 non-cancer causes competes with death from cancer or
 disease progression.
 
 The naive Cox analysis treats competing risks as
-censoring, which assumes patients censored due to
-death from non-cancer causes have the same future
-risk of cancer death as those who continue at risk
-, biologically false. Two correct approaches:
+censoring, which assumes that patients censored due to
+death from non-cancer causes carry the same future risk
+of cancer death as those who remain at risk. This
+assumption is biologically false. Two approaches
+correct for it.
 
 **Cause-specific hazards** estimate the hazard of
 each cause separately:
@@ -293,12 +294,13 @@ fit_fg <- crr(ftime = trial$time,
 summary(fit_fg)
 ```
 
-The choice between cause-specific and Fine-Gray
-depends on the question. Etiology questions (what
-affects the rate of this cause) favor cause-specific.
-Prediction and risk-stratification questions (what is
-the cumulative incidence) favor Fine-Gray. Modern
-applied work often reports both [@austin2017competing].
+The choice between cause-specific and Fine-Gray depends
+on the question. Etiology questions, those about what
+affects the rate of a given cause, favor cause-specific
+models. Prediction and risk-stratification questions,
+those about cumulative incidence, favor Fine-Gray.
+Modern applied work often reports both
+[@austin2017competing].
 
 The `tidycmprsk` package provides a tidy interface to
 both.
@@ -317,7 +319,7 @@ $[0, t^*]$. Has units of time (e.g., months).
 
 The RMST difference between treatment and control is
 the difference in expected survival time over the
-window, interpretable directly as 'patients on
+window. It is interpretable directly as 'patients on
 treatment lived an average of X months longer over Y
 months of follow-up'.
 
@@ -336,23 +338,24 @@ print(rmst_result)
 #> Difference  : 2.3 (95% CI 0.7-3.9, p = 0.005)
 ```
 
-The interpretation: over 24 months, patients on
+The interpretation is that over 24 months, patients on
 treatment lived an average of 2.3 months longer than
-control (95% CI 0.7-3.9 months). Compare to the HR
-of 0.7, the RMST difference grounds the effect in
-absolute time, which is what clinicians and patients
-can act on.
+control (95% CI 0.7-3.9 months). Compared to the HR of
+0.7, the RMST difference grounds the effect in absolute
+time, which is what clinicians and patients can act on.
 
-For RMST as a primary summary: `nph::nphHR()` provides
+For RMST as a primary summary, `nph::nphHR()` provides
 similar functionality. The choice of $t^*$ should be
-specified in the protocol; the maximum observed
-follow-up time is a common choice but artificial.
+specified in the protocol. The maximum observed
+follow-up time is a common choice, though a somewhat
+artificial one.
 
 ## Recurrent events
 
-Some events recur within patients (hospitalisations,
-infections, exacerbations). Treating only the first
-event ignores most of the information. Approaches:
+Some events recur within patients: hospitalizations,
+infections, exacerbations. Treating only the first
+event ignores most of the information. Three approaches
+address this.
 
 - **Anderson-Gill model**: extends Cox to recurrent
   events using the counting-process framework.
@@ -372,18 +375,18 @@ reference.
 ## Immortal-time bias and the target-trial framework
 
 Immortal-time bias is the most common error in
-observational survival analysis. Example: a study
-compares 'patients on drug X for at least 6 months'
-to 'patients not on drug X'. The drug-X group is
-guaranteed to have survived 6 months; the comparison
-group is not. The 'time at risk' is asymmetric, and
-the apparent benefit of drug X is exaggerated.
+observational survival analysis. Consider a study that
+compares 'patients on drug X for at least 6 months' to
+'patients not on drug X'. The drug-X group is guaranteed
+to have survived 6 months; the comparison group is not.
+The 'time at risk' is asymmetric, and the apparent
+benefit of drug X is exaggerated as a result.
 
-The fix: use the (start, stop, event) structure to
-treat drug-X exposure as a time-varying covariate
-that turns on when the patient initiates the drug.
-Or use the target-trial framework (Ch 2) to define
-exposure groups at time zero.
+The fix is to use the (start, stop, event) structure to
+treat drug-X exposure as a time-varying covariate that
+turns on when the patient initiates the drug, or to use
+the target-trial framework (Ch 2) to define exposure
+groups at time zero.
 
 Other survival-specific traps:
 
@@ -398,15 +401,15 @@ Other survival-specific traps:
   enrolled later), the 'censoring' patterns differ
   and bias may result.
 
-These are deep traps; the careful biostatistician
-recognizes them before fitting the model.
+These are deep traps, and the careful biostatistician
+recognizes them before fitting the model, not after.
 
 ## Worked example: a survival analysis with all the pieces
 
-A trial of treatment X vs. standard care in
-metastatic cancer. Outcome: overall survival.
-Competing risk: death from non-cancer causes.
-Median follow-up: 24 months.
+Consider a trial of treatment X versus standard care in
+metastatic cancer, with overall survival as the outcome,
+death from non-cancer causes as the competing risk, and
+a median follow-up of 24 months.
 
 ```r
 library(survival)
@@ -461,16 +464,16 @@ The reported analysis includes:
   the elderly population (where non-cancer death is
   substantial).
 
-The methods section names each: 'we report the Cox
-hazard ratio, with stratification on stage to address
-non-proportional hazards. The treatment effect is also
-summarized as a 24-month RMST difference and as
+The methods section would name each in turn: 'we report
+the Cox hazard ratio, with stratification on stage to
+address non-proportional hazards. The treatment effect
+is also summarized as a 24-month RMST difference and as
 cumulative incidence functions to address competing
 risks from non-cancer death.'
 
 ## Collaborating with an LLM on applied survival analysis
 
-Three patterns.
+We describe three patterns that work.
 
 **Prompt 1: 'Build the survival model for this trial.'**
 Provide the data structure and the protocol.
@@ -511,12 +514,13 @@ judge.
 defined using information observed after time zero?
 If yes, you have the bias.
 
-The meta-pattern: LLMs are good at the syntactic
-mechanics (writing the Cox formula, suggesting
-diagnostics) and weak at the substantive judgment
-(whether PH holds in your data, which framework
-matches the question, whether immortal time is
-present). Use them for code; bring the substantive
+The pattern across these three prompts is consistent
+with what we have found throughout the book. LLMs are
+good at the syntactic mechanics, writing the Cox formula
+and suggesting diagnostics, and weak at the substantive
+judgment: whether PH holds in your data, which framework
+matches the question, and whether immortal time is
+present. Use them for code, and bring the substantive
 reasoning yourself.
 
 ## Principle in use

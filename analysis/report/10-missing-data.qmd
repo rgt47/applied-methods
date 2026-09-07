@@ -153,10 +153,11 @@ includes pooled point estimate, pooled SE, t-statistic
 with adjusted degrees of freedom, p-value, 95% CI,
 fraction of missing information (FMI).
 
-The FMI tells you how much information was lost to
-missingness; high FMI (above ~30%) means the imputation
-is contributing substantial uncertainty and the
-result is sensitive to the imputation model.
+The FMI tells us how much information was lost to
+missingness. A high FMI, above roughly 30%, means the
+imputation is contributing substantial uncertainty. In
+that situation, the result is sensitive to the choice
+of imputation model.
 
 ## Multiple imputation by chained equations (FCS)
 
@@ -215,10 +216,11 @@ $X_1 \times X_2$ interaction, the imputation model
 should include that interaction term.
 
 Failing congeniality biases the analysis toward
-'no interaction' (the imputation does not preserve
-the relationship that the analysis is trying to
-estimate). The `mice` package supports including
-interaction terms in the predictor matrix.
+'no interaction'. The reason is straightforward: the
+imputation does not preserve the relationship that the
+analysis is trying to estimate. Fortunately, the
+`mice` package supports including interaction terms in
+the predictor matrix.
 
 ::: {.callout-note icon=false collapse=true}
 ## Check your understanding: what to include in the imputation model
@@ -291,9 +293,10 @@ regression of the missingness indicator on the
 unobserved outcome.
 
 Selection models are computationally heavier than
-pattern-mixture and require stronger assumptions; in
-applied trials, pattern-mixture is the more common
-approach.
+pattern-mixture models, and they require stronger
+assumptions. Unfortunately, this makes them harder to
+defend to a reviewer, and in applied trials,
+pattern-mixture remains the more common approach.
 
 ## Tipping-point analysis
 
@@ -398,11 +401,12 @@ ggplot(tp_results, aes(delta, p)) +
 # this is implausibly large.
 ```
 
-The methods section reports each: primary MMRM,
-multiple imputation as cross-check, jump-to-reference
-as a stress test, tipping point. The conclusion is
-that the treatment effect is robust to the missing-
-data assumption.
+The methods section reports each of these in turn: the
+primary MMRM, multiple imputation as a cross-check,
+jump-to-reference as a stress test, and finally the
+tipping point. Taken together, they support the
+conclusion that the treatment effect is robust to the
+missing-data assumption.
 
 ## Multiple imputation in time-to-event data
 
@@ -419,10 +423,11 @@ patients are at risk). The `smcfcs` package
 implements substantive-model-compatible FCS for
 survival outcomes.
 
-The introductory SCAI volume's survival chapter and
-the SCAI-advanced volume cover the methodology;
-this chapter notes the issue and points to the
-specialty references.
+We do not develop this methodology further here. The
+introductory SCAI volume's survival chapter and the
+SCAI-advanced volume cover it in the depth it merits;
+this chapter simply notes the issue and points the
+reader to those specialty references.
 
 ## Collaborating with an LLM on missing-data analysis
 
@@ -470,11 +475,12 @@ Push for the trial-specific implication.
 result depends substantially on the imputation. Plan
 for sensitivity.
 
-The meta-pattern: LLMs are good for the syntactic
-mechanics of `mice` and similar tools and weak at
-the substantive judgment of how to defend MAR vs.
-MNAR. Use them for code; bring the substantive
-reasoning yourself.
+The pattern is, by now, a familiar one in this book.
+LLMs are good for the syntactic mechanics of `mice`
+and similar tools. They are weak at the substantive
+judgment of how to defend MAR against MNAR. We would
+suggest using them for code, and bringing the
+substantive reasoning yourself.
 
 ## Principle in use
 
@@ -488,7 +494,8 @@ Three habits.
    congeniality.
 3. **Include sensitivity analyses for MNAR.** A
    tipping-point or pattern-mixture analysis is part
-   of the result; the primary alone is incomplete.
+   of the result. The primary analysis alone is
+   incomplete.
 
 ## Exercises
 

@@ -308,8 +308,9 @@ analyses. Specifically:
   or narrower set.
 
 The sensitivity analyses are pre-specified in the SAP.
-The reporting separates the primary result from the
-sensitivities; the latter contextualise the former.
+The reporting keeps the primary result and the
+sensitivities separate. The sensitivities contextualize
+the primary result; they do not compete with it.
 
 ::: {.callout-note icon=false collapse=true}
 ## Check your understanding: when ITT is not the right primary
@@ -368,11 +369,11 @@ summary(fit_bayes)
 ```
 
 For most MS-level applied work, frequentist analyses
-remain the primary; Bayesian methods are sensitivity
-or specialty. The introductory SCAI volume's Bayesian
-chapter and the SCAI-advanced volume's MCMC and
-Modern Bayesian chapters provide the computing
-foundation.
+remain the primary, and Bayesian methods serve as
+sensitivity or specialty analyses. The introductory
+SCAI volume's Bayesian chapter and the SCAI-advanced
+volume's MCMC and Modern Bayesian chapters provide the
+computing foundation, should the reader want it.
 
 ## Worked example: analyzing a Phase III diabetes trial
 
@@ -436,7 +437,8 @@ tbl_summary(trial_at |> select(treatment, ae_any,
   add_p()
 ```
 
-The methods section reads:
+Once the code runs, we can draft the methods section
+in the language a reviewer expects:
 
 > The primary analysis was performed in the ITT
 > population using mixed model for repeated measures
@@ -453,7 +455,9 @@ The methods section reads:
 > performed; no adjustment was made for multiplicity
 > across subgroups.
 
-The structure is the regulatory standard.
+This is not a stylistic choice. The structure follows
+the regulatory standard, and a reviewer will look for
+each of these elements in this order.
 
 ## Collaborating with an LLM on clinical trial analysis
 
@@ -496,12 +500,14 @@ the SAP and the actual data; verify.
 against the SAP. Discrepancies are a serious problem
 that must be resolved before publication.
 
-The meta-pattern: LLMs are good for the syntactic
-mechanics (writing the MMRM call, drafting the SAP)
-and weak at the substantive judgment (whether the
-analysis matches the estimand, whether the
-sensitivity is appropriate). Use them for code and
-drafts; bring substantive judgment yourself.
+The pattern across all three prompts is the one we
+have seen throughout this book: LLMs are good for the
+syntactic mechanics, writing the MMRM call or drafting
+the SAP. They are weak at the substantive judgment,
+that is, whether the analysis matches the estimand, or
+whether the sensitivity is appropriate. We would
+suggest using them for code and drafts, and reserving
+the substantive judgment for yourself.
 
 ## Principle in use
 
@@ -517,8 +523,8 @@ Three habits.
    documented and justified.
 
 3. **Sensitivity analyses are part of the result.**
-   Report them alongside the primary, not as an
-   afterthought.
+   We would report them alongside the primary result,
+   not as an afterthought tacked on at the end.
 
 ## Exercises
 

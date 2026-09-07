@@ -121,7 +121,7 @@ responses:
   violating covariates. Implemented in
   `VGAM::vglm()`.
 - **Generalized ordinal regression** (alternative
-  parameterisations): allow effects to differ across
+  parameterizations): allow effects to differ across
   splits.
 
 For non-proportional ordinal data, multinomial
@@ -161,9 +161,9 @@ rather than the coefficients themselves; the
 
 ## Log-linear models for multi-way tables
 
-When you have a multi-way contingency table (say,
+When we have a multi-way contingency table (say,
 sex × treatment × outcome), the log-linear model
-parameterises the cell counts:
+parameterizes the cell counts:
 $$
 \log \mu_{ijk} = \lambda + \lambda^A_i + \lambda^B_j +
                   \lambda^C_k + \lambda^{AB}_{ij} +
@@ -195,10 +195,11 @@ whether the data are consistent with that structure.
 
 Log-linear models generalize the chi-squared test of
 independence to more than two variables. For most
-applied work, the simpler logistic-regression
-formulation (with one variable as outcome) is more
-interpretable; log-linear models are the right tool
-when no variable is naturally the outcome.
+applied work, we would prefer the simpler
+logistic-regression formulation, with one variable as
+outcome, since it is more interpretable. Log-linear
+models remain the right tool when no variable is
+naturally the outcome.
 
 ## Exact methods
 
@@ -308,11 +309,11 @@ For a binary diagnostic test:
 - **Negative predictive value (NPV)** =
   $\Pr(\text{healthy} \mid \text{negative})$.
 
-PPV and NPV depend on disease prevalence; sensitivity
-and specificity do not. A test with 99% sensitivity
-and 99% specificity has poor PPV in a low-prevalence
-population (one false positive per true positive at
-1% prevalence).
+PPV and NPV depend on disease prevalence. Sensitivity
+and specificity do not. It follows that a test with
+99% sensitivity and 99% specificity can still have
+poor PPV in a low-prevalence population, roughly one
+false positive per true positive at 1% prevalence.
 
 For a continuous test (a biomarker, a risk score), the
 **ROC curve** plots sensitivity vs. 1-specificity as
@@ -388,8 +389,8 @@ cal <- val.prob(predicted_prob, actual_outcome,
 ```
 
 A model with high AUC but poor calibration is over- or
-under-confident; **recalibration** (Platt scaling,
-isotonic) corrects it.
+under-confident. **Recalibration** (Platt scaling,
+isotonic) corrects this.
 
 For a clinical decision-support tool that uses
 absolute risk thresholds (treat above 10%, do not
@@ -503,12 +504,13 @@ quadratic weighting.
 than the number; check the literature for what the
 field's convention is.
 
-The meta-pattern: LLMs are good at the syntactic
-mechanics (writing the model call) and weak at the
-substantive judgment (which model fits the
-question, which threshold matches the clinical
-trade-off). Use them for code; bring substantive
-judgment yourself.
+The pattern, once again, is the one that recurs
+throughout this book. LLMs are good at the syntactic
+mechanics, writing the model call. They are weak at
+the substantive judgment, that is, which model fits
+the question, or which threshold matches the clinical
+trade-off. We would suggest using them for code, and
+reserving the substantive judgment for yourself.
 
 ## Principle in use
 
@@ -525,7 +527,8 @@ Three habits.
 
 3. **Pair discrimination with calibration.** AUC alone
    is insufficient for any model used as a risk
-   score. Calibration must be reported.
+   score. We would insist that calibration be
+   reported alongside it.
 
 ## Exercises
 

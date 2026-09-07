@@ -98,12 +98,13 @@ with a working correlation structure for the within-
 patient correlation. $\beta_1^*$ is the average effect
 across the population.
 
-For continuous outcomes with linear link, $\beta_1 =
-\beta_1^*$. For binary outcomes with logit link, the
-two differ. Concretely: the conditional log-odds of
-hypertension under treatment vs. control is not the
-same as the population log-odds-ratio; the conditional
-estimate is generally larger in magnitude.
+For continuous outcomes with a linear link, $\beta_1 =
+\beta_1^*$. For binary outcomes with a logit link, the
+two differ. Concretely, the conditional log-odds of
+hypertension under treatment versus control is not the
+same as the population log-odds ratio. The conditional
+estimate is generally the larger of the two in
+magnitude.
 
 When does each apply?
 
@@ -168,8 +169,8 @@ sex                      -2.05      1.83     -1.1
 ```
 
 The fixed effects are the population-typical
-coefficients. The random-effect variances tell you how
-much patients differ from each other in baseline level
+coefficients. The random-effect variances tell us how
+much patients differ from one another in baseline level
 and slope.
 
 Confidence intervals via `confint()`:
@@ -179,10 +180,11 @@ confint(fit, method = "profile")
 ```
 
 The default `lmer` does not produce p-values for fixed
-effects (a longstanding deliberate choice). For
-p-values, use `lmerTest::lmer()` (Satterthwaite degrees
-of freedom) or `parameters::model_parameters()`. Both
-are reasonable; cite which you used.
+effects, a longstanding and deliberate choice. For
+p-values, use `lmerTest::lmer()`, which relies on
+Satterthwaite degrees of freedom, or
+`parameters::model_parameters()`. Both are reasonable
+choices; we would simply cite which one was used.
 
 ### Random-effects structure
 
@@ -206,16 +208,17 @@ Other patterns:
 - `(1 | center) + (1 | id)`: crossed random effects.
 
 The random-effects structure should match the data's
-hierarchy. Patient-within-center is nested; treatment-
-within-patient (where treatments cycle through patients
-in a crossover) is crossed.
+hierarchy. Patient-within-center is nested. Treatment-
+within-patient, where treatments cycle through patients
+in a crossover, is crossed instead.
 
 ### Convergence and singular fits
 
 `lmer` sometimes warns about singular fits ('boundary
-(singular) fit: see ?isSingular'). This means a
-variance component is estimated at zero, the model
-believes there is no patient-level variation. Causes:
+(singular) fit: see ?isSingular'). This means a variance
+component is estimated at zero, so the model, in effect,
+believes there is no patient-level variation. Common
+causes include:
 
 - Small data with few patients per cluster.
 - Random-effects structure that is not supported by
@@ -249,18 +252,18 @@ summary(fit_glmm)
 ```
 
 The interpretation of fixed effects in a logistic GLMM
-is **conditional on the random effect**. The fixed-
-effect coefficient on treatment is the log-odds change
-for a patient with their center's typical random
-effect. The marginal (population-average) odds ratio
-differs.
+is **conditional on the random effect**. The fixed-effect
+coefficient on treatment is the log-odds change for a
+patient with the center's typical random effect. The
+marginal, population-average odds ratio differs from
+this.
 
-`glmmTMB` is the modern recommendation for GLMMs in R.
-It is faster and more robust than `glmer`, supports a
-wider range of distributions (zero-inflated, beta,
-ordinal), and produces cleaner output. `lme4::glmer`
-remains the reference but `glmmTMB` is the practical
-default.
+We would recommend `glmmTMB` as the modern default for
+GLMMs in R. It is faster and more robust than `glmer`,
+supports a wider range of distributions (zero-inflated,
+beta, ordinal), and produces cleaner output. `lme4::glmer`
+remains the reference implementation, but `glmmTMB` is
+the practical choice.
 
 ## GEE
 
@@ -293,16 +296,16 @@ correlation. The `corstr` choices:
 - `"unstructured"`: estimates each pairwise
   correlation. Most flexible; needs sample size.
 
-The point estimate's robust standard errors (from
-`summary(fit_gee)$coefficients`) are valid even if the
-working correlation is wrong. This is the key
+The point estimate's robust standard errors, from
+`summary(fit_gee)$coefficients`, remain valid even when
+the working correlation is wrong. This is the key
 property: **GEE is robust to misspecification of the
-correlation structure**, making it a workhorse for
-applied work.
+correlation structure**, which is what makes it a
+workhorse for applied work.
 
-The trade: GEE estimates marginal effects, not
-conditional. If the question is about subject-specific
-effects, GEE is the wrong tool.
+The trade-off is that GEE estimates marginal effects,
+not conditional ones. If the question concerns
+subject-specific effects, GEE is the wrong tool for it.
 
 ::: {.callout-note icon=false collapse=true}
 ## Check your understanding: when GEE is the right tool
@@ -331,14 +334,14 @@ biased.
 
 ## Joint models for longitudinal and time-to-event
 
-A common applied question: a longitudinal biomarker
-trajectory is associated with time to an event (death,
-disease progression). The naive analysis (a Cox
-regression with the biomarker as a time-varying
-covariate) is biased when the biomarker is measured
-with error or measured intermittently. **Joint models**
-fit a longitudinal model for the biomarker and a
-time-to-event model for the event simultaneously,
+A common applied question asks whether a longitudinal
+biomarker trajectory is associated with time to an
+event, such as death or disease progression. The naive
+analysis, a Cox regression with the biomarker as a
+time-varying covariate, is biased when the biomarker is
+measured with error or measured intermittently. **Joint
+models** fit a longitudinal model for the biomarker and
+a time-to-event model for the event simultaneously,
 linked by shared random effects.
 
 The `JM` and `JMbayes2` packages implement this in R:
@@ -371,10 +374,10 @@ The joint model produces:
   submodels.
 
 Joint models are computationally heavier and require
-careful diagnostics; reserve them for when the question
-genuinely demands the linkage. For most applied work,
-separate longitudinal and survival analyses are
-adequate.
+careful diagnostics, so we would reserve them for
+questions that genuinely demand the linkage. For most
+applied work, separate longitudinal and survival
+analyses are adequate.
 
 ## Missing data in longitudinal analysis
 
@@ -392,16 +395,18 @@ weighting (IPCW).
 **MNAR**: missingness depends on unobserved data.
 Both biased; sensitivity analyses required (Ch 10).
 
-The implication: prefer LMM (or GLMM) over GEE when
-missing data is plausibly MAR rather than MCAR. The
-trade-off with the marginal-vs.-conditional question
-is real.
+The implication is that we would prefer LMM, or GLMM,
+over GEE when missing data is plausibly MAR rather than
+MCAR. This trade-off against the marginal-versus-
+conditional question is a real one, not a minor
+technicality.
 
 ## Worked example: a 12-month BP trajectory analysis
 
 A trial randomized 200 hypertensive patients to
-treatment X or control; SBP measured at baseline,
-3, 6, 9, 12 months. Some patients missed visits.
+treatment X or control, with SBP measured at baseline
+and at 3, 6, 9, and 12 months. Some patients missed
+visits.
 
 ::: {.callout-tip}
 ## rgtlab tool: zzlongplot
@@ -454,24 +459,24 @@ emm
 pairs(emm)
 ```
 
-The `emmeans` package extracts the contrast at month
-12 between treatment and control, with appropriate
-SEs.
+The `emmeans` package extracts the contrast at month 12
+between treatment and control, with appropriate standard
+errors.
 
-The reported result might be: at month 12, mean SBP
-in the treatment group is 11.3 mmHg (95% CI 8.4-14.2,
-p < 0.001) lower than control, adjusting for baseline
-characteristics. The model accounts for the
+The reported result might read as follows: at month 12,
+mean SBP in the treatment group is 11.3 mmHg (95% CI
+8.4-14.2, p < 0.001) lower than control, adjusting for
+baseline characteristics. The model accounts for the
 correlation across visits within each patient.
 
-The sensitivity analysis: refit under MNAR assumptions
-(Ch 10's pattern-mixture or selection models) to
-check whether the conclusion is robust to the
-missing-data mechanism.
+For the sensitivity analysis, we would refit under MNAR
+assumptions, using Chapter 10's pattern-mixture or
+selection models, to check whether the conclusion is
+robust to the missing-data mechanism.
 
 ## Collaborating with an LLM on longitudinal data analysis
 
-Three patterns.
+We describe three patterns that work.
 
 **Prompt 1: 'Build the mixed model for this
 longitudinal question.'** Provide the data structure
@@ -516,12 +521,13 @@ vary by patient).
 the simpler model. If the simpler fit is well-
 behaved, the problem may have been over-specification.
 
-The meta-pattern: LLMs are good for the syntactic
-mechanics (writing the formula, suggesting standard
-diagnostics) and weak at substantive judgment (which
-random effects belong, which framework matches the
-question). Use them for code, bring substantive
-reasoning yourself.
+The pattern across these three prompts is the same one
+we have seen throughout the book. LLMs are good for the
+syntactic mechanics, writing the formula and suggesting
+standard diagnostics, and weak at the substantive
+judgment: which random effects belong, and which
+framework matches the question. Use them for code, and
+bring the substantive reasoning yourself.
 
 ## Principle in use
 

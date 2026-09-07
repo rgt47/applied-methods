@@ -120,12 +120,13 @@ follow-up with a constant rate, $\text{CI}(t) \approx
 follow-up. The full relationship via the survival
 function (Ch 7) is $\text{CI}(t) = 1 - S(t)$.
 
-The three measures answer different questions:
-prevalence tells you the burden at a moment; incidence
-rate tells you how fast new cases appear; cumulative
-incidence tells you the total proportion affected over
-a follow-up period. Reports often confuse these;
-distinguish them carefully.
+The three measures answer different questions.
+Prevalence tells us the burden at a moment. Incidence
+rate tells us how fast new cases appear. Cumulative
+incidence tells us the total proportion affected over
+a follow-up period. Reports often confuse these
+measures, and we would urge the careful reader to keep
+them distinct.
 
 ## Risk, rate, and odds ratios
 
@@ -150,9 +151,10 @@ $$
 $$
 
 When the outcome is rare ($p \ll 0.1$), OR $\approx$ RR.
-For common outcomes, OR exaggerates effect size relative
-to RR; reporting only OR for a common outcome can
-mislead.
+For common outcomes, the OR exaggerates the effect size
+relative to the RR. Reporting only the OR for a common
+outcome can mislead a reader who takes it for a risk
+ratio.
 
 The choice between measures depends on the design and
 the question:
@@ -186,9 +188,9 @@ is. The RR is the more interpretable measure here.
 
 ## Cohort studies
 
-Subjects are sampled by exposure (or unselectively) and
-followed forward in time; outcomes are recorded as they
-occur. Strengths:
+Subjects are sampled by exposure, or unselectively, and
+followed forward in time. Outcomes are recorded as they
+occur. The design carries several strengths.
 
 - Establishes temporal order (exposure precedes
   outcome).
@@ -206,19 +208,21 @@ Weaknesses:
 - Confounding by indication when exposure is
   treatment-like.
 
-Cohorts can be **prospective** (assembled at exposure,
+Cohorts can be **prospective** (assembled at exposure and
 followed forward) or **retrospective** (assembled from
 records that already exist, with exposure and outcome
-already observed). Retrospective cohorts use the
-prospective machinery on records data; the analyst must
-take care that exposure was recorded before outcome and
-not produced by knowledge of the outcome.
+already observed). Retrospective cohorts apply the
+prospective machinery to records data. Here the analyst
+must take care that exposure was recorded before the
+outcome, and was not produced by knowledge of the
+outcome.
 
 ## Case-control studies
 
-Subjects are sampled by outcome status: cases (with the
-disease) and controls (without). Exposure is then
-assessed retrospectively. Strengths:
+Subjects are sampled by outcome status: cases with the
+disease, and controls without. Exposure is then assessed
+retrospectively. This design, too, carries strengths and
+weaknesses worth naming.
 
 - Efficient for rare outcomes (cases are oversampled
   relative to their population frequency).
@@ -238,7 +242,8 @@ Weaknesses:
 The OR from a case-control study approximates the RR in
 the underlying population only when the outcome is rare.
 For common outcomes, the OR is the parameter the design
-naturally estimates and should be reported as such.
+naturally estimates, and we would report it as such
+rather than relabel it as a risk ratio.
 
 **Nested case-control** designs sample cases and a
 matched set of controls from within an existing cohort,
@@ -247,22 +252,24 @@ defensibility of cohort sampling.
 
 ## Cross-sectional studies
 
-A snapshot of a population at one time point. Estimates
-prevalence and prevalence ratios. Cannot establish
-temporal order: if exposure and outcome are both
-observed at one time, you cannot tell which preceded.
+A cross-sectional study is a snapshot of a population at
+one time point. It estimates prevalence and prevalence
+ratios, but it cannot establish temporal order. If
+exposure and outcome are both observed at one time, we
+cannot tell which preceded the other.
 
-Useful for surveillance and prevalence estimation; less
-useful for inference about causes (the temporal-order
-problem is fundamental, not addressable by adjustment).
-Many published cross-sectional studies overstate causal
-claims; the careful reader treats their associations as
+The design is useful for surveillance and prevalence
+estimation. It is less useful for inference about causes,
+since the temporal-order problem is fundamental and no
+adjustment can address it. Many published cross-sectional
+studies overstate their causal claims. We would encourage
+the careful reader to treat their associations as
 hypothesis-generating, not hypothesis-testing.
 
 ## Confounding, effect modification, selection, information
 
-Four threats to validity. Each requires a different
-response.
+We turn now to four threats to validity. Each requires a
+different response.
 
 **Confounding** is a third variable that affects both
 exposure and outcome and biases the exposure-outcome
@@ -285,14 +292,13 @@ bias; it is reported by stratification or interaction
 terms in the model.
 
 **Selection bias** arises when inclusion in the study
-depends on both exposure and outcome. The classic
-example: hospital-based controls in a case-control
-study, where hospitalisation is itself associated with
-the exposure. Selection bias cannot be fixed by
-adjustment; it is addressed by design (sampling
-controls appropriately) or by sensitivity analysis
-(quantifying the magnitude of bias under plausible
-selection mechanisms).
+depends on both exposure and outcome. The classic example
+is hospital-based controls in a case-control study, where
+hospitalization is itself associated with the exposure.
+Selection bias cannot be fixed by adjustment. It is
+addressed by design, through appropriate sampling of
+controls, or by sensitivity analysis that quantifies the
+magnitude of bias under plausible selection mechanisms.
 
 **Information (measurement) bias** arises when exposure
 or outcome is mismeasured, and the mismeasurement
@@ -304,13 +310,13 @@ biases toward the null. Validation studies and
 quantitative-bias analyses address information bias.
 
 The four are distinct. A common error is to treat
-'confounding' as a catch-all for 'something is wrong
-with this association'; precision in naming the bias
-informs the right response.
+'confounding' as a catch-all for 'something is wrong with
+this association'. Precision in naming the bias is what
+tells us the right response.
 
 ## Target-trial emulation
 
-The discipline that has emerged for observational
+This is the discipline that has emerged for observational
 causal inference [@hernan2016using; @hernan2020causal]:
 
 1. **Specify the target trial.** What randomized trial
@@ -332,18 +338,18 @@ causal inference [@hernan2016using; @hernan2020causal]:
 
 The framework eliminates a class of common
 observational-design errors: immortal-time bias,
-prevalent-user bias, selection-on-treatment-after-
+prevalent-user bias, and selection on treatment after
 baseline. Most published observational studies of drug
 effects can be substantially improved by applying the
-target-trial framework retroactively. The discipline
-has become standard practice in modern
+target-trial framework retroactively. The discipline has,
+in our view, become standard practice in modern
 pharmacoepidemiology.
 
 ## Worked example: target-trial emulation for SGLT2 inhibitors
 
-The example from Chapter 1 (SGLT2 effectiveness in
-HFrEF, EHR data from three hospitals) is a textbook
-target-trial application.
+To illustrate, we return to the example from Chapter 1:
+SGLT2 effectiveness in HFrEF, using EHR data from three
+hospitals. It is a textbook target-trial application.
 
 **Step 1. Specify the target trial.** A hypothetical
 RCT enrolls adult HFrEF patients within 30 days of
@@ -389,15 +395,15 @@ records all-cause mortality.
   a sensitivity analysis.
 
 The target-trial protocol is now the analysis plan.
-Six months later, a reviewer asking 'why this 30-day
-window?' is answered by 'the target trial defined
-treatment groups at time zero with a 30-day grace
-period; the alternative would be a different target
-trial'.
+Six months later, a reviewer may ask 'why this 30-day
+window?' The answer is straightforward: the target trial
+defined treatment groups at time zero with a 30-day grace
+period, and the alternative would simply be a different
+target trial.
 
 ## Collaborating with an LLM on epidemiologic study design
 
-Three patterns that work.
+We have found three patterns that work.
 
 **Prompt 1: 'Write the target trial for this
 observational study.'** Provide the research question
@@ -443,11 +449,11 @@ specific case the LLM is computing.
 *Verification.* Recompute by hand; the formulas are
 elementary.
 
-The meta-pattern: LLMs are useful for drafting
-target-trial protocols and for listing the threats to
-validity in standard form. They cannot evaluate
-whether your specific data emulates the target trial
-well; that judgment is yours.
+The pattern across all three prompts is the same. LLMs
+are useful for drafting target-trial protocols and for
+listing the threats to validity in standard form. They
+cannot evaluate whether your specific data emulates the
+target trial well. That judgment remains yours.
 
 ## Principle in use
 

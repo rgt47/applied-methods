@@ -112,12 +112,12 @@ embedded in routine care. Outcomes include long-term
 safety, real-world effectiveness, comparative
 effectiveness.
 
-The chapter focuses on Phase III conventions, since
-those are most fully developed and most commonly
-encountered in MS-level biostatistical work. Phase I
+We focus this chapter on Phase III conventions. These
+are the most fully developed and the ones an MS-level
+biostatistician most commonly encounters. Phase I
 designs require a separate methodology (the
-'A Practical Guide to Biostatistics' literature)
-beyond the scope here.
+'A Practical Guide to Biostatistics' literature), and
+we leave that beyond the scope here.
 
 ## Randomization
 
@@ -158,8 +158,8 @@ from the analysis team) sometimes implements and
 monitors.
 
 The analysis must respect the randomization
-procedure. A stratified randomization requires
-stratified analysis; ignoring the stratification
+procedure. A stratified randomization requires a
+stratified analysis. Ignoring the stratification
 inflates the type I error.
 
 ## Blinding
@@ -405,8 +405,9 @@ and substantial operational infrastructure.
 
 For an MS-level biostatistician, knowing the names
 and the structural ideas of pragmatic and platform
-trials is enough; implementing one requires
-specialist methodological involvement.
+trials is enough. Implementing one, in our
+experience, requires specialist methodological
+involvement.
 
 ## Worked example: designing a Phase III trial
 
@@ -463,7 +464,10 @@ for MNAR (Ch 10).
 The protocol now contains everything the trial needs.
 Six months in, when the DSMB asks 'what was the
 sample-size justification?', the protocol is the
-answer.
+answer. We stress this point because it is easy, under
+deadline pressure, to leave a justification implicit.
+Doing so leaves the trial defenseless against exactly
+this kind of question.
 
 ## Collaborating with an LLM on clinical trial design
 
@@ -504,12 +508,14 @@ cost is real). Push for the trade-offs.
 of an interim (operational, regulatory submissions,
 DSMB), not just the statistical efficiency.
 
-The meta-pattern: LLMs are good at the syntactic
-mechanics (writing the formula, drafting the protocol
-section) and weak at the substantive choices (which
-estimand, which interim strategy, which margin in
-non-inferiority). Use them for code and drafts; bring
-substantive judgment yourself.
+The pattern that recurs across all three prompts:
+LLMs are good at the syntactic mechanics, writing the
+formula or drafting the protocol section. They are
+weak at the substantive choices, that is, which
+estimand, which interim strategy, which margin in a
+non-inferiority test. We would suggest using them for
+code and drafts, and bringing the substantive judgment
+yourself.
 
 ## Principle in use
 
@@ -522,13 +528,13 @@ Three habits.
    primary analysis.
 
 2. **Defend each sample-size input.** Effect size,
-   variability, alpha, power, dropout rate. Each
-   number in the calculation has a source; the
-   protocol cites it.
+   variability, alpha, power, dropout rate: each
+   number in the calculation has a source, and the
+   protocol should cite it.
 
 3. **Document intercurrent-event strategies in the
-   protocol.** ITT is one strategy among several;
-   the choice should be explicit.
+   protocol.** ITT is one strategy among several.
+   The choice should be explicit, not assumed.
 
 ## Exercises
 

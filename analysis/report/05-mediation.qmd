@@ -130,15 +130,15 @@ its value under control to its value under exposure,
 holding exposure fixed at 1. The 'indirect' effect
 through the mediator.
 
-The decomposition: TE = NDE + NIE. (Note that the
-intuition 'TE = direct + indirect' holds for natural
-effects but not for controlled direct effects, where
-the decomposition is more complex.)
+The decomposition follows as TE = NDE + NIE. We should
+note that the intuition 'TE = direct + indirect' holds
+for natural effects but not for controlled direct
+effects, where the decomposition is more complex.
 
-The 'natural' framing matches the question 'how much
-of the total effect goes through this mechanism' more
-naturally than the 'controlled' framing matches it.
-The trade-off: natural effects require an additional
+The 'natural' framing matches the question 'how much of
+the total effect goes through this mechanism' more
+naturally than the 'controlled' framing does. The
+trade-off is that natural effects require an additional
 identifying assumption that controlled effects do not.
 
 ## Identifying assumptions
@@ -157,13 +157,13 @@ mediation effects [@vanderweele2015explanation]:
    technically, no mediator-outcome confounder that is
    itself caused by the exposure.
 
-Assumptions 1-3 are extensions of the basic
-exchangeability assumption from Ch 3. Assumption 4 is
-specific to natural-effect identification and is the
-hardest to defend; it cannot be guaranteed by design
-in observational data and rarely in trial data
-either. The controlled direct effect requires only
-1-3.
+Assumptions 1 through 3 are extensions of the basic
+exchangeability assumption from Chapter 3. Assumption 4
+is specific to natural-effect identification and is the
+hardest to defend. It cannot be guaranteed by design in
+observational data, and rarely in trial data either. The
+controlled direct effect requires only assumptions 1
+through 3.
 
 ## Baron-Kenny
 
@@ -208,9 +208,9 @@ It breaks (or biases) when:
 - Exposure-induced mediator-outcome confounders are
   present.
 
-For modern applied mediation, Baron-Kenny is a useful
-first-pass diagnostic but not the right tool for
-publication.
+For modern applied mediation, we would treat Baron-Kenny
+as a useful first-pass diagnostic, not as the right tool
+for publication.
 
 ## Counterfactual mediation analysis
 
@@ -256,8 +256,8 @@ The output:
 - Proportion mediated is the ratio of NIE to TE.
 
 The 'control' and 'treated' versions reflect the
-$A \times M$ interaction; if the interaction is small,
-they agree.
+$A \times M$ interaction. When that interaction is
+small, the two versions agree closely.
 
 For binary outcomes or non-linear models, `CMAverse`
 provides more flexibility:
@@ -310,9 +310,9 @@ is near zero, producing misleading conclusions.
 ## Sensitivity analysis
 
 The mediator-outcome no-confounding assumption is
-typically the weakest. Sensitivity analysis quantifies
-how strong unmeasured mediator-outcome confounding
-would need to be to overturn the conclusion.
+typically the weakest of the four. Sensitivity analysis
+quantifies how strong unmeasured mediator-outcome
+confounding would need to be to overturn the conclusion.
 
 The `mediation` package's sensitivity:
 
@@ -322,13 +322,13 @@ summary(sens)
 plot(sens)
 ```
 
-The output: at what level of mediator-outcome
-confounding (parameterised by $\rho$, the correlation
-between residuals in the mediator and outcome models)
-would the NIE drop to zero. A small $\rho$ means the
-result is sensitive to even mild unmeasured confounding;
-a large $\rho$ means substantial confounding would be
-required.
+The output tells us at what level of mediator-outcome
+confounding, parameterized by $\rho$, the correlation
+between residuals in the mediator and outcome models,
+the NIE would drop to zero. A small $\rho$ means the
+result is sensitive to even mild unmeasured confounding.
+A large $\rho$ means substantial confounding would be
+required to overturn it.
 
 `CMAverse` provides analogous sensitivity analyses for
 its broader range of models.
@@ -351,17 +351,18 @@ among the mediators (e.g., treatment → BP → lipids
 the contribution of each.
 
 Both are implemented in `CMAverse` and the `gformula`
-package. The complexity rises quickly; the assumptions
-multiply. Reserve multiple-mediator analyses for
-questions where the substantive interest justifies the
-methodological burden.
+package. The complexity rises quickly, and the
+assumptions multiply along with it. We would reserve
+multiple-mediator analyses for questions where the
+substantive interest justifies the methodological
+burden.
 
 ## Worked example: does SGLT2 reduce mortality through
 blood pressure?
 
-Continuing the SGLT2 example. The substantive
-question: of the observed 22% mortality reduction
-under SGLT2 vs. no SGLT2, how much goes through the
+We continue the SGLT2 example. The substantive question
+is this: of the observed 22 percent mortality reduction
+under SGLT2 versus no SGLT2, how much goes through the
 known mechanism of lowered blood pressure?
 
 ```r
@@ -390,20 +391,21 @@ NDE = -0.18 (SGLT2 reduces mortality by 18 percentage
 points not through SBP), TE = -0.22, proportion
 mediated = 18%.
 
-Interpretation: blood-pressure reduction explains a
-small fraction of the SGLT2 mortality benefit; most
-of the benefit is through other mechanisms (likely
-osmotic diuresis and direct cardiac effects). This is
-the kind of substantive insight mediation analysis is
-designed to produce.
+The interpretation is that blood-pressure reduction
+explains only a small fraction of the SGLT2 mortality
+benefit. Most of the benefit runs through other
+mechanisms, likely osmotic diuresis and direct cardiac
+effects. This is the kind of substantive insight
+mediation analysis is designed to produce.
 
-The sensitivity analysis (running `medsens(med)`) tells
-you how much unmeasured confounding of SBP-mortality
-would be required to attenuate the NIE to zero.
+The sensitivity analysis, run via `medsens(med)`, tells
+us how much unmeasured confounding of the SBP-mortality
+relationship would be required to attenuate the NIE to
+zero.
 
 ## Collaborating with an LLM on mediation analysis
 
-Three patterns.
+We describe three patterns that work.
 
 **Prompt 1: 'Write the mediation model for this
 question.'** Provide the exposure, mediator, outcome,
@@ -448,12 +450,13 @@ plausible?'
 substantive judgment (which assumptions are plausible)
 is yours.
 
-The meta-pattern: LLMs are good at the syntactic
-mechanics (the right R function, the standard
-output) and weak at the substantive judgments (which
-mediation effect to estimate, which assumptions are
-plausible). Use them for code, bring substantive
-reasoning yourself.
+The pattern across these three prompts is consistent
+with what we have seen elsewhere. LLMs are good at the
+syntactic mechanics, the right R function and the
+standard output, and weak at the substantive judgments:
+which mediation effect to estimate, which assumptions
+are plausible. Use them for code, and bring the
+substantive reasoning yourself.
 
 ## Principle in use
 
